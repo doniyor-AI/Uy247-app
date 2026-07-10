@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Search, Heart, Plus, User, MapPin, Phone, X, Check,
   SlidersHorizontal, ChevronRight, ChevronLeft, BedDouble, MessageSquare,
   Maximize2, ShieldCheck, Building2, ArrowLeft, Flag,
   ImagePlus, Trash2, Settings as SettingsIcon, Globe, Lock,
   Bell, LogOut, TrendingUp, Users, ClipboardList, AlertTriangle,
-  Sparkles, Eye, CircleCheck, CircleX, ShieldAlert, MessageCircle, Send, Camera
+  Sparkles, Eye, CircleCheck, CircleX, ShieldAlert, MessageCircle, Send, Camera,
+  ArrowUpDown, Home, Building, Store, Share2
 } from "lucide-react";
 import { supabase } from "./lib/supabaseClient";
 
@@ -62,13 +64,18 @@ const STR = {
   },
 };
 
-const seedListings = [
-  { id: 1, title: "Yunusobodda yorug' 2 xonali", city: "Toshkent shahri", district: "Yunusobod", rooms: 2, area: 58, floor: "4/9", rentType: "Oylik", price: 4200000, amenities: ["Wi-Fi", "Konditsioner", "Muzlatgich"], verified: true, hue: 200, ownerPhone: "+998901234567", desc: "Metro yaqinida, evroremont qilingan, barcha mebel bilan.", status: "approved", views: 342, boosted: true, mine: false },
-  { id: 2, title: "Chilonzor, kunlik ijaraga xonadon", city: "Toshkent shahri", district: "Chilonzor", rooms: 1, area: 34, floor: "2/5", rentType: "Kunlik", price: 280000, amenities: ["Wi-Fi", "Konditsioner"], verified: true, hue: 18, ownerPhone: "+998934567890", desc: "Markazga yaqin, yangi mebel, kunlik/soatlik ijara.", status: "approved", views: 198, boosted: false, mine: false },
-  { id: 3, title: "Mirzo Ulug'bek, oilaviy 3 xonali", city: "Toshkent shahri", district: "Mirzo Ulug'bek", rooms: 3, area: 82, floor: "1/4", rentType: "Oylik", price: 6500000, amenities: ["Mashina turargohi", "Muzlatgich", "Kir yuvish mashinasi"], verified: false, hue: 260, ownerPhone: "+998972345678", desc: "Hovlisi bor, bolalar uchun qulay hudud, maktabga yaqin.", status: "approved", views: 87, boosted: false, mine: false },
-  { id: 4, title: "Yakkasaroy, lyuks xonadon", city: "Toshkent shahri", district: "Yakkasaroy", rooms: 2, area: 65, floor: "8/12", rentType: "Oylik", price: 8900000, amenities: ["Wi-Fi", "Konditsioner", "Lift", "Mashina turargohi"], verified: true, hue: 42, ownerPhone: "+998913456789", desc: "Yangi turar-joy majmuasi, biznes-klass ta'mirlash.", status: "approved", views: 421, boosted: true, mine: false },
-  { id: 5, title: "Mirobod, arzon 1 xonali", city: "Toshkent shahri", district: "Mirobod", rooms: 1, area: 28, floor: "3/5", rentType: "Oylik", price: 2600000, amenities: ["Wi-Fi"], verified: false, hue: 150, ownerPhone: "+998945678901", desc: "Talabalar uchun qulay, metro 5 daqiqa piyoda.", status: "approved", views: 65, boosted: false, mine: false },
-  { id: 6, title: "Shayxontohur, tekshiruvda", city: "Toshkent shahri", district: "Shayxontohur", rooms: 2, area: 50, floor: "2/5", rentType: "Oylik", price: 3800000, amenities: ["Wi-Fi"], verified: false, hue: 90, ownerPhone: "+998950001122", desc: "Yaqinda joylangan, hali tasdiqlanmagan.", status: "pending", views: 4, boosted: false, mine: false },
+const PROPERTY_TYPES = [
+  { id: "kvartira", label: "Kvartira", Icon: Building },
+  { id: "hovli", label: "Hovli / xususiy uy", Icon: Home },
+  { id: "ofis", label: "Ofis / tijorat", Icon: Store },
+];
+const typeLabel = (id) => PROPERTY_TYPES.find(t => t.id === id)?.label || "Kvartira";
+const typeIcon = (id) => PROPERTY_TYPES.find(t => t.id === id)?.Icon || Building;
+
+const SORT_OPTIONS = [
+  { id: "new", label: "Yangi qo'shilgan" },
+  { id: "cheap", label: "Eng arzoni" },
+  { id: "popular", label: "Eng ommabop" },
 ];
 
 const fmt = (n) => new Intl.NumberFormat("uz-UZ").format(n);
@@ -143,7 +150,12 @@ function ListingCard({ item, onOpen, isFav, onToggleFav }) {
         </button>
       </div>
       <div className="p-3.5 space-y-2">
-        <PriceTag price={item.price} rentType={item.rentType} />
+        <div className="flex items-center justify-between">
+          <PriceTag price={item.price} rentType={item.rentType} />
+          <span className="flex items-center gap-1 text-[11px]" style={{ color: "#65787E" }}>
+            {React.createElement(typeIcon(item.propertyType), { size: 13 })} {typeLabel(item.propertyType)}
+          </span>
+        </div>
         <h3 className="font-serif text-[16px] leading-snug" style={{ color: "#F2EDE4" }}>{item.title}</h3>
         <div className="flex items-center gap-1 text-[13px]" style={{ color: "#93A5AA" }}><MapPin size={13} /> {item.district}, {item.city}</div>
         <div className="flex items-center gap-3 text-[13px] pt-1" style={{ color: "#93A5AA" }}>
@@ -168,6 +180,17 @@ function FilterBar({ filters, setFilters, resultsCount }) {
             <button key={t} onClick={() => setFilters(f => ({ ...f, rentType: t }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors" style={{ background: filters.rentType === t ? "#3E92B0" : "transparent", color: filters.rentType === t ? "#0E1B21" : "#93A5AA" }}>{t}</button>
           ))}
         </div>
+        <div className="shrink-0 flex rounded-full p-0.5" style={box}>
+          <button onClick={() => setFilters(f => ({ ...f, propertyType: "Barchasi" }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors" style={{ background: filters.propertyType === "Barchasi" ? "#3E92B0" : "transparent", color: filters.propertyType === "Barchasi" ? "#0E1B21" : "#93A5AA" }}>Barchasi</button>
+          {PROPERTY_TYPES.map(pt => (
+            <button key={pt.id} onClick={() => setFilters(f => ({ ...f, propertyType: pt.id }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors flex items-center gap-1" style={{ background: filters.propertyType === pt.id ? "#3E92B0" : "transparent", color: filters.propertyType === pt.id ? "#0E1B21" : "#93A5AA" }}>
+              <pt.Icon size={12} /> {pt.label.split(" / ")[0]}
+            </button>
+          ))}
+        </div>
+        <select value={filters.sortBy} onChange={(e) => setFilters(f => ({ ...f, sortBy: e.target.value }))} className="shrink-0 px-3 py-2 rounded-full text-[13px] font-medium outline-none flex items-center" style={{ ...box, color: "#F2EDE4" }}>
+          {SORT_OPTIONS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
         <button onClick={() => setOpen(o => !o)} className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-[13px] font-medium" style={{ background: open ? "#D4783C" : "#1E333C", color: open ? "#16262E" : "#F2EDE4", border: "1px solid #2A424C" }}>
           <SlidersHorizontal size={14} /> Ko'proq
         </button>
@@ -192,14 +215,60 @@ function FilterBar({ filters, setFilters, resultsCount }) {
           </div>
         </div>
       )}
-      <div className="text-[12px] pt-2" style={{ color: "#93A5AA" }}>{resultsCount} ta e'lon topildi</div>
+      <div className="text-[12px] pt-2 flex items-center gap-1" style={{ color: "#93A5AA" }}><ArrowUpDown size={11} /> {resultsCount} ta e'lon topildi</div>
     </div>
   );
 }
 
-function VerifyModal({ onClose, onVerified, phone, setPhone }) {
+function VerifyModal({ onClose, onVerified }) {
   const [step, setStep] = useState(1);
+  const [phoneInput, setPhoneInput] = useState("");
   const [code, setCode] = useState("");
+  const [flowType, setFlowType] = useState("phone_change"); // yoki "sms" (qaytgan foydalanuvchi)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const normalizedPhone = () => {
+    let p = phoneInput.replace(/[^\d+]/g, "");
+    if (!p.startsWith("+")) p = "+" + p;
+    return p;
+  };
+
+  const sendCode = async () => {
+    setLoading(true); setError("");
+    const phone = normalizedPhone();
+    try {
+      // Avval joriy (anonim) hisobga shu raqamni ulashga urinamiz
+      const { error: linkErr } = await supabase.auth.updateUser({ phone });
+      if (!linkErr) { setFlowType("phone_change"); setStep(2); setLoading(false); return; }
+
+      // Agar raqam allaqachon boshqa hisobga ulangan bo'lsa — qaytgan foydalanuvchi sifatida kod yuboramiz
+      if (String(linkErr.message || "").toLowerCase().includes("already") || linkErr.status === 422) {
+        const { error: otpErr } = await supabase.auth.signInWithOtp({ phone });
+        if (otpErr) throw otpErr;
+        setFlowType("sms"); setStep(2); setLoading(false); return;
+      }
+      throw linkErr;
+    } catch (e) {
+      setError(e.message || "Kod yuborishda xatolik. Raqamni tekshirib qayta urinib ko'ring.");
+      setLoading(false);
+    }
+  };
+
+  const confirmCode = async () => {
+    setLoading(true); setError("");
+    const phone = normalizedPhone();
+    try {
+      const { error: verErr } = await supabase.auth.verifyOtp({ phone, token: code, type: flowType });
+      if (verErr) throw verErr;
+      await onVerified(phone);
+    } catch (e) {
+      setError(e.message || "Kod noto'g'ri yoki muddati o'tgan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
@@ -207,17 +276,18 @@ function VerifyModal({ onClose, onVerified, phone, setPhone }) {
           <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{step === 1 ? "Raqamni tasdiqlash" : "SMS kodni kiriting"}</h3>
           <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
         </div>
+        {error && <p className="text-[12.5px] mb-3" style={{ color: "#D4783C" }}>{error}</p>}
         {step === 1 ? (
           <>
             <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>Egasi telefon raqamini ko'rish uchun raqamingizni tasdiqlang. Bu — soxta so'rovlardan himoya qiladi.</p>
-            <input placeholder="+998 90 123 45 67" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none mb-3" style={inputStyle} />
-            <button onClick={() => setStep(2)} disabled={phone.length < 9} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: phone.length < 9 ? "#2A424C" : "#3E92B0", color: "#0E1B21" }}>Kod yuborish</button>
+            <input placeholder="+998901234567" value={phoneInput} onChange={(e) => setPhoneInput(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none mb-3" style={inputStyle} />
+            <button onClick={sendCode} disabled={phoneInput.length < 9 || loading} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (phoneInput.length < 9 || loading) ? "#2A424C" : "#3E92B0", color: "#0E1B21" }}>{loading ? "Yuborilmoqda..." : "Kod yuborish"}</button>
           </>
         ) : (
           <>
-            <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>{phone} raqamiga yuborilgan 4 xonali kodni kiriting (demo: istalgan kod ishlaydi).</p>
-            <input placeholder="0000" value={code} maxLength={4} onChange={(e) => setCode(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[20px] tracking-[10px] text-center outline-none mb-3 font-mono" style={inputStyle} />
-            <button onClick={onVerified} disabled={code.length < 4} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: code.length < 4 ? "#2A424C" : "#D4783C", color: "#16262E" }}>Tasdiqlash</button>
+            <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>{normalizedPhone()} raqamiga yuborilgan 6 xonali kodni kiriting.</p>
+            <input placeholder="000000" value={code} maxLength={6} onChange={(e) => setCode(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[20px] tracking-[8px] text-center outline-none mb-3 font-mono" style={inputStyle} />
+            <button onClick={confirmCode} disabled={code.length < 6 || loading} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (code.length < 6 || loading) ? "#2A424C" : "#D4783C", color: "#16262E" }}>{loading ? "Tekshirilmoqda..." : "Tasdiqlash"}</button>
           </>
         )}
       </div>
@@ -287,19 +357,41 @@ function BoostModal({ onClose, onBoost }) {
 function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFav, onReport, onOpenChat, t }) {
   const [showReport, setShowReport] = useState(false);
   const [reported, setReported] = useState(false);
+  const [copied, setCopied] = useState(false);
   const smsBody = encodeURIComponent(`Assalomu alaykum! Uy24/7 saytida "${item.title}" e'loningizga qiziqdim.`);
+
+  const share = async () => {
+    const url = `${window.location.origin}/elon/${item.id}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: item.title, url }); } catch (e) { /* foydalanuvchi bekor qildi */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="pb-32">
       <div className="relative">
         <Gallery images={item.images} hue={item.hue} />
         <button onClick={onBack} className="absolute top-4 left-4 w-9 h-9 rounded-full flex items-center justify-center z-10" style={{ background: "rgba(22,38,46,0.8)" }}><ArrowLeft size={18} color="#F2EDE4" /></button>
         <div className="absolute top-4 right-4 flex gap-2 z-10">
+          <button onClick={share} className="w-9 h-9 rounded-full flex items-center justify-center relative" style={{ background: "rgba(22,38,46,0.8)" }}>
+            <Share2 size={16} color="#F2EDE4" />
+            {copied && <span className="absolute top-11 right-0 whitespace-nowrap px-2 py-1 rounded-lg text-[11px]" style={{ background: "#E8B94A", color: "#16262E" }}>Havola nusxalandi</span>}
+          </button>
           <button onClick={() => setShowReport(true)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.8)" }}><Flag size={16} color="#F2EDE4" /></button>
           <button onClick={() => onToggleFav(item.id)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.8)" }}><Heart size={17} fill={isFav ? "#D4783C" : "none"} color={isFav ? "#D4783C" : "#F2EDE4"} /></button>
         </div>
       </div>
       <div className="p-4 space-y-4">
-        <PriceTag price={item.price} rentType={item.rentType} />
+        <div className="flex items-center justify-between">
+          <PriceTag price={item.price} rentType={item.rentType} />
+          <span className="flex items-center gap-1 text-[12px]" style={{ color: "#65787E" }}>
+            {React.createElement(typeIcon(item.propertyType), { size: 14 })} {typeLabel(item.propertyType)}
+          </span>
+        </div>
         <div>
           <h1 className="font-serif text-2xl" style={{ color: "#F2EDE4" }}>{item.title}</h1>
           <div className="flex items-center gap-1 text-[14px] mt-1" style={{ color: "#93A5AA" }}><MapPin size={14} /> {item.district}, {item.city}</div>
@@ -425,7 +517,7 @@ function ChatsListView({ chats, onOpen, t }) {
 }
 
 function PostForm({ onPublish, userId }) {
-  const [form, setForm] = useState({ title: "", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false });
+  const [form, setForm] = useState({ title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false });
   const [images, setImages] = useState([]); // { file, url, name }
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -452,7 +544,7 @@ function PostForm({ onPublish, userId }) {
       // 1) E'lonni yaratish (pending holatda)
       const { data: listingRow, error: insertErr } = await supabase.from("listings").insert({
         owner_id: userId, title: form.title, city: form.city, district: form.district,
-        rooms: Number(form.rooms), area: Number(form.area), floor: form.floor,
+        property_type: form.propertyType, rooms: Number(form.rooms), area: Number(form.area), floor: form.floor,
         rent_type: form.rentType, price: Number(form.price), amenities: form.amenities,
         description: form.desc, status: "pending",
       }).select().single();
@@ -507,6 +599,19 @@ function PostForm({ onPublish, userId }) {
         </div>
       )}
       <Field label="E'lon sarlavhasi"><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Masalan: Yunusobodda yorug' 2 xonali" style={inputStyle} /></Field>
+
+      <Field label="Uy turi">
+        <div className="grid grid-cols-3 gap-2">
+          {PROPERTY_TYPES.map(pt => (
+            <button key={pt.id} type="button" onClick={() => setForm(f => ({ ...f, propertyType: pt.id }))}
+              className="flex flex-col items-center gap-1.5 py-3 rounded-xl text-[11.5px] font-medium"
+              style={{ background: form.propertyType === pt.id ? "#3E92B0" : "#16262E", color: form.propertyType === pt.id ? "#0E1B21" : "#93A5AA", border: "1px solid #2A424C" }}>
+              <pt.Icon size={18} />
+              {pt.label}
+            </button>
+          ))}
+        </div>
+      </Field>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Shahar"><select value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} style={inputStyle}>{CITIES.map(c => <option key={c}>{c}</option>)}</select></Field>
         <Field label="Tuman"><select value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} style={inputStyle}>{(DISTRICTS[form.city] || ["Markaz"]).map(d => <option key={d}>{d}</option>)}</select></Field>
@@ -547,7 +652,7 @@ function PostForm({ onPublish, userId }) {
       </Field>
       <label className="flex items-start gap-2.5 cursor-pointer">
         <input type="checkbox" checked={form.ownerConfirm} onChange={e => setForm(f => ({ ...f, ownerConfirm: e.target.checked }))} className="mt-0.5 w-4 h-4 shrink-0" />
-        <span className="text-[13px]" style={{ color: "#C8D4D6" }}>Men ushbu ko'chmas mulk egasiman (yoki egasining rasmiy vakiliman), <b>rieltor emasman</b> va platforma qoidalariga roziman.</span>
+        <span className="text-[13px]" style={{ color: "#C8D4D6" }}>Men ushbu ko'chmas mulk egasiman (yoki egasining rasmiy vakiliman), <b>rieltor emasman</b> va <Link to="/qoidalar" target="_blank" style={{ color: "#3E92B0" }} onClick={e => e.stopPropagation()}>platforma qoidalariga</Link> roziman.</span>
       </label>
       <button disabled={!valid} onClick={submit} className="w-full py-3.5 rounded-xl font-medium text-[15px]" style={{ background: valid ? "#3E92B0" : "#2A424C", color: valid ? "#0E1B21" : "#65787E" }}>{submitting ? "Yuklanmoqda..." : "E'lonni joylash"}</button>
     </div>
@@ -615,6 +720,13 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
               </div>
             </div>
           )}
+        </Section>
+
+        <Section icon={ClipboardList} title="Huquqiy">
+          <div className="space-y-2">
+            <Link to="/qoidalar" target="_blank" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>Foydalanish qoidalari</span><ChevronRight size={15} color="#65787E" /></Link>
+            <Link to="/biz-haqimizda" target="_blank" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>Biz haqimizda</span><ChevronRight size={15} color="#65787E" /></Link>
+          </div>
         </Section>
       </div>
     </div>
@@ -742,12 +854,31 @@ function AdminLoginModal({ onClose, onSuccess }) {
   );
 }
 
+const TAB_PATHS = { browse: "/", chats: "/xabarlar", post: "/elon-berish", favs: "/sevimli", profile: "/profil" };
+const pathToTab = (path) => {
+  if (path.startsWith("/xabarlar")) return "chats";
+  if (path.startsWith("/elon-berish")) return "post";
+  if (path.startsWith("/sevimli")) return "favs";
+  if (path.startsWith("/profil")) return "profile";
+  return "browse";
+};
+
 export default function Uy247App() {
-  const [tab, setTab] = useState("browse");
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Diqqat: bu qasddan useParams() emas — /elon/:id alohida <Route> bo'lsa, undan boshqa
+  // yo'lga qaytganda butun komponent qayta o'rnatilib (remount), barcha state (e'lonlar,
+  // chatlar, sevimlilar) yo'qolib qolar edi. Shu sabab hammasi bitta "/*" route ostida
+  // ishlaydi va id shu yerda pathname'dan qo'lda ajratib olinadi.
+  const routeListingId = useMemo(() => {
+    const m = location.pathname.match(/^\/elon\/([^/]+)/);
+    return m ? decodeURIComponent(m[1]) : null;
+  }, [location.pathname]);
+  const [tab, setTab] = useState(() => pathToTab(window.location.pathname));
   const [listings, setListings] = useState([]);
   const [loadingListings, setLoadingListings] = useState(true);
   const [userId, setUserId] = useState(null);
-  const [filters, setFilters] = useState({ city: CITIES[0], rentType: "Barchasi", min: "", max: "", rooms: "Barchasi" });
+  const [filters, setFilters] = useState({ city: CITIES[0], rentType: "Barchasi", propertyType: "Barchasi", sortBy: "new", min: "", max: "", rooms: "Barchasi" });
   const [selected, setSelected] = useState(null);
   const [favs, setFavs] = useState(new Set());
   const [verified, setVerified] = useState(false);
@@ -767,6 +898,12 @@ export default function Uy247App() {
   const [activeChat, setActiveChat] = useState(null);
   const t = STR[lang];
 
+  const switchTab = (id) => { setTab(id); setSelected(null); navigate(TAB_PATHS[id]); };
+
+  // Tugma bosilganda e'lonni ochish: bir zumda ko'rsatish (agar ro'yxatda bo'lsa) + havolani yangilash
+  const openListing = (item) => { setSelected(item); navigate(`/elon/${item.id}`); };
+  const closeListing = () => { setSelected(null); navigate(TAB_PATHS[tab] || "/"); };
+
   // Bazadagi qatorni ilova ishlatadigan shaklga o'giradi
   const mapRow = (row, myId) => {
     const imgs = (row.listing_images || []).slice().sort((a, b) => (a.position || 0) - (b.position || 0)).map(i => i.url);
@@ -778,7 +915,7 @@ export default function Uy247App() {
       price: row.price, amenities: row.amenities || [], desc: row.description,
       verified: row.verified, status: row.status, views: row.views || 0,
       boosted: row.boosted, mine: row.owner_id === myId, images: imgs, hue: hash,
-      ownerPhone: null, ownerId: row.owner_id,
+      ownerPhone: null, ownerId: row.owner_id, propertyType: row.property_type || "kvartira",
     };
   };
 
@@ -794,6 +931,32 @@ export default function Uy247App() {
     setLoadingListings(false);
   };
 
+  // Havola orqali (masalan Telegram'dan) to'g'ridan-to'g'ri ochilgan bitta e'lonni yuklaydi
+  const fetchOneListing = async (id, myId) => {
+    const { data, error } = await supabase
+      .from("listings")
+      .select("*, listing_images(url, position)")
+      .eq("id", id)
+      .maybeSingle();
+    if (error || !data) { console.error("E'lon topilmadi:", error?.message); return; }
+    setSelected(mapRow(data, myId));
+  };
+
+  // URL'da /elon/:id bo'lsa va hali ochilmagan bo'lsa — bazadan yuklaydi (havola orqali kirilganda ishlaydi)
+  useEffect(() => {
+    if (routeListingId && (!selected || selected.id !== routeListingId)) {
+      const fromList = listings.find(l => l.id === routeListingId);
+      if (fromList) setSelected(fromList);
+      else if (userId !== null || listings.length > 0) fetchOneListing(routeListingId, userId);
+    }
+    if (!routeListingId && selected) setSelected(null);
+  }, [routeListingId, listings, userId]);
+
+  // Brauzerning orqaga/oldinga tugmalari bilan tablar orasida yurilganda ham holatni to'g'ri ushlab turadi
+  useEffect(() => {
+    if (!routeListingId) setTab(pathToTab(location.pathname));
+  }, [location.pathname, routeListingId]);
+
   // Ilova ochilganda: anonim seans ochish (RLS uchun kerak) + e'lonlarni yuklash
   useEffect(() => {
     (async () => {
@@ -808,6 +971,11 @@ export default function Uy247App() {
       if (myId) {
         // Profil qatori bo'lmasa yaratamiz (listings.owner_id shu jadvalga bog'langan)
         await supabase.from("profiles").upsert({ id: myId }, { onConflict: "id", ignoreDuplicates: true });
+        // Agar bu foydalanuvchi avval telefonini tasdiqlagan bo'lsa — eslab qolamiz
+        if (session.user.phone && session.user.phone_confirmed_at) {
+          setVerified(true);
+          setPhone("+" + session.user.phone);
+        }
       }
       fetchListings(myId);
       fetchChats(myId);
@@ -853,7 +1021,7 @@ export default function Uy247App() {
   };
 
   const openChat = async (item) => {
-    if (item.ownerId === userId) { setSelected(null); setTab("chats"); return; } // o'z e'loniga o'zi yozmaydi
+    if (item.ownerId === userId) { switchTab("chats"); return; } // o'z e'loniga o'zi yozmaydi
     if (!chats[item.id]) {
       // Mavjud chatni topish yoki yangi yaratish
       let { data: existing } = await supabase.from("chats").select("id").eq("listing_id", item.id).eq("renter_id", userId).maybeSingle();
@@ -867,6 +1035,8 @@ export default function Uy247App() {
     }
     setActiveChat(item.id);
     setSelected(null);
+    setTab("chats");
+    navigate("/xabarlar");
   };
 
   const sendMessage = async (listingId, text) => {
@@ -882,12 +1052,18 @@ export default function Uy247App() {
     if (l.status !== "approved") return false;
     if (l.city !== filters.city) return false;
     if (filters.rentType !== "Barchasi" && l.rentType !== filters.rentType) return false;
+    if (filters.propertyType !== "Barchasi" && l.propertyType !== filters.propertyType) return false;
     if (filters.rooms !== "Barchasi") { if (filters.rooms === "4+" ? l.rooms < 4 : l.rooms !== filters.rooms) return false; }
     if (filters.min && l.price < Number(filters.min)) return false;
     if (filters.max && l.price > Number(filters.max)) return false;
     if (query && !l.title.toLowerCase().includes(query.toLowerCase()) && !l.district.toLowerCase().includes(query.toLowerCase())) return false;
     return true;
-  }).sort((a, b) => (b.boosted ? 1 : 0) - (a.boosted ? 1 : 0)), [listings, filters, query]);
+  }).sort((a, b) => {
+    if (a.boosted !== b.boosted) return b.boosted ? 1 : -1; // Top e'lonlar doim birinchi
+    if (filters.sortBy === "cheap") return a.price - b.price;
+    if (filters.sortBy === "popular") return b.views - a.views;
+    return 0; // "new" — Supabase'dan created_at bo'yicha allaqachon tartiblangan, shu tartib saqlanadi
+  }), [listings, filters, query]);
 
   const toggleFav = (id) => setFavs(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
   const myListings = listings.filter(l => l.mine);
@@ -955,7 +1131,7 @@ export default function Uy247App() {
       <MosaicStrip className="h-1.5" />
 
       {selected ? (
-        <DetailView item={selected} onBack={() => setSelected(null)} verified={verified} onRequestVerify={() => setShowVerify(true)} isFav={favs.has(selected.id)} onToggleFav={toggleFav} onReport={handleReport} onOpenChat={openChat} t={t} />
+        <DetailView item={selected} onBack={closeListing} verified={verified} onRequestVerify={() => setShowVerify(true)} isFav={favs.has(selected.id)} onToggleFav={toggleFav} onReport={handleReport} onOpenChat={openChat} t={t} />
       ) : (
         <>
           <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center justify-between" style={{ background: "#16262E", borderBottom: "1px solid #22343B" }}>
@@ -980,7 +1156,7 @@ export default function Uy247App() {
                   <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>Yuklanmoqda...</p></div>
                 ) : filtered.length === 0 ? (
                   <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>Bu filtrlar bo'yicha e'lon topilmadi. Filtrni o'zgartirib ko'ring.</p></div>
-                ) : filtered.map(item => <ListingCard key={item.id} item={item} onOpen={setSelected} isFav={favs.has(item.id)} onToggleFav={toggleFav} />)}
+                ) : filtered.map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav={favs.has(item.id)} onToggleFav={toggleFav} />)}
               </div>
             </>
           )}
@@ -989,7 +1165,7 @@ export default function Uy247App() {
             <div className="px-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-28 pt-4">
               {listings.filter(l => favs.has(l.id)).length === 0 ? (
                 <div className="col-span-full text-center py-20"><Heart size={32} color="#3E5560" className="mx-auto mb-3" /><p className="text-[14px]" style={{ color: "#93A5AA" }}>Sevimlilar bo'sh. Yoqqan e'lonlarni yurak belgisi bilan saqlang.</p></div>
-              ) : listings.filter(l => favs.has(l.id)).map(item => <ListingCard key={item.id} item={item} onOpen={setSelected} isFav onToggleFav={toggleFav} />)}
+              ) : listings.filter(l => favs.has(l.id)).map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav onToggleFav={toggleFav} />)}
             </div>
           )}
 
@@ -1045,14 +1221,31 @@ export default function Uy247App() {
         </>
       )}
 
-      {showVerify && <VerifyModal phone={phone} setPhone={setPhone} onClose={() => setShowVerify(false)} onVerified={() => { setVerified(true); setShowVerify(false); }} />}
+      {showVerify && (
+        <VerifyModal
+          onClose={() => setShowVerify(false)}
+          onVerified={async (confirmedPhone) => {
+            const { data: { session } } = await supabase.auth.getSession();
+            const newUserId = session?.user?.id;
+            if (newUserId) {
+              await supabase.from("profiles").upsert({ id: newUserId, phone: confirmedPhone, phone_verified: true }, { onConflict: "id" });
+              setUserId(newUserId);
+              setPhone(confirmedPhone);
+              setVerified(true);
+              fetchListings(newUserId);
+              fetchChats(newUserId);
+            }
+            setShowVerify(false);
+          }}
+        />
+      )}
       {boostTarget && <BoostModal onClose={() => setBoostTarget(null)} onBoost={handleBoost} />}
       {showAdminLogin && <AdminLoginModal onClose={() => setShowAdminLogin(false)} onSuccess={() => { setIsAdmin(true); setShowAdminLogin(false); setShowAdmin(true); }} />}
 
       {!selected && (
         <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2.5" style={{ background: "#1A2B33", borderTop: "1px solid #22343B" }}>
           {[{ id: "browse", icon: Search, label: t.navSearch }, { id: "chats", icon: MessageCircle, label: t.navChats }, { id: "post", icon: Plus, label: t.navPost }, { id: "favs", icon: Heart, label: t.navFavs }, { id: "profile", icon: User, label: t.navProfile }].map(x => (
-            <button key={x.id} onClick={() => setTab(x.id)} className="flex flex-col items-center gap-1 px-3 py-1">
+            <button key={x.id} onClick={() => switchTab(x.id)} className="flex flex-col items-center gap-1 px-3 py-1">
               <x.icon size={20} color={tab === x.id ? "#D4783C" : "#65787E"} />
               <span className="text-[10.5px] font-medium" style={{ color: tab === x.id ? "#D4783C" : "#65787E" }}>{x.label}</span>
             </button>
