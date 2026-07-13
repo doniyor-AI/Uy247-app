@@ -7,9 +7,10 @@ import {
   ImagePlus, Trash2, Settings as SettingsIcon, Globe, Lock,
   Bell, LogOut, TrendingUp, Users, ClipboardList, AlertTriangle,
   Sparkles, Eye, CircleCheck, CircleX, ShieldAlert, MessageCircle, Send, Camera,
-  ArrowUpDown, Home, Building, Store, Share2
+  ArrowUpDown, Home, Building, Store, Share2, Ban, Map, List, CalendarDays
 } from "lucide-react";
 import { supabase } from "./lib/supabaseClient";
+import { loadYmaps, TASHKENT_CENTER, YANDEX_MAPS_API_KEY } from "./lib/yandexMaps";
 
 /* ---------------------------------------------------------
    Uy24/7 — rieltorsiz uy-joy ijara platformasi (demo prototip)
@@ -167,11 +168,15 @@ function ListingCard({ item, onOpen, isFav, onToggleFav }) {
   );
 }
 
-function FilterBar({ filters, setFilters, resultsCount }) {
+function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, setViewMode }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="sticky top-[60px] z-20 px-4 pt-3 pb-2" style={{ background: "#16262E" }}>
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div className="shrink-0 flex rounded-full p-0.5" style={box}>
+          <button onClick={() => setViewMode("list")} className="px-2.5 py-2 rounded-full flex items-center" style={{ background: viewMode === "list" ? "#3E92B0" : "transparent" }}><List size={14} color={viewMode === "list" ? "#0E1B21" : "#93A5AA"} /></button>
+          <button onClick={() => setViewMode("map")} className="px-2.5 py-2 rounded-full flex items-center" style={{ background: viewMode === "map" ? "#3E92B0" : "transparent" }}><Map size={14} color={viewMode === "map" ? "#0E1B21" : "#93A5AA"} /></button>
+        </div>
         <select value={filters.city} onChange={(e) => setFilters(f => ({ ...f, city: e.target.value }))} className="shrink-0 px-3 py-2 rounded-full text-[13px] font-medium outline-none" style={{ ...box, color: "#F2EDE4" }}>
           {CITIES.map(c => <option key={c}>{c}</option>)}
         </select>
@@ -215,7 +220,10 @@ function FilterBar({ filters, setFilters, resultsCount }) {
           </div>
         </div>
       )}
-      <div className="text-[12px] pt-2 flex items-center gap-1" style={{ color: "#93A5AA" }}><ArrowUpDown size={11} /> {resultsCount} ta e'lon topildi</div>
+      <div className="text-[12px] pt-2 flex items-center justify-between" style={{ color: "#93A5AA" }}>
+        <span className="flex items-center gap-1"><ArrowUpDown size={11} /> {resultsCount} ta e'lon topildi</span>
+        <button onClick={onSaveSearch} className="flex items-center gap-1 font-medium" style={{ color: "#3E92B0" }}><Bell size={12} /> Qidiruvni saqlash</button>
+      </div>
     </div>
   );
 }
@@ -320,7 +328,7 @@ function ReportModal({ onClose, onSubmit }) {
   );
 }
 
-function BoostModal({ onClose, onBoost }) {
+function BoostModal({ onClose, onBoost, onUseCredit, boostCredits }) {
   const packages = [
     { id: "7d", label: "7 kun", price: 25000, desc: "Qidiruv natijalarida yuqorida chiqadi" },
     { id: "30d", label: "30 kun", price: 80000, desc: "Eng ko'p tanlanadigan variant" },
@@ -333,6 +341,12 @@ function BoostModal({ onClose, onBoost }) {
           <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}><Sparkles size={17} color="#E8B94A" /> Top e'lon qilish</h3>
           <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
         </div>
+        {boostCredits > 0 && (
+          <button onClick={() => onUseCredit()} className="w-full flex items-center justify-between p-3.5 rounded-xl mb-3" style={{ background: "#26343A", border: "1.5px solid #E8B94A" }}>
+            <span className="text-[13.5px] font-medium flex items-center gap-2" style={{ color: "#E8B94A" }}><Sparkles size={15} /> Bepul kredit bilan (7 kun)</span>
+            <span className="text-[12px]" style={{ color: "#93A5AA" }}>{boostCredits} ta qoldi</span>
+          </button>
+        )}
         <div className="space-y-2.5 mb-4">
           {packages.map(p => (
             <button key={p.id} onClick={() => setSelected(p.id)} className="w-full text-left p-3.5 rounded-xl flex items-center justify-between" style={{ background: selected === p.id ? "#26343A" : "#16262E", border: selected === p.id ? "1.5px solid #E8B94A" : "1px solid #2A424C" }}>
@@ -354,7 +368,7 @@ function BoostModal({ onClose, onBoost }) {
   );
 }
 
-function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFav, onReport, onOpenChat, t }) {
+function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFav, onReport, onOpenChat, t, similar, favs, onOpenSimilar }) {
   const [showReport, setShowReport] = useState(false);
   const [reported, setReported] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -410,7 +424,22 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
           <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>Qulayliklar</div>
           <div className="flex flex-wrap gap-2">{item.amenities.map(a => <span key={a} className="px-3 py-1.5 rounded-full text-[12px]" style={{ ...box, color: "#93A5AA" }}>{a}</span>)}</div>
         </div>
+        <YandexMapStatic lat={item.lat} lng={item.lng} />
+        {item.rentType === "Kunlik" && <BookingCalendarView listingId={item.id} />}
       </div>
+
+      {similar && similar.length > 0 && (
+        <div className="pb-2">
+          <div className="px-4 text-[13px] font-medium mb-2.5" style={{ color: "#F2EDE4" }}>Shunga o'xshash e'lonlar</div>
+          <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1">
+            {similar.map(s => (
+              <div key={s.id} className="shrink-0 w-44">
+                <ListingCard item={s} onOpen={onOpenSimilar} isFav={favs?.has(s.id)} onToggleFav={onToggleFav} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="fixed bottom-0 left-0 right-0 p-4" style={{ background: "linear-gradient(to top, #16262E 75%, transparent)" }}>
         {verified ? (
@@ -517,7 +546,7 @@ function ChatsListView({ chats, onOpen, t }) {
 }
 
 function PostForm({ onPublish, userId }) {
-  const [form, setForm] = useState({ title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false });
+  const [form, setForm] = useState({ title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false, lat: null, lng: null });
   const [images, setImages] = useState([]); // { file, url, name }
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -546,7 +575,7 @@ function PostForm({ onPublish, userId }) {
         owner_id: userId, title: form.title, city: form.city, district: form.district,
         property_type: form.propertyType, rooms: Number(form.rooms), area: Number(form.area), floor: form.floor,
         rent_type: form.rentType, price: Number(form.price), amenities: form.amenities,
-        description: form.desc, status: "pending",
+        description: form.desc, status: "pending", lat: form.lat, lng: form.lng,
       }).select().single();
       if (insertErr) throw insertErr;
 
@@ -616,6 +645,10 @@ function PostForm({ onPublish, userId }) {
         <Field label="Shahar"><select value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} style={inputStyle}>{CITIES.map(c => <option key={c}>{c}</option>)}</select></Field>
         <Field label="Tuman"><select value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} style={inputStyle}>{(DISTRICTS[form.city] || ["Markaz"]).map(d => <option key={d}>{d}</option>)}</select></Field>
       </div>
+      <Field label="Aniq manzil (xaritada belgilang)">
+        <YandexMapPicker lat={form.lat} lng={form.lng} onChange={(lat, lng) => setForm(f => ({ ...f, lat, lng }))} />
+        <p className="text-[11px] mt-1.5" style={{ color: "#65787E" }}>{form.lat ? "Belgilandi — o'zgartirish uchun xaritaga bosing" : "Xaritaga bosib yoki markerni sudrab, uyingiz joylashuvini belgilang"}</p>
+      </Field>
       <div className="grid grid-cols-3 gap-3">
         <Field label="Xonalar"><input type="number" min={1} value={form.rooms} onChange={e => setForm(f => ({ ...f, rooms: e.target.value }))} style={inputStyle} /></Field>
         <Field label="Maydon (m²)"><input type="number" value={form.area} onChange={e => setForm(f => ({ ...f, area: e.target.value }))} style={inputStyle} /></Field>
@@ -838,6 +871,235 @@ function StatCard({ icon: Icon, label, value, color, wide }) {
   );
 }
 
+const WEEKDAYS_UZ = ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"];
+const MONTHS_UZ = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"];
+
+function toDateStr(y, m, d) { return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`; }
+
+function MonthGrid({ viewDate, bookedSet, onToggle }) {
+  const year = viewDate.getFullYear(), monthIndex = viewDate.getMonth();
+  const first = new Date(year, monthIndex, 1);
+  const startWeekday = (first.getDay() + 6) % 7; // Dushanbadan boshlanadi
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const cells = [...Array(startWeekday).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
+
+  return (
+    <div>
+      <div className="text-center text-[13px] font-medium mb-2.5" style={{ color: "#F2EDE4" }}>{MONTHS_UZ[monthIndex]} {year}</div>
+      <div className="grid grid-cols-7 gap-1 mb-1.5">
+        {WEEKDAYS_UZ.map(d => <div key={d} className="text-center text-[10px]" style={{ color: "#65787E" }}>{d}</div>)}
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {cells.map((d, i) => {
+          if (d === null) return <div key={i} />;
+          const dateStr = toDateStr(year, monthIndex, d);
+          const isPast = dateStr < todayStr;
+          const isBooked = bookedSet.has(dateStr);
+          const clickable = !!onToggle && !isPast;
+          return (
+            <button key={i} type="button" disabled={!clickable} onClick={() => onToggle && onToggle(dateStr)}
+              className="aspect-square rounded-lg text-[11px] flex items-center justify-center"
+              style={{
+                background: isBooked ? "#D4783C" : "transparent",
+                color: isPast ? "#3A4A50" : isBooked ? "#16262E" : "#C8D4D6",
+                border: isPast || isBooked ? "none" : "1px solid #2A424C",
+                cursor: clickable ? "pointer" : "default",
+              }}>
+              {d}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MonthNav({ viewDate, setViewDate }) {
+  return (
+    <div className="flex items-center justify-between mb-1">
+      <button onClick={() => setViewDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#16262E", border: "1px solid #2A424C" }}><ChevronLeft size={14} color="#F2EDE4" /></button>
+      <button onClick={() => setViewDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#16262E", border: "1px solid #2A424C" }}><ChevronRight size={14} color="#F2EDE4" /></button>
+    </div>
+  );
+}
+
+// Ijarachi uchun: band kunlarni faqat ko'rsatadi (o'zgartirib bo'lmaydi)
+function BookingCalendarView({ listingId }) {
+  const [bookedSet, setBookedSet] = useState(new Set());
+  const [viewDate, setViewDate] = useState(() => new Date());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase.from("listing_bookings").select("date").eq("listing_id", listingId);
+      if (!error) setBookedSet(new Set((data || []).map(r => r.date)));
+      setLoading(false);
+    })();
+  }, [listingId]);
+
+  if (loading) return null;
+  return (
+    <div className="rounded-2xl p-4" style={box}>
+      <div className="flex items-center justify-between mb-1">
+        <div className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: "#F2EDE4" }}><Ban size={14} color="#D4783C" /> Band kunlar</div>
+        <MonthNav viewDate={viewDate} setViewDate={setViewDate} />
+      </div>
+      <MonthGrid viewDate={viewDate} bookedSet={bookedSet} />
+      <div className="flex items-center gap-1.5 mt-2 text-[11px]" style={{ color: "#65787E" }}>
+        <span className="w-3 h-3 rounded" style={{ background: "#D4783C" }} /> Band <span className="ml-2 w-3 h-3 rounded" style={{ border: "1px solid #2A424C" }} /> Bo'sh
+      </div>
+    </div>
+  );
+}
+
+// Uy egasi uchun: band kunlarni belgilash/bekor qilish
+function BookingEditorModal({ listingId, onClose }) {
+  const [original, setOriginal] = useState(new Set());
+  const [localBooked, setLocalBooked] = useState(new Set());
+  const [viewDate, setViewDate] = useState(() => new Date());
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase.from("listing_bookings").select("date").eq("listing_id", listingId);
+      if (!error) {
+        const set = new Set((data || []).map(r => r.date));
+        setOriginal(set);
+        setLocalBooked(new Set(set));
+      }
+    })();
+  }, [listingId]);
+
+  const toggle = (dateStr) => setLocalBooked(prev => { const next = new Set(prev); next.has(dateStr) ? next.delete(dateStr) : next.add(dateStr); return next; });
+
+  const save = async () => {
+    setSaving(true);
+    const toAdd = [...localBooked].filter(d => !original.has(d));
+    const toRemove = [...original].filter(d => !localBooked.has(d));
+    if (toAdd.length) await supabase.from("listing_bookings").insert(toAdd.map(date => ({ listing_id: listingId, date })));
+    if (toRemove.length) await supabase.from("listing_bookings").delete().eq("listing_id", listingId).in("date", toRemove);
+    setSaving(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
+      <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>Band kunlarni belgilash</h3>
+          <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
+        </div>
+        <p className="text-[12px] mb-3" style={{ color: "#93A5AA" }}>Kunlarga bosib, band/bo'sh holatini belgilang.</p>
+        <MonthNav viewDate={viewDate} setViewDate={setViewDate} />
+        <MonthGrid viewDate={viewDate} bookedSet={localBooked} onToggle={toggle} />
+        <button onClick={save} disabled={saving} className="w-full mt-4 py-2.5 rounded-lg font-medium text-[14px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{saving ? "Saqlanmoqda..." : "Saqlash"}</button>
+      </div>
+    </div>
+  );
+}
+
+function MapUnavailable() {
+  return (
+    <div className="rounded-xl p-4 flex items-center gap-2.5" style={{ background: "#26343A", border: "1px solid #3E5560" }}>
+      <Map size={18} color="#65787E" className="shrink-0" />
+      <p className="text-[12px]" style={{ color: "#93A5AA" }}>Xarita hozircha sozlanmagan (Yandex Maps kaliti kiritilmagan).</p>
+    </div>
+  );
+}
+
+// PostForm uchun: bosib/sudrab manzilni belgilash
+function YandexMapPicker({ lat, lng, onChange }) {
+  const ref = useRef(null);
+  const objs = useRef({});
+  const [failed, setFailed] = useState(!YANDEX_MAPS_API_KEY);
+
+  useEffect(() => {
+    if (!YANDEX_MAPS_API_KEY) return;
+    let cancelled = false;
+    loadYmaps().then((ymaps) => {
+      if (cancelled || !ref.current) return;
+      const center = [lat || TASHKENT_CENTER[0], lng || TASHKENT_CENTER[1]];
+      const map = new ymaps.Map(ref.current, { center, zoom: 14, controls: ["zoomControl"] });
+      const placemark = new ymaps.Placemark(center, {}, { draggable: true, preset: "islands#orangeDotIcon" });
+      placemark.events.add("dragend", () => {
+        const c = placemark.geometry.getCoordinates();
+        onChange(c[0], c[1]);
+      });
+      map.events.add("click", (e) => {
+        const c = e.get("coords");
+        placemark.geometry.setCoordinates(c);
+        onChange(c[0], c[1]);
+      });
+      map.geoObjects.add(placemark);
+      objs.current = { map, placemark };
+    }).catch(() => setFailed(true));
+    return () => { cancelled = true; if (objs.current.map) objs.current.map.destroy(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (failed) return <MapUnavailable />;
+  return <div ref={ref} style={{ width: "100%", height: 220, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />;
+}
+
+// Qidiruv natijalarini xaritada ko'rsatish
+function YandexMapListView({ listings, onOpen }) {
+  const ref = useRef(null);
+  const mapRef = useRef(null);
+  const [failed, setFailed] = useState(!YANDEX_MAPS_API_KEY);
+
+  useEffect(() => {
+    if (!YANDEX_MAPS_API_KEY) return;
+    let cancelled = false;
+    loadYmaps().then((ymaps) => {
+      if (cancelled || !ref.current) return;
+      const withCoords = listings.filter(l => l.lat && l.lng);
+      const center = withCoords.length ? [withCoords[0].lat, withCoords[0].lng] : TASHKENT_CENTER;
+      const map = new ymaps.Map(ref.current, { center, zoom: 11, controls: ["zoomControl"] });
+      withCoords.forEach(l => {
+        const pm = new ymaps.Placemark([l.lat, l.lng],
+          { balloonContentHeader: l.title, balloonContentBody: `${fmt(l.price)} so'm` },
+          { preset: "islands#orangeDollarIcon" });
+        pm.events.add("click", () => onOpen(l));
+        map.geoObjects.add(pm);
+      });
+      mapRef.current = map;
+    }).catch(() => setFailed(true));
+    return () => { cancelled = true; if (mapRef.current) mapRef.current.destroy(); };
+  }, [listings]);
+
+  if (failed) return <div className="px-4"><MapUnavailable /></div>;
+  return <div ref={ref} style={{ width: "100%", height: "calc(100vh - 210px)" }} />;
+}
+
+// E'lon sahifasida joylashuvni ko'rsatish (statik, sudralmaydi)
+function YandexMapStatic({ lat, lng }) {
+  const ref = useRef(null);
+  const mapRef = useRef(null);
+  const [failed, setFailed] = useState(!YANDEX_MAPS_API_KEY);
+
+  useEffect(() => {
+    if (!YANDEX_MAPS_API_KEY || !lat || !lng) return;
+    let cancelled = false;
+    loadYmaps().then((ymaps) => {
+      if (cancelled || !ref.current) return;
+      const map = new ymaps.Map(ref.current, { center: [lat, lng], zoom: 15, controls: [] });
+      map.behaviors.disable(["drag", "scrollZoom"]);
+      map.geoObjects.add(new ymaps.Placemark([lat, lng], {}, { preset: "islands#orangeDotIcon" }));
+      mapRef.current = map;
+    }).catch(() => setFailed(true));
+    return () => { cancelled = true; if (mapRef.current) mapRef.current.destroy(); };
+  }, [lat, lng]);
+
+  if (!lat || !lng || failed) return null;
+  return (
+    <div>
+      <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>Manzil</div>
+      <div ref={ref} style={{ width: "100%", height: 160, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />
+    </div>
+  );
+}
+
 function AdminLoginModal({ onClose, onSuccess }) {
   const [pass, setPass] = useState("");
   const [error, setError] = useState(false);
@@ -896,12 +1158,18 @@ export default function Uy247App() {
   const [security, setSecurity] = useState({ twoFactor: false, loginAlerts: true, smsNotif: true, pushNotif: true, promoNotif: false });
   const [chats, setChats] = useState({});
   const [activeChat, setActiveChat] = useState(null);
+  const [refCode] = useState(() => new URLSearchParams(window.location.search).get("ref"));
+  const [profile, setProfile] = useState({ referralCode: "", boostCredits: 0 });
+  const [ownerStats, setOwnerStats] = useState({});
+  const [savedSearches, setSavedSearches] = useState([]);
+  const [bookingEditorId, setBookingEditorId] = useState(null);
+  const [viewMode, setViewMode] = useState("list");
   const t = STR[lang];
 
   const switchTab = (id) => { setTab(id); setSelected(null); navigate(TAB_PATHS[id]); };
 
   // Tugma bosilganda e'lonni ochish: bir zumda ko'rsatish (agar ro'yxatda bo'lsa) + havolani yangilash
-  const openListing = (item) => { setSelected(item); navigate(`/elon/${item.id}`); };
+  const openListing = (item) => { setSelected(item); navigate(`/elon/${item.id}`); incrementView(item); };
   const closeListing = () => { setSelected(null); navigate(TAB_PATHS[tab] || "/"); };
 
   // Bazadagi qatorni ilova ishlatadigan shaklga o'giradi
@@ -916,6 +1184,7 @@ export default function Uy247App() {
       verified: row.verified, status: row.status, views: row.views || 0,
       boosted: row.boosted, mine: row.owner_id === myId, images: imgs, hue: hash,
       ownerPhone: null, ownerId: row.owner_id, propertyType: row.property_type || "kvartira",
+      lat: row.lat ? Number(row.lat) : null, lng: row.lng ? Number(row.lng) : null,
     };
   };
 
@@ -926,9 +1195,40 @@ export default function Uy247App() {
       .select("*, listing_images(url, position)")
       .order("boosted", { ascending: false })
       .order("created_at", { ascending: false });
-    if (error) { console.error("E'lonlarni yuklashda xato:", error.message); setLoadingListings(false); return; }
-    setListings((data || []).map(r => mapRow(r, myId)));
+    if (error) { console.error("E'lonlarni yuklashda xato:", error.message); setLoadingListings(false); return []; }
+    const mapped = (data || []).map(r => mapRow(r, myId));
+    setListings(mapped);
     setLoadingListings(false);
+    return mapped;
+  };
+
+  const fetchFavorites = async (myId) => {
+    const { data } = await supabase.from("favorites").select("listing_id").eq("user_id", myId);
+    setFavs(new Set((data || []).map(r => r.listing_id)));
+  };
+
+  const fetchSavedSearches = async (myId) => {
+    const { data } = await supabase.from("saved_searches").select("*").eq("user_id", myId).order("created_at", { ascending: false });
+    setSavedSearches(data || []);
+  };
+
+  const fetchOwnerStats = async (mineIds) => {
+    if (!mineIds.length) return;
+    const [{ data: favRows }, { data: chatRows }] = await Promise.all([
+      supabase.from("favorites").select("listing_id").in("listing_id", mineIds),
+      supabase.from("chats").select("listing_id").in("listing_id", mineIds),
+    ]);
+    const stats = {};
+    for (const id of mineIds) stats[id] = { favCount: 0, chatCount: 0 };
+    (favRows || []).forEach(r => { if (stats[r.listing_id]) stats[r.listing_id].favCount++; });
+    (chatRows || []).forEach(r => { if (stats[r.listing_id]) stats[r.listing_id].chatCount++; });
+    setOwnerStats(stats);
+  };
+
+  // Ko'rishlar sonini oshiradi (egasi o'zinikini ko'rsa hisoblanmaydi)
+  const incrementView = (item) => {
+    if (!item || item.ownerId === userId) return;
+    supabase.rpc("increment_views", { p_listing_id: item.id }).then(({ error }) => { if (error) console.error("Ko'rish sonini oshirishda xato:", error.message); });
   };
 
   // Havola orqali (masalan Telegram'dan) to'g'ridan-to'g'ri ochilgan bitta e'lonni yuklaydi
@@ -939,14 +1239,16 @@ export default function Uy247App() {
       .eq("id", id)
       .maybeSingle();
     if (error || !data) { console.error("E'lon topilmadi:", error?.message); return; }
-    setSelected(mapRow(data, myId));
+    const mapped = mapRow(data, myId);
+    setSelected(mapped);
+    incrementView(mapped);
   };
 
   // URL'da /elon/:id bo'lsa va hali ochilmagan bo'lsa — bazadan yuklaydi (havola orqali kirilganda ishlaydi)
   useEffect(() => {
     if (routeListingId && (!selected || selected.id !== routeListingId)) {
       const fromList = listings.find(l => l.id === routeListingId);
-      if (fromList) setSelected(fromList);
+      if (fromList) { setSelected(fromList); incrementView(fromList); }
       else if (userId !== null || listings.length > 0) fetchOneListing(routeListingId, userId);
     }
     if (!routeListingId && selected) setSelected(null);
@@ -971,14 +1273,22 @@ export default function Uy247App() {
       if (myId) {
         // Profil qatori bo'lmasa yaratamiz (listings.owner_id shu jadvalga bog'langan)
         await supabase.from("profiles").upsert({ id: myId }, { onConflict: "id", ignoreDuplicates: true });
+        const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits").eq("id", myId).maybeSingle();
+        if (profRow) setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0 });
         // Agar bu foydalanuvchi avval telefonini tasdiqlagan bo'lsa — eslab qolamiz
         if (session.user.phone && session.user.phone_confirmed_at) {
           setVerified(true);
           setPhone("+" + session.user.phone);
         }
+        fetchFavorites(myId);
+        fetchSavedSearches(myId);
       }
-      fetchListings(myId);
+      const mapped = await fetchListings(myId);
       fetchChats(myId);
+      if (myId) {
+        const mineIds = mapped.filter(l => l.mine).map(l => l.id);
+        if (mineIds.length) fetchOwnerStats(mineIds);
+      }
     })();
   }, []);
 
@@ -1065,8 +1375,41 @@ export default function Uy247App() {
     return 0; // "new" — Supabase'dan created_at bo'yicha allaqachon tartiblangan, shu tartib saqlanadi
   }), [listings, filters, query]);
 
-  const toggleFav = (id) => setFavs(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  // Ochilgan e'longa o'xshash boshqa e'lonlar (bir xil shahar + tuman yoki xonalar soni mos)
+  const similarListings = useMemo(() => {
+    if (!selected) return [];
+    return listings.filter(l =>
+      l.id !== selected.id && l.status === "approved" && l.city === selected.city &&
+      l.rentType === selected.rentType && (l.district === selected.district || l.rooms === selected.rooms)
+    ).slice(0, 6);
+  }, [listings, selected]);
+
+  const toggleFav = (id) => {
+    const willAdd = !favs.has(id);
+    setFavs(prev => { const next = new Set(prev); willAdd ? next.add(id) : next.delete(id); return next; });
+    if (!userId) return;
+    if (willAdd) supabase.from("favorites").insert({ user_id: userId, listing_id: id }).then(({ error }) => { if (error) console.error("Sevimliga qo'shishda xato:", error.message); });
+    else supabase.from("favorites").delete().eq("user_id", userId).eq("listing_id", id).then(({ error }) => { if (error) console.error("Sevimlidan olib tashlashda xato:", error.message); });
+  };
   const myListings = listings.filter(l => l.mine);
+
+  const saveCurrentSearch = async () => {
+    if (!verified) { setShowVerify(true); return; }
+    const payload = {
+      user_id: userId, city: filters.city, rent_type: filters.rentType,
+      property_type: filters.propertyType, rooms: String(filters.rooms),
+      min_price: filters.min ? Number(filters.min) : null,
+      max_price: filters.max ? Number(filters.max) : null,
+    };
+    const { data, error } = await supabase.from("saved_searches").insert(payload).select().single();
+    if (error) { console.error("Qidiruvni saqlashda xato:", error.message); return; }
+    setSavedSearches(prev => [data, ...prev]);
+  };
+
+  const deleteSavedSearch = async (id) => {
+    setSavedSearches(prev => prev.filter(s => s.id !== id));
+    await supabase.from("saved_searches").delete().eq("id", id);
+  };
 
   const handleReport = async (item, reason) => {
     setReports(rs => [...rs, { id: Date.now(), listingId: item.id, listingTitle: item.title, reason }]);
@@ -1085,10 +1428,38 @@ export default function Uy247App() {
     setBoostTarget(null);
   };
 
+  const handleUseCredit = async () => {
+    if (profile.boostCredits < 1) return;
+    const boostUntil = new Date(Date.now() + 7 * 86400000).toISOString();
+    const { error } = await supabase.from("listings").update({ boosted: true, boost_until: boostUntil }).eq("id", boostTarget);
+    if (error) { console.error("Kredit bilan Top qilishda xato:", error.message); return; }
+    await supabase.from("profiles").update({ boost_credits: profile.boostCredits - 1 }).eq("id", userId);
+    await supabase.from("boosts").insert({ listing_id: boostTarget, amount: 0, provider: "credit", status: "paid", days: 7 });
+    setListings(ls => ls.map(l => l.id === boostTarget ? { ...l, boosted: true } : l));
+    setProfile(p => ({ ...p, boostCredits: p.boostCredits - 1 }));
+    setBoostTarget(null);
+  };
+
   const adminSetStatus = async (id, status) => {
     const { error } = await supabase.from("listings").update({ status }).eq("id", id);
     if (error) { console.error("Holatni yangilashda xato:", error.message); return; }
     setListings(ls => ls.map(l => l.id === id ? { ...l, status } : l));
+    if (status === "approved") {
+      const l = listings.find(x => x.id === id);
+      if (l) {
+        fetch("/api/on-listing-approved", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            listing: {
+              id: l.id, title: l.title, city: l.city, district: l.district,
+              rooms: l.rooms, area: l.area, price: l.price, rent_type: l.rentType,
+              property_type: l.propertyType, imageUrl: l.images?.[0] || null,
+            },
+          }),
+        }).catch(err => console.error("Bildirishnoma yuborishda xato:", err.message));
+      }
+    }
   };
 
   const adminRemoveListing = async (id) => {
@@ -1131,7 +1502,7 @@ export default function Uy247App() {
       <MosaicStrip className="h-1.5" />
 
       {selected ? (
-        <DetailView item={selected} onBack={closeListing} verified={verified} onRequestVerify={() => setShowVerify(true)} isFav={favs.has(selected.id)} onToggleFav={toggleFav} onReport={handleReport} onOpenChat={openChat} t={t} />
+        <DetailView item={selected} onBack={closeListing} verified={verified} onRequestVerify={() => setShowVerify(true)} isFav={favs.has(selected.id)} onToggleFav={toggleFav} onReport={handleReport} onOpenChat={openChat} t={t} similar={similarListings} favs={favs} onOpenSimilar={openListing} />
       ) : (
         <>
           <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center justify-between" style={{ background: "#16262E", borderBottom: "1px solid #22343B" }}>
@@ -1150,14 +1521,18 @@ export default function Uy247App() {
 
           {tab === "browse" && (
             <>
-              <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} />
-              <div className="px-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-28 pt-1">
-                {loadingListings ? (
-                  <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>Yuklanmoqda...</p></div>
-                ) : filtered.length === 0 ? (
-                  <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>Bu filtrlar bo'yicha e'lon topilmadi. Filtrni o'zgartirib ko'ring.</p></div>
-                ) : filtered.map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav={favs.has(item.id)} onToggleFav={toggleFav} />)}
-              </div>
+              <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} onSaveSearch={saveCurrentSearch} viewMode={viewMode} setViewMode={setViewMode} />
+              {viewMode === "map" ? (
+                <YandexMapListView listings={filtered} onOpen={openListing} />
+              ) : (
+                <div className="px-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-28 pt-1">
+                  {loadingListings ? (
+                    <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>Yuklanmoqda...</p></div>
+                  ) : filtered.length === 0 ? (
+                    <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>Bu filtrlar bo'yicha e'lon topilmadi. Filtrni o'zgartirib ko'ring.</p></div>
+                  ) : filtered.map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav={favs.has(item.id)} onToggleFav={toggleFav} />)}
+                </div>
+              )}
             </>
           )}
 
@@ -1207,11 +1582,48 @@ export default function Uy247App() {
                             <button onClick={() => setBoostTarget(l.id)} className="text-[11.5px] flex items-center gap-1 px-2.5 py-1 rounded-full font-medium" style={{ background: "#D4783C", color: "#16262E" }}><Sparkles size={11} /> {t.boost}</button>
                           )}
                         </div>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><Heart size={11} /> {ownerStats[l.id]?.favCount || 0} sevimliga qo'shgan</span>
+                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><MessageCircle size={11} /> {ownerStats[l.id]?.chatCount || 0} kishi yozgan</span>
+                        </div>
+                        {l.rentType === "Kunlik" && (
+                          <button onClick={() => setBookingEditorId(l.id)} className="w-full mt-2 py-1.5 rounded-lg text-[11.5px] font-medium flex items-center justify-center gap-1.5" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}>
+                            <CalendarDays size={12} /> Band kunlarni belgilash
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
+
+              {verified && (
+                <div className="rounded-2xl p-4" style={box}>
+                  <div className="text-[13px] font-medium mb-1 flex items-center gap-1.5" style={{ color: "#F2EDE4" }}><Sparkles size={14} color="#E8B94A" /> Do'stingizni taklif qiling</div>
+                  <p className="text-[12px] mb-3" style={{ color: "#93A5AA" }}>Har bir taklif qilingan do'stingiz ro'yxatdan o'tsa — ikkalangizga ham bepul "Top e'lon" krediti beriladi.</p>
+                  <div className="flex items-center justify-between p-3 rounded-xl mb-2" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
+                    <span className="font-mono text-[13px]" style={{ color: "#E8B94A" }}>{window.location.origin}/?ref={profile.referralCode}</span>
+                    <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/?ref=${profile.referralCode}`); }} className="shrink-0 ml-2 px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>Nusxalash</button>
+                  </div>
+                  <div className="text-[12.5px]" style={{ color: "#93A5AA" }}>Joriy bonus kredit: <b style={{ color: "#F2EDE4" }}>{profile.boostCredits} ta</b></div>
+                </div>
+              )}
+
+              {verified && savedSearches.length > 0 && (
+                <div className="rounded-2xl p-4" style={box}>
+                  <div className="text-[13px] font-medium mb-3" style={{ color: "#F2EDE4" }}>Saqlangan qidiruvlar</div>
+                  <div className="space-y-2">
+                    {savedSearches.map(s => (
+                      <div key={s.id} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
+                        <span className="text-[12.5px]" style={{ color: "#C8D4D6" }}>
+                          {s.city} · {s.rent_type} · {s.rooms} xona{s.min_price || s.max_price ? ` · ${fmt(s.min_price || 0)}–${fmt(s.max_price || 0)}` : ""}
+                        </span>
+                        <button onClick={() => deleteSavedSearch(s.id)}><Trash2 size={14} color="#D4783C" /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <button onClick={() => setShowAdminLogin(true)} className="w-full py-3 rounded-xl font-medium text-[13.5px] flex items-center justify-center gap-2" style={{ background: "transparent", color: "#93A5AA", border: "1px dashed #2A424C" }}>
                 <Lock size={14} /> {t.adminPanel}
@@ -1229,17 +1641,27 @@ export default function Uy247App() {
             const newUserId = session?.user?.id;
             if (newUserId) {
               await supabase.from("profiles").upsert({ id: newUserId, phone: confirmedPhone, phone_verified: true }, { onConflict: "id" });
+              // Agar ?ref=KOD bilan kirgan bo'lsa — ikkala tomonga ham bonus kredit beriladi
+              if (refCode) {
+                const { data: claimed } = await supabase.rpc("claim_referral", { p_ref_code: refCode });
+                if (claimed) console.log("Referal bonusi berildi");
+              }
+              const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits").eq("id", newUserId).maybeSingle();
+              if (profRow) setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0 });
               setUserId(newUserId);
               setPhone(confirmedPhone);
               setVerified(true);
               fetchListings(newUserId);
               fetchChats(newUserId);
+              fetchFavorites(newUserId);
+              fetchSavedSearches(newUserId);
             }
             setShowVerify(false);
           }}
         />
       )}
-      {boostTarget && <BoostModal onClose={() => setBoostTarget(null)} onBoost={handleBoost} />}
+      {boostTarget && <BoostModal onClose={() => setBoostTarget(null)} onBoost={handleBoost} onUseCredit={handleUseCredit} boostCredits={profile.boostCredits} />}
+      {bookingEditorId && <BookingEditorModal listingId={bookingEditorId} onClose={() => setBookingEditorId(null)} />}
       {showAdminLogin && <AdminLoginModal onClose={() => setShowAdminLogin(false)} onSuccess={() => { setIsAdmin(true); setShowAdminLogin(false); setShowAdmin(true); }} />}
 
       {!selected && (
