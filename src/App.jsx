@@ -1185,6 +1185,7 @@ export default function Uy247App() {
       boosted: row.boosted, mine: row.owner_id === myId, images: imgs, hue: hash,
       ownerPhone: null, ownerId: row.owner_id, propertyType: row.property_type || "kvartira",
       lat: row.lat ? Number(row.lat) : null, lng: row.lng ? Number(row.lng) : null,
+      isOccupied: !!row.is_occupied,
     };
   };
 
@@ -1360,6 +1361,7 @@ export default function Uy247App() {
 
   const filtered = useMemo(() => listings.filter(l => {
     if (l.status !== "approved") return false;
+    if (l.isOccupied) return false;
     if (l.city !== filters.city) return false;
     if (filters.rentType !== "Barchasi" && l.rentType !== filters.rentType) return false;
     if (filters.propertyType !== "Barchasi" && l.propertyType !== filters.propertyType) return false;
@@ -1409,6 +1411,12 @@ export default function Uy247App() {
   const deleteSavedSearch = async (id) => {
     setSavedSearches(prev => prev.filter(s => s.id !== id));
     await supabase.from("saved_searches").delete().eq("id", id);
+  };
+
+  const toggleOccupied = async (id, current) => {
+    setListings(ls => ls.map(l => l.id === id ? { ...l, isOccupied: !current } : l));
+    const { error } = await supabase.from("listings").update({ is_occupied: !current }).eq("id", id);
+    if (error) console.error("Band/bo'sh holatini o'zgartirishda xato:", error.message);
   };
 
   const handleReport = async (item, reason) => {
@@ -1567,12 +1575,15 @@ export default function Uy247App() {
                 ) : (
                   <div className="space-y-2.5">
                     {myListings.map(l => (
-                      <div key={l.id} className="p-3 rounded-xl" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
+                      <div key={l.id} className="p-3 rounded-xl" style={{ background: "#16262E", border: l.isOccupied ? "1px solid #D4783C" : "1px solid #2A424C" }}>
                         <div className="flex items-center justify-between">
                           <span className="text-[13px] font-medium" style={{ color: "#F2EDE4" }}>{l.title}</span>
-                          <Badge color={l.status === "approved" ? "#16262E" : "#16262E"} bg={l.status === "approved" ? "#8FD19E" : l.status === "pending" ? "#E8B94A" : "#65787E"}>
-                            {l.status === "approved" ? t.approved : l.status === "pending" ? t.pending : t.blocked}
-                          </Badge>
+                          <div className="flex items-center gap-1.5">
+                            {l.isOccupied && <Badge color="#16262E" bg="#D4783C">Band</Badge>}
+                            <Badge color={l.status === "approved" ? "#16262E" : "#16262E"} bg={l.status === "approved" ? "#8FD19E" : l.status === "pending" ? "#E8B94A" : "#65787E"}>
+                              {l.status === "approved" ? t.approved : l.status === "pending" ? t.pending : t.blocked}
+                            </Badge>
+                          </div>
                         </div>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-[11.5px] flex items-center gap-1" style={{ color: "#93A5AA" }}><Eye size={12} /> {l.views} {t.views}</span>
@@ -1586,8 +1597,13 @@ export default function Uy247App() {
                           <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><Heart size={11} /> {ownerStats[l.id]?.favCount || 0} sevimliga qo'shgan</span>
                           <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><MessageCircle size={11} /> {ownerStats[l.id]?.chatCount || 0} kishi yozgan</span>
                         </div>
+                        <button onClick={() => toggleOccupied(l.id, l.isOccupied)}
+                          className="w-full mt-2 py-1.5 rounded-lg text-[11.5px] font-medium flex items-center justify-center gap-1.5"
+                          style={{ background: l.isOccupied ? "#3E92B0" : "#1E333C", color: l.isOccupied ? "#0E1B21" : "#F2EDE4", border: l.isOccupied ? "none" : "1px solid #2A424C" }}>
+                          <Ban size={12} /> {l.isOccupied ? "Bo'sh deb belgilash (qidiruvda qayta ko'rinadi)" : "Band deb belgilash (vaqtincha yashirish)"}
+                        </button>
                         {l.rentType === "Kunlik" && (
-                          <button onClick={() => setBookingEditorId(l.id)} className="w-full mt-2 py-1.5 rounded-lg text-[11.5px] font-medium flex items-center justify-center gap-1.5" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}>
+                          <button onClick={() => setBookingEditorId(l.id)} className="w-full mt-1.5 py-1.5 rounded-lg text-[11.5px] font-medium flex items-center justify-center gap-1.5" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}>
                             <CalendarDays size={12} /> Band kunlarni belgilash
                           </button>
                         )}
