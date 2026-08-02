@@ -7,10 +7,19 @@ import {
   ImagePlus, Trash2, Settings as SettingsIcon, Globe, Lock,
   Bell, LogOut, TrendingUp, Users, ClipboardList, AlertTriangle,
   Sparkles, Eye, CircleCheck, CircleX, ShieldAlert, MessageCircle, Send, Camera,
-  ArrowUpDown, Home, Building, Store, Share2, Ban, Map, List, CalendarDays
+  ArrowUpDown, Home, Building, Store, Share2, Ban, Map, List, CalendarDays, LocateFixed
 } from "lucide-react";
 import { supabase } from "./lib/supabaseClient";
-import { loadYmaps, TASHKENT_CENTER, YANDEX_MAPS_API_KEY } from "./lib/yandexMaps";
+import { loadYmaps, YANDEX_MAPS_API_KEY } from "./lib/yandexMaps";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+// Leaflet'ning standart marker rasmlari Vite bilan to'g'ri yuklanishi uchun majburiy sozlash
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({ iconRetinaUrl: markerIcon2x, iconUrl: markerIcon, shadowUrl: markerShadow });
 
 /* ---------------------------------------------------------
    Uy24/7 — rieltorsiz uy-joy ijara platformasi (demo prototip)
@@ -64,6 +73,8 @@ const STR = {
     chatCta: "Message via chat", chatHint: "Your number stays hidden",
   },
 };
+
+const TASHKENT_CENTER = [41.311081, 69.240562];
 
 const PROPERTY_TYPES = [
   { id: "kvartira", label: "Kvartira", Icon: Building },
@@ -424,7 +435,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
           <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>Qulayliklar</div>
           <div className="flex flex-wrap gap-2">{item.amenities.map(a => <span key={a} className="px-3 py-1.5 rounded-full text-[12px]" style={{ ...box, color: "#93A5AA" }}>{a}</span>)}</div>
         </div>
-        <YandexMapStatic lat={item.lat} lng={item.lng} />
+        <MapStatic lat={item.lat} lng={item.lng} />
         {item.rentType === "Kunlik" && <BookingCalendarView listingId={item.id} />}
       </div>
 
@@ -646,7 +657,7 @@ function PostForm({ onPublish, userId }) {
         <Field label="Tuman"><select value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} style={inputStyle}>{(DISTRICTS[form.city] || ["Markaz"]).map(d => <option key={d}>{d}</option>)}</select></Field>
       </div>
       <Field label="Aniq manzil (xaritada belgilang)">
-        <YandexMapPicker lat={form.lat} lng={form.lng} onChange={(lat, lng) => setForm(f => ({ ...f, lat, lng }))} />
+        <MapPicker lat={form.lat} lng={form.lng} onChange={(lat, lng) => setForm(f => ({ ...f, lat, lng }))} />
         <p className="text-[11px] mt-1.5" style={{ color: "#65787E" }}>{form.lat ? "Belgilandi — o'zgartirish uchun xaritaga bosing" : "Xaritaga bosib yoki markerni sudrab, uyingiz joylashuvini belgilang"}</p>
       </Field>
       <div className="grid grid-cols-3 gap-3">
@@ -999,57 +1010,139 @@ function BookingEditorModal({ listingId, onClose }) {
   );
 }
 
-function MapUnavailable() {
+// Barcha xarita pin'lari uchun oddiy, rasm-siz belgi (Leaflet standart iconlariga muhtoj emas)
+function dotIcon(color = "#D4783C") {
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:16px;height:16px;background:${color};border:2.5px solid #16262E;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.4);"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+}
+
+// ---- OpenStreetMap (zaxira, kalit talab qilmaydi) ----
+function OsmMapPicker({ lat, lng, onChange }) {
+  const ref = useRef(null);
+  const mapObj = useRef(null);
+
+  useEffect(() => {
+    if (!ref.current || mapObj.current) return;
+    const center = [lat || TASHKENT_CENTER[0], lng || TASHKENT_CENTER[1]];
+    const map = L.map(ref.current, { center, zoom: 14 });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(map);
+    const marker = L.marker(center, { draggable: true, icon: dotIcon() }).addTo(map);
+    marker.on("dragend", () => { const p = marker.getLatLng(); onChange(p.lat, p.lng); });
+    map.on("click", (e) => { marker.setLatLng(e.latlng); onChange(e.latlng.lat, e.latlng.lng); });
+    mapObj.current = map;
+    return () => { map.remove(); mapObj.current = null; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <div ref={ref} style={{ width: "100%", height: 220, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />;
+}
+
+function OsmMapListView({ listings, onOpen, userLoc }) {
+  const ref = useRef(null);
+  const mapObj = useRef(null);
+  const layerRef = useRef(null);
+  const meMarker = useRef(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const withCoords = listings.filter(l => l.lat && l.lng);
+    const center = withCoords.length ? [withCoords[0].lat, withCoords[0].lng] : TASHKENT_CENTER;
+    if (!mapObj.current) {
+      const map = L.map(ref.current, { center, zoom: 11 });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(map);
+      mapObj.current = map;
+    }
+    if (layerRef.current) mapObj.current.removeLayer(layerRef.current);
+    const group = L.layerGroup();
+    withCoords.forEach(l => {
+      const marker = L.marker([l.lat, l.lng], { icon: dotIcon() });
+      marker.bindPopup(`<b>${l.title}</b><br/>${fmt(l.price)} so'm`);
+      marker.on("click", () => onOpen(l));
+      marker.addTo(group);
+    });
+    group.addTo(mapObj.current);
+    layerRef.current = group;
+    return () => {};
+  }, [listings]);
+
+  // "Mening joylashuvim" bosilganda — xaritani o'sha joyga suradi va ko'k belgi qo'yadi
+  useEffect(() => {
+    if (!userLoc || !mapObj.current) return;
+    mapObj.current.setView(userLoc, 15);
+    if (meMarker.current) mapObj.current.removeLayer(meMarker.current);
+    meMarker.current = L.marker(userLoc, { icon: dotIcon("#3E92B0") }).addTo(mapObj.current);
+  }, [userLoc]);
+
+  useEffect(() => () => { if (mapObj.current) { mapObj.current.remove(); mapObj.current = null; } }, []);
+
+  return <div ref={ref} style={{ width: "100%", height: "calc(100vh - 210px)" }} />;
+}
+
+function OsmMapStatic({ lat, lng }) {
+  const ref = useRef(null);
+  const mapObj = useRef(null);
+
+  useEffect(() => {
+    if (!ref.current || !lat || !lng || mapObj.current) return;
+    const map = L.map(ref.current, { center: [lat, lng], zoom: 15, dragging: false, scrollWheelZoom: false, zoomControl: false });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 19,
+    }).addTo(map);
+    L.marker([lat, lng], { icon: dotIcon() }).addTo(map);
+    mapObj.current = map;
+    return () => { if (mapObj.current) { mapObj.current.remove(); mapObj.current = null; } };
+  }, [lat, lng]);
+
+  if (!lat || !lng) return null;
   return (
-    <div className="rounded-xl p-4 flex items-center gap-2.5" style={{ background: "#26343A", border: "1px solid #3E5560" }}>
-      <Map size={18} color="#65787E" className="shrink-0" />
-      <p className="text-[12px]" style={{ color: "#93A5AA" }}>Xarita hozircha sozlanmagan (Yandex Maps kaliti kiritilmagan).</p>
+    <div>
+      <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>Manzil</div>
+      <div ref={ref} style={{ width: "100%", height: 160, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />
     </div>
   );
 }
 
-// PostForm uchun: bosib/sudrab manzilni belgilash
-function YandexMapPicker({ lat, lng, onChange }) {
+// ---- Yandex Maps (kalit sozlangan bo'lsa ishlatiladi, aniqroq xarita) ----
+function YandexMapPicker({ lat, lng, onChange, onFail }) {
   const ref = useRef(null);
   const objs = useRef({});
-  const [failed, setFailed] = useState(!YANDEX_MAPS_API_KEY);
 
   useEffect(() => {
-    if (!YANDEX_MAPS_API_KEY) return;
     let cancelled = false;
     loadYmaps().then((ymaps) => {
       if (cancelled || !ref.current) return;
       const center = [lat || TASHKENT_CENTER[0], lng || TASHKENT_CENTER[1]];
       const map = new ymaps.Map(ref.current, { center, zoom: 14, controls: ["zoomControl"] });
       const placemark = new ymaps.Placemark(center, {}, { draggable: true, preset: "islands#orangeDotIcon" });
-      placemark.events.add("dragend", () => {
-        const c = placemark.geometry.getCoordinates();
-        onChange(c[0], c[1]);
-      });
-      map.events.add("click", (e) => {
-        const c = e.get("coords");
-        placemark.geometry.setCoordinates(c);
-        onChange(c[0], c[1]);
-      });
+      placemark.events.add("dragend", () => { const c = placemark.geometry.getCoordinates(); onChange(c[0], c[1]); });
+      map.events.add("click", (e) => { const c = e.get("coords"); placemark.geometry.setCoordinates(c); onChange(c[0], c[1]); });
       map.geoObjects.add(placemark);
-      objs.current = { map, placemark };
-    }).catch(() => setFailed(true));
+      objs.current = { map };
+    }).catch(() => onFail());
     return () => { cancelled = true; if (objs.current.map) objs.current.map.destroy(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (failed) return <MapUnavailable />;
   return <div ref={ref} style={{ width: "100%", height: 220, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />;
 }
 
-// Qidiruv natijalarini xaritada ko'rsatish
-function YandexMapListView({ listings, onOpen }) {
+function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
   const ref = useRef(null);
   const mapRef = useRef(null);
-  const [failed, setFailed] = useState(!YANDEX_MAPS_API_KEY);
+  const meMarkRef = useRef(null);
 
   useEffect(() => {
-    if (!YANDEX_MAPS_API_KEY) return;
     let cancelled = false;
     loadYmaps().then((ymaps) => {
       if (cancelled || !ref.current) return;
@@ -1064,22 +1157,28 @@ function YandexMapListView({ listings, onOpen }) {
         map.geoObjects.add(pm);
       });
       mapRef.current = map;
-    }).catch(() => setFailed(true));
+    }).catch(() => onFail());
     return () => { cancelled = true; if (mapRef.current) mapRef.current.destroy(); };
   }, [listings]);
 
-  if (failed) return <div className="px-4"><MapUnavailable /></div>;
+  // "Mening joylashuvim" bosilganda — xaritani o'sha joyga suradi va ko'k belgi qo'yadi
+  useEffect(() => {
+    if (!userLoc || !mapRef.current || !window.ymaps) return;
+    mapRef.current.setCenter(userLoc, 15);
+    if (meMarkRef.current) mapRef.current.geoObjects.remove(meMarkRef.current);
+    meMarkRef.current = new window.ymaps.Placemark(userLoc, {}, { preset: "islands#blueCircleIcon" });
+    mapRef.current.geoObjects.add(meMarkRef.current);
+  }, [userLoc]);
+
   return <div ref={ref} style={{ width: "100%", height: "calc(100vh - 210px)" }} />;
 }
 
-// E'lon sahifasida joylashuvni ko'rsatish (statik, sudralmaydi)
-function YandexMapStatic({ lat, lng }) {
+function YandexMapStatic({ lat, lng, onFail }) {
   const ref = useRef(null);
   const mapRef = useRef(null);
-  const [failed, setFailed] = useState(!YANDEX_MAPS_API_KEY);
 
   useEffect(() => {
-    if (!YANDEX_MAPS_API_KEY || !lat || !lng) return;
+    if (!lat || !lng) return;
     let cancelled = false;
     loadYmaps().then((ymaps) => {
       if (cancelled || !ref.current) return;
@@ -1087,17 +1186,62 @@ function YandexMapStatic({ lat, lng }) {
       map.behaviors.disable(["drag", "scrollZoom"]);
       map.geoObjects.add(new ymaps.Placemark([lat, lng], {}, { preset: "islands#orangeDotIcon" }));
       mapRef.current = map;
-    }).catch(() => setFailed(true));
+    }).catch(() => onFail());
     return () => { cancelled = true; if (mapRef.current) mapRef.current.destroy(); };
   }, [lat, lng]);
 
-  if (!lat || !lng || failed) return null;
+  if (!lat || !lng) return null;
   return (
     <div>
       <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>Manzil</div>
       <div ref={ref} style={{ width: "100%", height: 160, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />
     </div>
   );
+}
+
+// ---- Tashqi qatlam: kalit bo'lsa Yandex, bo'lmasa (yoki yuklashda xato bo'lsa) OpenStreetMap ----
+function MapPicker(props) {
+  const [useOsm, setUseOsm] = useState(!YANDEX_MAPS_API_KEY);
+  return useOsm ? <OsmMapPicker {...props} /> : <YandexMapPicker {...props} onFail={() => setUseOsm(true)} />;
+}
+function MapListView(props) {
+  const [useOsm, setUseOsm] = useState(!YANDEX_MAPS_API_KEY);
+  const [userLoc, setUserLoc] = useState(null);
+  const [locating, setLocating] = useState(false);
+  const [locateError, setLocateError] = useState("");
+
+  const findMe = () => {
+    if (!navigator.geolocation) { setLocateError("Bu qurilma joylashuvni aniqlay olmaydi"); return; }
+    setLocating(true);
+    setLocateError("");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setUserLoc([pos.coords.latitude, pos.coords.longitude]); setLocating(false); },
+      () => { setLocating(false); setLocateError("Joylashuvga ruxsat berilmadi"); },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  return (
+    <div className="relative">
+      {useOsm
+        ? <OsmMapListView {...props} userLoc={userLoc} />
+        : <YandexMapListView {...props} userLoc={userLoc} onFail={() => setUseOsm(true)} />}
+      <button onClick={findMe} disabled={locating}
+        className="absolute bottom-5 right-3 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+        style={{ background: "#3E92B0", zIndex: 1000 }}>
+        <LocateFixed size={20} color="#0E1B21" />
+      </button>
+      {locateError && (
+        <div className="absolute bottom-20 right-3 px-3 py-2 rounded-lg text-[11.5px]" style={{ background: "#1E333C", color: "#F2EDE4", zIndex: 1000, maxWidth: 200 }}>
+          {locateError}
+        </div>
+      )}
+    </div>
+  );
+}
+function MapStatic(props) {
+  const [useOsm, setUseOsm] = useState(!YANDEX_MAPS_API_KEY);
+  return useOsm ? <OsmMapStatic {...props} /> : <YandexMapStatic {...props} onFail={() => setUseOsm(true)} />;
 }
 
 function AdminLoginModal({ onClose, onSuccess }) {
@@ -1163,7 +1307,7 @@ export default function Uy247App() {
   const [ownerStats, setOwnerStats] = useState({});
   const [savedSearches, setSavedSearches] = useState([]);
   const [bookingEditorId, setBookingEditorId] = useState(null);
-  const [viewMode, setViewMode] = useState("list");
+  const [viewMode, setViewMode] = useState("map");
   const t = STR[lang];
 
   const switchTab = (id) => { setTab(id); setSelected(null); navigate(TAB_PATHS[id]); };
@@ -1531,7 +1675,7 @@ export default function Uy247App() {
             <>
               <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} onSaveSearch={saveCurrentSearch} viewMode={viewMode} setViewMode={setViewMode} />
               {viewMode === "map" ? (
-                <YandexMapListView listings={filtered} onOpen={openListing} />
+                <MapListView listings={filtered} onOpen={openListing} />
               ) : (
                 <div className="px-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-28 pt-1">
                   {loadingListings ? (

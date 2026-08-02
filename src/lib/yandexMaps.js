@@ -1,9 +1,9 @@
 // src/lib/yandexMaps.js
-// Yandex Maps JS API'ni yuklash va xaritalarni ishlatish uchun umumiy yordamchilar.
-// API kalitni https://developer.tech.yandex.ru dan bepul olish mumkin (JavaScript API va Geocoder).
+// Yandex Maps JS API'ni yuklash uchun yordamchi.
+// Agar VITE_YANDEX_MAPS_API_KEY sozlanmagan bo'lsa, ilova avtomatik
+// OpenStreetMap'ga o'tadi (App.jsx ichidagi MapPicker/MapListView/MapStatic'ga qarang).
 
 export const YANDEX_MAPS_API_KEY = import.meta.env.VITE_YANDEX_MAPS_API_KEY || "";
-export const TASHKENT_CENTER = [41.311081, 69.240562];
 
 let loadPromise = null;
 
