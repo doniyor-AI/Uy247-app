@@ -45,6 +45,44 @@ const STR = {
     navChats: "Xabarlar", chatWith: "Egasi bilan chat", writeMessage: "Xabar yozing...",
     noChats: "Hozircha xabarlar yo'q. Yoqqan e'longa kirib, chat orqali yozing.",
     chatCta: "Chat orqali yozish", chatHint: "Raqamingiz oshkor qilinmaydi",
+    sortNew: "Yangi qo'shilgan", sortCheap: "Eng arzoni", sortPopular: "Eng ommabop",
+    moreFilters: "Ko'proq", priceRange: "Narx oralig'i (so'm)", from: "dan", to: "gacha",
+    roomsCount: "Xonalar soni", all: "Barchasi", daily: "Kunlik", monthly: "Oylik",
+    resultsFound: "ta e'lon topildi", saveSearch: "Qidiruvni saqlash",
+    roomsWord: "xona", verifiedOwner: "Tasdiqlangan egasi", noResults: "Bu filtrlar bo'yicha e'lon topilmadi. Filtrni o'zgartirib ko'ring.",
+    roomsHeader: "Xonalar", areaHeader: "Maydon", floorHeader: "Qavat", descTitle: "Tavsif",
+    amenitiesTitle: "Qulayliklar", addressTitle: "Manzil", viewedTimes: "marta ko'rilgan",
+    contactOwner: "Egasi bilan bog'lanish", callBtn: "Qo'ng'iroq", smsBtn: "SMS",
+    linkCopied: "Havola nusxalandi", similarListings: "Shunga o'xshash e'lonlar",
+    occupiedDays: "Band kunlar", occupiedLegend: "Band", freeLegend: "Bo'sh",
+    titleLabel: "E'lon sarlavhasi", propertyTypeLabel: "Uy turi", cityLabel: "Shahar", districtLabel: "Tuman",
+    floorLabel: "Qavat", areaLabelM2: "Maydon (m²)", rentTypeLabel: "Ijara turi", priceLabelSom: "Narx (so'm)",
+    amenitiesLabel: "Qulayliklar", descLabel: "Tavsif", addressMapLabel: "Aniq manzil (xaritada belgilang)",
+    photosLabel: "Rasmlar", ownersOnlyNotice: "Bu platformada faqat uy egalari e'lon joylashi mumkin. Rieltor yoki vositachi ekanligi aniqlansa, e'lon o'chiriladi va akkaunt bloklanadi.",
+    submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
+    successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
+    typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
+    reportTitle: "Shubhali deb belgilash", reportSubmit: "Yuborish", reportFooter: "Shikoyat admin tomonidan 24 soat ichida ko'rib chiqiladi.",
+    titlePlaceholder: "Masalan: Yunusobodda yorug' 2 xonali", mapMarkedHint: "Belgilandi — o'zgartirish uchun xaritaga bosing",
+    mapUnmarkedHint: "Xaritaga bosib yoki markerni sudrab, uyingiz joylashuvini belgilang",
+    photosCountPrefix: "Rasmlar (kamida 3 ta) — ", photosCountSuffix: " ta qo'shildi", addPhotoBtn: "Qo'shish",
+    photosHint: "Telefon galereyasidan yoki kameradan tanlashingiz mumkin", descPlaceholder: "Uyingiz haqida qisqacha yozing...",
+    ownerConfirm1: "Men ushbu ko'chmas mulk egasiman (yoki egasining rasmiy vakiliman), ", ownerConfirmBold: "rieltor emasman",
+    ownerConfirm2: " va ", ruleLinkText: "platforma qoidalariga", ownerConfirm3: " roziman.",
+    sessionNotFoundError: "Seans topilmadi, sahifani yangilab qayta urinib ko'ring.", genericError: "Xatolik yuz berdi, qayta urinib ko'ring.",
+    successBody2: "Holatini \"Profil → Mening e'lonlarim\"da kuzatib boring.",
+    verifyPhoneBtn: "Raqamni tasdiqlash", noListingsYet: "Hali e'lon joylamagansiz.", occupiedBadge: "Band",
+    topActiveLabel: "TOP faol", favCountSuffix: "sevimliga qo'shgan", chatCountSuffix: "kishi yozgan",
+    markFreeBtn: "Bo'sh deb belgilash (qidiruvda qayta ko'rinadi)", markOccupiedBtn: "Band deb belgilash (vaqtincha yashirish)",
+    markBookingBtn: "Band kunlarni belgilash", referralTitle: "Do'stingizni taklif qiling",
+    referralSubtitle: "Har bir taklif qilingan do'stingiz ro'yxatdan o'tsa — ikkalangizga ham bepul \"Top e'lon\" krediti beriladi.",
+    copyBtn: "Nusxalash", currentCreditsLabel: "Joriy bonus kredit:", ta: "ta", savedSearchesTitle: "Saqlangan qidiruvlar",
+    loadingText: "Yuklanmoqda...", emptyFavs: "Sevimlilar bo'sh. Yoqqan e'lonlarni yurak belgisi bilan saqlang.",
+    verifyTitle1: "Raqamni tasdiqlash", verifyTitle2: "SMS kodni kiriting",
+    verifyIntro: "Egasi telefon raqamini ko'rish uchun raqamingizni tasdiqlang. Bu — soxta so'rovlardan himoya qiladi.",
+    sendCodeBtn: "Kod yuborish", sendingCode: "Yuborilmoqda...", codeSentTo: "raqamiga yuborilgan 6 xonali kodni kiriting.",
+    confirmBtn: "Tasdiqlash", checkingCode: "Tekshirilmoqda...",
+    sendCodeError: "Kod yuborishda xatolik. Raqamni tekshirib qayta urinib ko'ring.", codeInvalidError: "Kod noto'g'ri yoki muddati o'tgan.",
   },
   ru: {
     navSearch: "Поиск", navFavs: "Избранное", navPost: "Разместить", navProfile: "Профиль",
@@ -58,6 +96,44 @@ const STR = {
     navChats: "Сообщения", chatWith: "Чат с владельцем", writeMessage: "Напишите сообщение...",
     noChats: "Пока нет сообщений. Откройте объявление и напишите через чат.",
     chatCta: "Написать в чате", chatHint: "Ваш номер не показывается",
+    sortNew: "Недавно добавленные", sortCheap: "Сначала дешевле", sortPopular: "Популярные",
+    moreFilters: "Ещё", priceRange: "Диапазон цены (сум)", from: "от", to: "до",
+    roomsCount: "Количество комнат", all: "Все", daily: "Посуточно", monthly: "Помесячно",
+    resultsFound: "объявлений найдено", saveSearch: "Сохранить поиск",
+    roomsWord: "комн.", verifiedOwner: "Подтверждённый владелец", noResults: "По этим фильтрам ничего не найдено. Попробуйте изменить фильтр.",
+    roomsHeader: "Комнаты", areaHeader: "Площадь", floorHeader: "Этаж", descTitle: "Описание",
+    amenitiesTitle: "Удобства", addressTitle: "Адрес", viewedTimes: "просмотров",
+    contactOwner: "Связаться с владельцем", callBtn: "Позвонить", smsBtn: "SMS",
+    linkCopied: "Ссылка скопирована", similarListings: "Похожие объявления",
+    occupiedDays: "Занятые дни", occupiedLegend: "Занято", freeLegend: "Свободно",
+    titleLabel: "Заголовок объявления", propertyTypeLabel: "Тип жилья", cityLabel: "Город", districtLabel: "Район",
+    floorLabel: "Этаж", areaLabelM2: "Площадь (м²)", rentTypeLabel: "Тип аренды", priceLabelSom: "Цена (сум)",
+    amenitiesLabel: "Удобства", descLabel: "Описание", addressMapLabel: "Точный адрес (отметьте на карте)",
+    photosLabel: "Фотографии", ownersOnlyNotice: "На этой платформе объявления могут размещать только владельцы жилья. Если выяснится, что вы риелтор или посредник, объявление будет удалено, а аккаунт заблокирован.",
+    submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
+    successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
+    typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
+    reportTitle: "Пожаловаться", reportSubmit: "Отправить", reportFooter: "Жалоба будет рассмотрена администратором в течение 24 часов.",
+    titlePlaceholder: "Например: Светлая 2-комнатная в Юнусабаде", mapMarkedHint: "Отмечено — нажмите на карту, чтобы изменить",
+    mapUnmarkedHint: "Нажмите на карту или перетащите метку, чтобы отметить местоположение",
+    photosCountPrefix: "Фото (минимум 3) — добавлено ", photosCountSuffix: "", addPhotoBtn: "Добавить",
+    photosHint: "Можно выбрать из галереи телефона или снять камерой", descPlaceholder: "Кратко опишите жильё...",
+    ownerConfirm1: "Я являюсь владельцем этой недвижимости (или официальным представителем владельца), ", ownerConfirmBold: "не риелтор",
+    ownerConfirm2: " и согласен с ", ruleLinkText: "правилами платформы", ownerConfirm3: ".",
+    sessionNotFoundError: "Сессия не найдена, обновите страницу и попробуйте снова.", genericError: "Произошла ошибка, попробуйте снова.",
+    successBody2: "Следите за статусом в разделе «Профиль → Мои объявления».",
+    verifyPhoneBtn: "Подтвердить номер", noListingsYet: "Вы ещё не разместили объявлений.", occupiedBadge: "Занято",
+    topActiveLabel: "TOP активен", favCountSuffix: "добавили в избранное", chatCountSuffix: "написали",
+    markFreeBtn: "Отметить свободным (снова появится в поиске)", markOccupiedBtn: "Отметить занятым (временно скрыть)",
+    markBookingBtn: "Отметить занятые дни", referralTitle: "Пригласите друга",
+    referralSubtitle: "Если приглашённый друг зарегистрируется — вам обоим начислится бесплатный кредит «Top объявление».",
+    copyBtn: "Копировать", currentCreditsLabel: "Текущий бонусный кредит:", ta: "", savedSearchesTitle: "Сохранённые поиски",
+    loadingText: "Загрузка...", emptyFavs: "Список избранного пуст. Сохраняйте понравившиеся объявления значком сердца.",
+    verifyTitle1: "Подтверждение номера", verifyTitle2: "Введите SMS-код",
+    verifyIntro: "Подтвердите номер, чтобы увидеть телефон владельца. Это защищает от ложных обращений.",
+    sendCodeBtn: "Отправить код", sendingCode: "Отправка...", codeSentTo: "Введите 6-значный код, отправленный на номер",
+    confirmBtn: "Подтвердить", checkingCode: "Проверка...",
+    sendCodeError: "Ошибка при отправке кода. Проверьте номер и попробуйте снова.", codeInvalidError: "Неверный код или срок его действия истёк.",
   },
   en: {
     navSearch: "Search", navFavs: "Favorites", navPost: "Post listing", navProfile: "Profile",
@@ -71,23 +147,62 @@ const STR = {
     navChats: "Messages", chatWith: "Chat with owner", writeMessage: "Write a message...",
     noChats: "No messages yet. Open a listing and start a chat.",
     chatCta: "Message via chat", chatHint: "Your number stays hidden",
+    sortNew: "Newest first", sortCheap: "Cheapest first", sortPopular: "Most popular",
+    moreFilters: "More", priceRange: "Price range (so'm)", from: "from", to: "to",
+    roomsCount: "Number of rooms", all: "All", daily: "Daily", monthly: "Monthly",
+    resultsFound: "listings found", saveSearch: "Save search",
+    roomsWord: "rooms", verifiedOwner: "Verified owner", noResults: "No listings match these filters. Try adjusting them.",
+    roomsHeader: "Rooms", areaHeader: "Area", floorHeader: "Floor", descTitle: "Description",
+    amenitiesTitle: "Amenities", addressTitle: "Address", viewedTimes: "views",
+    contactOwner: "Contact owner", callBtn: "Call", smsBtn: "SMS",
+    linkCopied: "Link copied", similarListings: "Similar listings",
+    occupiedDays: "Occupied days", occupiedLegend: "Occupied", freeLegend: "Free",
+    titleLabel: "Listing title", propertyTypeLabel: "Property type", cityLabel: "City", districtLabel: "District",
+    floorLabel: "Floor", areaLabelM2: "Area (m²)", rentTypeLabel: "Rent type", priceLabelSom: "Price (so'm)",
+    amenitiesLabel: "Amenities", descLabel: "Description", addressMapLabel: "Exact address (mark on map)",
+    photosLabel: "Photos", ownersOnlyNotice: "Only property owners may post listings on this platform. If you're found to be a realtor or intermediary, the listing will be removed and the account blocked.",
+    submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
+    successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
+    typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
+    reportTitle: "Report as suspicious", reportSubmit: "Submit", reportFooter: "The report will be reviewed by an admin within 24 hours.",
+    titlePlaceholder: "e.g. Bright 2-room in Yunusabad", mapMarkedHint: "Marked — tap the map to change",
+    mapUnmarkedHint: "Tap the map or drag the marker to mark your home's location",
+    photosCountPrefix: "Photos (at least 3) — ", photosCountSuffix: " added", addPhotoBtn: "Add",
+    photosHint: "You can choose from your phone gallery or take a photo", descPlaceholder: "Write a short description of your place...",
+    ownerConfirm1: "I am the owner of this property (or an official representative of the owner), ", ownerConfirmBold: "not a realtor",
+    ownerConfirm2: " and I agree to the ", ruleLinkText: "platform rules", ownerConfirm3: ".",
+    sessionNotFoundError: "Session not found, refresh the page and try again.", genericError: "Something went wrong, please try again.",
+    successBody2: "Track its status under \"Profile → My listings\".",
+    verifyPhoneBtn: "Verify phone number", noListingsYet: "You haven't posted any listings yet.", occupiedBadge: "Occupied",
+    topActiveLabel: "TOP active", favCountSuffix: "favorited", chatCountSuffix: "messaged",
+    markFreeBtn: "Mark as free (reappears in search)", markOccupiedBtn: "Mark as occupied (temporarily hide)",
+    markBookingBtn: "Mark occupied days", referralTitle: "Invite a friend",
+    referralSubtitle: "If a friend you invite registers, you'll both get a free \"Boost\" credit.",
+    copyBtn: "Copy", currentCreditsLabel: "Current bonus credits:", ta: "", savedSearchesTitle: "Saved searches",
+    loadingText: "Loading...", emptyFavs: "No favorites yet. Save listings you like with the heart icon.",
+    verifyTitle1: "Verify phone number", verifyTitle2: "Enter SMS code",
+    verifyIntro: "Verify your number to see the owner's phone. This protects against fake inquiries.",
+    sendCodeBtn: "Send code", sendingCode: "Sending...", codeSentTo: "Enter the 6-digit code sent to",
+    confirmBtn: "Confirm", checkingCode: "Checking...",
+    sendCodeError: "Error sending code. Check the number and try again.", codeInvalidError: "Incorrect code or it has expired.",
   },
 };
 
 const TASHKENT_CENTER = [41.311081, 69.240562];
 
-const PROPERTY_TYPES = [
-  { id: "kvartira", label: "Kvartira", Icon: Building },
-  { id: "hovli", label: "Hovli / xususiy uy", Icon: Home },
-  { id: "ofis", label: "Ofis / tijorat", Icon: Store },
+const PROPERTY_TYPE_ICONS = { kvartira: Building, hovli: Home, ofis: Store };
+const getPropertyTypes = (t) => [
+  { id: "kvartira", label: t.typeKvartira, Icon: Building },
+  { id: "hovli", label: t.typeHovli, Icon: Home },
+  { id: "ofis", label: t.typeOfis, Icon: Store },
 ];
-const typeLabel = (id) => PROPERTY_TYPES.find(t => t.id === id)?.label || "Kvartira";
-const typeIcon = (id) => PROPERTY_TYPES.find(t => t.id === id)?.Icon || Building;
+const typeLabel = (id, t) => getPropertyTypes(t).find(x => x.id === id)?.label || t.typeKvartira;
+const typeIcon = (id) => PROPERTY_TYPE_ICONS[id] || Building;
 
-const SORT_OPTIONS = [
-  { id: "new", label: "Yangi qo'shilgan" },
-  { id: "cheap", label: "Eng arzoni" },
-  { id: "popular", label: "Eng ommabop" },
+const getSortOptions = (t) => [
+  { id: "new", label: t.sortNew },
+  { id: "cheap", label: t.sortCheap },
+  { id: "popular", label: t.sortPopular },
 ];
 
 const fmt = (n) => new Intl.NumberFormat("uz-UZ").format(n);
@@ -142,7 +257,7 @@ function Badge({ children, color, bg }) {
   return <span className="px-2 py-0.5 rounded-full text-[10.5px] font-medium" style={{ color, background: bg }}>{children}</span>;
 }
 
-function ListingCard({ item, onOpen, isFav, onToggleFav }) {
+function ListingCard({ item, onOpen, isFav, onToggleFav, t = STR.uz }) {
   return (
     <div className="rounded-2xl overflow-hidden cursor-pointer transition-transform active:scale-[0.98] relative" style={box} onClick={() => onOpen(item)}>
       {item.boosted && (
@@ -154,7 +269,7 @@ function ListingCard({ item, onOpen, isFav, onToggleFav }) {
         {item.images?.length ? <img src={item.images[0]} alt="" className="w-full h-full object-cover" /> : <Building2 size={40} color="rgba(242,237,228,0.35)" strokeWidth={1.3} />}
         {item.verified && (
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium" style={{ background: "rgba(22,38,46,0.85)", color: "#E8B94A" }}>
-            <ShieldCheck size={13} /> Tasdiqlangan egasi
+            <ShieldCheck size={13} /> {t.verifiedOwner}
           </div>
         )}
         <button onClick={(e) => { e.stopPropagation(); onToggleFav(item.id); }} className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.75)" }}>
@@ -165,13 +280,13 @@ function ListingCard({ item, onOpen, isFav, onToggleFav }) {
         <div className="flex items-center justify-between">
           <PriceTag price={item.price} rentType={item.rentType} />
           <span className="flex items-center gap-1 text-[11px]" style={{ color: "#65787E" }}>
-            {React.createElement(typeIcon(item.propertyType), { size: 13 })} {typeLabel(item.propertyType)}
+            {React.createElement(typeIcon(item.propertyType), { size: 13 })} {typeLabel(item.propertyType, t)}
           </span>
         </div>
         <h3 className="font-serif text-[16px] leading-snug" style={{ color: "#F2EDE4" }}>{item.title}</h3>
         <div className="flex items-center gap-1 text-[13px]" style={{ color: "#93A5AA" }}><MapPin size={13} /> {item.district}, {item.city}</div>
         <div className="flex items-center gap-3 text-[13px] pt-1" style={{ color: "#93A5AA" }}>
-          <span className="flex items-center gap-1"><BedDouble size={14} /> {item.rooms} xona</span>
+          <span className="flex items-center gap-1"><BedDouble size={14} /> {item.rooms} {t.roomsWord}</span>
           <span className="flex items-center gap-1"><Maximize2 size={14} /> {item.area} m²</span>
         </div>
       </div>
@@ -179,8 +294,10 @@ function ListingCard({ item, onOpen, isFav, onToggleFav }) {
   );
 }
 
-function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, setViewMode }) {
+function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, setViewMode, t }) {
   const [open, setOpen] = useState(false);
+  const rentTypes = [["Barchasi", t.all], ["Kunlik", t.daily], ["Oylik", t.monthly]];
+  const roomOptions = [["Barchasi", t.all], [1, "1"], [2, "2"], [3, "3"], ["4+", "4+"]];
   return (
     <div className="sticky top-[60px] z-20 px-4 pt-3 pb-2" style={{ background: "#16262E" }}>
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
@@ -192,54 +309,54 @@ function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, 
           {CITIES.map(c => <option key={c}>{c}</option>)}
         </select>
         <div className="shrink-0 flex rounded-full p-0.5" style={box}>
-          {["Barchasi", "Kunlik", "Oylik"].map(t => (
-            <button key={t} onClick={() => setFilters(f => ({ ...f, rentType: t }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors" style={{ background: filters.rentType === t ? "#3E92B0" : "transparent", color: filters.rentType === t ? "#0E1B21" : "#93A5AA" }}>{t}</button>
+          {rentTypes.map(([val, label]) => (
+            <button key={val} onClick={() => setFilters(f => ({ ...f, rentType: val }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors" style={{ background: filters.rentType === val ? "#3E92B0" : "transparent", color: filters.rentType === val ? "#0E1B21" : "#93A5AA" }}>{label}</button>
           ))}
         </div>
         <div className="shrink-0 flex rounded-full p-0.5" style={box}>
-          <button onClick={() => setFilters(f => ({ ...f, propertyType: "Barchasi" }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors" style={{ background: filters.propertyType === "Barchasi" ? "#3E92B0" : "transparent", color: filters.propertyType === "Barchasi" ? "#0E1B21" : "#93A5AA" }}>Barchasi</button>
-          {PROPERTY_TYPES.map(pt => (
+          <button onClick={() => setFilters(f => ({ ...f, propertyType: "Barchasi" }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors" style={{ background: filters.propertyType === "Barchasi" ? "#3E92B0" : "transparent", color: filters.propertyType === "Barchasi" ? "#0E1B21" : "#93A5AA" }}>{t.all}</button>
+          {getPropertyTypes(t).map(pt => (
             <button key={pt.id} onClick={() => setFilters(f => ({ ...f, propertyType: pt.id }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors flex items-center gap-1" style={{ background: filters.propertyType === pt.id ? "#3E92B0" : "transparent", color: filters.propertyType === pt.id ? "#0E1B21" : "#93A5AA" }}>
               <pt.Icon size={12} /> {pt.label.split(" / ")[0]}
             </button>
           ))}
         </div>
         <select value={filters.sortBy} onChange={(e) => setFilters(f => ({ ...f, sortBy: e.target.value }))} className="shrink-0 px-3 py-2 rounded-full text-[13px] font-medium outline-none flex items-center" style={{ ...box, color: "#F2EDE4" }}>
-          {SORT_OPTIONS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+          {getSortOptions(t).map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
         </select>
         <button onClick={() => setOpen(o => !o)} className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-[13px] font-medium" style={{ background: open ? "#D4783C" : "#1E333C", color: open ? "#16262E" : "#F2EDE4", border: "1px solid #2A424C" }}>
-          <SlidersHorizontal size={14} /> Ko'proq
+          <SlidersHorizontal size={14} /> {t.moreFilters}
         </button>
       </div>
       {open && (
         <div className="mt-3 p-3.5 rounded-xl space-y-3" style={box}>
           <div>
-            <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>Narx oralig'i (so'm)</div>
+            <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.priceRange}</div>
             <div className="flex items-center gap-2">
-              <input type="number" placeholder="dan" value={filters.min} onChange={(e) => setFilters(f => ({ ...f, min: e.target.value }))} className="w-full px-3 py-2 rounded-lg text-[13px] outline-none" style={inputStyle} />
+              <input type="number" placeholder={t.from} value={filters.min} onChange={(e) => setFilters(f => ({ ...f, min: e.target.value }))} className="w-full px-3 py-2 rounded-lg text-[13px] outline-none" style={inputStyle} />
               <span style={{ color: "#93A5AA" }}>—</span>
-              <input type="number" placeholder="gacha" value={filters.max} onChange={(e) => setFilters(f => ({ ...f, max: e.target.value }))} className="w-full px-3 py-2 rounded-lg text-[13px] outline-none" style={inputStyle} />
+              <input type="number" placeholder={t.to} value={filters.max} onChange={(e) => setFilters(f => ({ ...f, max: e.target.value }))} className="w-full px-3 py-2 rounded-lg text-[13px] outline-none" style={inputStyle} />
             </div>
           </div>
           <div>
-            <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>Xonalar soni</div>
+            <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.roomsCount}</div>
             <div className="flex gap-2">
-              {["Barchasi", 1, 2, 3, "4+"].map(r => (
-                <button key={r} onClick={() => setFilters(f => ({ ...f, rooms: r }))} className="px-3 py-1.5 rounded-lg text-[13px]" style={{ background: filters.rooms === r ? "#3E92B0" : "#16262E", color: filters.rooms === r ? "#0E1B21" : "#F2EDE4", border: "1px solid #2A424C" }}>{r}</button>
+              {roomOptions.map(([val, label]) => (
+                <button key={val} onClick={() => setFilters(f => ({ ...f, rooms: val }))} className="px-3 py-1.5 rounded-lg text-[13px]" style={{ background: filters.rooms === val ? "#3E92B0" : "#16262E", color: filters.rooms === val ? "#0E1B21" : "#F2EDE4", border: "1px solid #2A424C" }}>{label}</button>
               ))}
             </div>
           </div>
         </div>
       )}
       <div className="text-[12px] pt-2 flex items-center justify-between" style={{ color: "#93A5AA" }}>
-        <span className="flex items-center gap-1"><ArrowUpDown size={11} /> {resultsCount} ta e'lon topildi</span>
-        <button onClick={onSaveSearch} className="flex items-center gap-1 font-medium" style={{ color: "#3E92B0" }}><Bell size={12} /> Qidiruvni saqlash</button>
+        <span className="flex items-center gap-1"><ArrowUpDown size={11} /> {resultsCount} {t.resultsFound}</span>
+        <button onClick={onSaveSearch} className="flex items-center gap-1 font-medium" style={{ color: "#3E92B0" }}><Bell size={12} /> {t.saveSearch}</button>
       </div>
     </div>
   );
 }
 
-function VerifyModal({ onClose, onVerified }) {
+function VerifyModal({ onClose, onVerified, t = STR.uz }) {
   const [step, setStep] = useState(1);
   const [phoneInput, setPhoneInput] = useState("");
   const [code, setCode] = useState("");
@@ -269,7 +386,7 @@ function VerifyModal({ onClose, onVerified }) {
       }
       throw linkErr;
     } catch (e) {
-      setError(e.message || "Kod yuborishda xatolik. Raqamni tekshirib qayta urinib ko'ring.");
+      setError(e.message || t.sendCodeError);
       setLoading(false);
     }
   };
@@ -282,7 +399,7 @@ function VerifyModal({ onClose, onVerified }) {
       if (verErr) throw verErr;
       await onVerified(phone);
     } catch (e) {
-      setError(e.message || "Kod noto'g'ri yoki muddati o'tgan.");
+      setError(e.message || t.codeInvalidError);
     } finally {
       setLoading(false);
     }
@@ -292,21 +409,21 @@ function VerifyModal({ onClose, onVerified }) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{step === 1 ? "Raqamni tasdiqlash" : "SMS kodni kiriting"}</h3>
+          <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{step === 1 ? t.verifyTitle1 : t.verifyTitle2}</h3>
           <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
         </div>
         {error && <p className="text-[12.5px] mb-3" style={{ color: "#D4783C" }}>{error}</p>}
         {step === 1 ? (
           <>
-            <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>Egasi telefon raqamini ko'rish uchun raqamingizni tasdiqlang. Bu — soxta so'rovlardan himoya qiladi.</p>
+            <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>{t.verifyIntro}</p>
             <input placeholder="+998901234567" value={phoneInput} onChange={(e) => setPhoneInput(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none mb-3" style={inputStyle} />
-            <button onClick={sendCode} disabled={phoneInput.length < 9 || loading} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (phoneInput.length < 9 || loading) ? "#2A424C" : "#3E92B0", color: "#0E1B21" }}>{loading ? "Yuborilmoqda..." : "Kod yuborish"}</button>
+            <button onClick={sendCode} disabled={phoneInput.length < 9 || loading} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (phoneInput.length < 9 || loading) ? "#2A424C" : "#3E92B0", color: "#0E1B21" }}>{loading ? t.sendingCode : t.sendCodeBtn}</button>
           </>
         ) : (
           <>
-            <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>{normalizedPhone()} raqamiga yuborilgan 6 xonali kodni kiriting.</p>
+            <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>{t.codeSentTo} {normalizedPhone()}</p>
             <input placeholder="000000" value={code} maxLength={6} onChange={(e) => setCode(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[20px] tracking-[8px] text-center outline-none mb-3 font-mono" style={inputStyle} />
-            <button onClick={confirmCode} disabled={code.length < 6 || loading} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (code.length < 6 || loading) ? "#2A424C" : "#D4783C", color: "#16262E" }}>{loading ? "Tekshirilmoqda..." : "Tasdiqlash"}</button>
+            <button onClick={confirmCode} disabled={code.length < 6 || loading} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (code.length < 6 || loading) ? "#2A424C" : "#D4783C", color: "#16262E" }}>{loading ? t.checkingCode : t.confirmBtn}</button>
           </>
         )}
       </div>
@@ -314,14 +431,14 @@ function VerifyModal({ onClose, onVerified }) {
   );
 }
 
-function ReportModal({ onClose, onSubmit }) {
+function ReportModal({ onClose, onSubmit, t = STR.uz }) {
   const reasons = ["Bu rieltor/vositachi", "Narx noto'g'ri ko'rsatilgan", "Firibgarlik shubhasi", "E'lon o'chirilgan/band"];
   const [reason, setReason] = useState(reasons[0]);
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}><Flag size={17} color="#D4783C" /> Shubhali deb belgilash</h3>
+          <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}><Flag size={17} color="#D4783C" /> {t.reportTitle}</h3>
           <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
         </div>
         <div className="space-y-2 mb-4">
@@ -332,8 +449,8 @@ function ReportModal({ onClose, onSubmit }) {
             </label>
           ))}
         </div>
-        <button onClick={() => onSubmit(reason)} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: "#D4783C", color: "#16262E" }}>Yuborish</button>
-        <p className="text-[11.5px] mt-2 text-center" style={{ color: "#65787E" }}>Shikoyat admin tomonidan 24 soat ichida ko'rib chiqiladi.</p>
+        <button onClick={() => onSubmit(reason)} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: "#D4783C", color: "#16262E" }}>{t.reportSubmit}</button>
+        <p className="text-[11.5px] mt-2 text-center" style={{ color: "#65787E" }}>{t.reportFooter}</p>
       </div>
     </div>
   );
@@ -404,7 +521,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
         <div className="absolute top-4 right-4 flex gap-2 z-10">
           <button onClick={share} className="w-9 h-9 rounded-full flex items-center justify-center relative" style={{ background: "rgba(22,38,46,0.8)" }}>
             <Share2 size={16} color="#F2EDE4" />
-            {copied && <span className="absolute top-11 right-0 whitespace-nowrap px-2 py-1 rounded-lg text-[11px]" style={{ background: "#E8B94A", color: "#16262E" }}>Havola nusxalandi</span>}
+            {copied && <span className="absolute top-11 right-0 whitespace-nowrap px-2 py-1 rounded-lg text-[11px]" style={{ background: "#E8B94A", color: "#16262E" }}>{t.linkCopied}</span>}
           </button>
           <button onClick={() => setShowReport(true)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.8)" }}><Flag size={16} color="#F2EDE4" /></button>
           <button onClick={() => onToggleFav(item.id)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.8)" }}><Heart size={17} fill={isFav ? "#D4783C" : "none"} color={isFav ? "#D4783C" : "#F2EDE4"} /></button>
@@ -414,7 +531,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
         <div className="flex items-center justify-between">
           <PriceTag price={item.price} rentType={item.rentType} />
           <span className="flex items-center gap-1 text-[12px]" style={{ color: "#65787E" }}>
-            {React.createElement(typeIcon(item.propertyType), { size: 14 })} {typeLabel(item.propertyType)}
+            {React.createElement(typeIcon(item.propertyType), { size: 14 })} {typeLabel(item.propertyType, t)}
           </span>
         </div>
         <div>
@@ -422,30 +539,30 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
           <div className="flex items-center gap-1 text-[14px] mt-1" style={{ color: "#93A5AA" }}><MapPin size={14} /> {item.district}, {item.city}</div>
         </div>
         <div className="flex items-center gap-3 text-[12.5px]" style={{ color: "#93A5AA" }}>
-          <span className="flex items-center gap-1"><Eye size={13} /> {item.views} marta ko'rilgan</span>
-          {item.verified && <span className="flex items-center gap-1.5 font-medium" style={{ color: "#E8B94A" }}><ShieldCheck size={14} /> Tasdiqlangan egasi</span>}
+          <span className="flex items-center gap-1"><Eye size={13} /> {item.views} {t.viewedTimes}</span>
+          {item.verified && <span className="flex items-center gap-1.5 font-medium" style={{ color: "#E8B94A" }}><ShieldCheck size={14} /> {t.verifiedOwner}</span>}
         </div>
         <div className="grid grid-cols-3 gap-2">
-          {[["Xonalar", `${item.rooms} ta`], ["Maydon", `${item.area} m²`], ["Qavat", item.floor]].map(([l, v]) => (
+          {[[t.roomsHeader, `${item.rooms} ta`], [t.areaHeader, `${item.area} m²`], [t.floorHeader, item.floor]].map(([l, v]) => (
             <div key={l} className="rounded-xl p-3 text-center" style={box}><div className="text-[11px]" style={{ color: "#93A5AA" }}>{l}</div><div className="text-[15px] font-medium mt-0.5" style={{ color: "#F2EDE4" }}>{v}</div></div>
           ))}
         </div>
-        <div><div className="text-[13px] font-medium mb-1.5" style={{ color: "#F2EDE4" }}>Tavsif</div><p className="text-[14px] leading-relaxed" style={{ color: "#93A5AA" }}>{item.desc}</p></div>
+        <div><div className="text-[13px] font-medium mb-1.5" style={{ color: "#F2EDE4" }}>{t.descTitle}</div><p className="text-[14px] leading-relaxed" style={{ color: "#93A5AA" }}>{item.desc}</p></div>
         <div>
-          <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>Qulayliklar</div>
+          <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>{t.amenitiesTitle}</div>
           <div className="flex flex-wrap gap-2">{item.amenities.map(a => <span key={a} className="px-3 py-1.5 rounded-full text-[12px]" style={{ ...box, color: "#93A5AA" }}>{a}</span>)}</div>
         </div>
-        <MapStatic lat={item.lat} lng={item.lng} />
-        {item.rentType === "Kunlik" && <BookingCalendarView listingId={item.id} />}
+        <MapStatic lat={item.lat} lng={item.lng} addressTitle={t.addressTitle} />
+        {item.rentType === "Kunlik" && <BookingCalendarView listingId={item.id} t={t} />}
       </div>
 
       {similar && similar.length > 0 && (
         <div className="pb-2">
-          <div className="px-4 text-[13px] font-medium mb-2.5" style={{ color: "#F2EDE4" }}>Shunga o'xshash e'lonlar</div>
+          <div className="px-4 text-[13px] font-medium mb-2.5" style={{ color: "#F2EDE4" }}>{t.similarListings}</div>
           <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1">
             {similar.map(s => (
               <div key={s.id} className="shrink-0 w-44">
-                <ListingCard item={s} onOpen={onOpenSimilar} isFav={favs?.has(s.id)} onToggleFav={onToggleFav} />
+                <ListingCard item={s} onOpen={onOpenSimilar} isFav={favs?.has(s.id)} onToggleFav={onToggleFav} t={t} />
               </div>
             ))}
           </div>
@@ -460,19 +577,19 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
             </button>
             {item.ownerPhone && (
               <div className="grid grid-cols-2 gap-2.5">
-                <a href={`tel:${item.ownerPhone}`} className="flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-[13px]" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}><Phone size={14} /> Qo'ng'iroq</a>
-                <a href={`sms:${item.ownerPhone}?body=${smsBody}`} className="flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-[13px]" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}><MessageSquare size={14} /> SMS</a>
+                <a href={`tel:${item.ownerPhone}`} className="flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-[13px]" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}><Phone size={14} /> {t.callBtn}</a>
+                <a href={`sms:${item.ownerPhone}?body=${smsBody}`} className="flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-[13px]" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}><MessageSquare size={14} /> {t.smsBtn}</a>
               </div>
             )}
             <p className="text-center text-[11px]" style={{ color: "#65787E" }}>{t.chatHint}</p>
           </div>
         ) : (
-          <button onClick={onRequestVerify} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-[15px]" style={{ background: "#D4783C", color: "#16262E" }}><Phone size={17} /> Egasi bilan bog'lanish</button>
+          <button onClick={onRequestVerify} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-[15px]" style={{ background: "#D4783C", color: "#16262E" }}><Phone size={17} /> {t.contactOwner}</button>
         )}
       </div>
 
       {showReport && !reported && (
-        <ReportModal onClose={() => setShowReport(false)} onSubmit={(reason) => { onReport(item, reason); setReported(true); setShowReport(false); }} />
+        <ReportModal onClose={() => setShowReport(false)} onSubmit={(reason) => { onReport(item, reason); setReported(true); setShowReport(false); }} t={t} />
       )}
     </div>
   );
@@ -556,7 +673,7 @@ function ChatsListView({ chats, onOpen, t }) {
   );
 }
 
-function PostForm({ onPublish, userId }) {
+function PostForm({ onPublish, userId, t = STR.uz }) {
   const [form, setForm] = useState({ title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false, lat: null, lng: null });
   const [images, setImages] = useState([]); // { file, url, name }
   const [done, setDone] = useState(false);
@@ -577,7 +694,7 @@ function PostForm({ onPublish, userId }) {
   const valid = form.title && form.area && form.price && form.ownerConfirm && images.length >= 3 && !submitting;
 
   const submit = async () => {
-    if (!userId) { setError("Seans topilmadi, sahifani yangilab qayta urinib ko'ring."); return; }
+    if (!userId) { setError(t.sessionNotFoundError); return; }
     setSubmitting(true);
     setError("");
     try {
@@ -613,7 +730,7 @@ function PostForm({ onPublish, userId }) {
       onPublish();
     } catch (e) {
       console.error(e);
-      setError(e.message || "Xatolik yuz berdi, qayta urinib ko'ring.");
+      setError(e.message || t.genericError);
     } finally {
       setSubmitting(false);
     }
@@ -622,8 +739,8 @@ function PostForm({ onPublish, userId }) {
     return (
       <div className="flex flex-col items-center justify-center px-8 py-24 text-center">
         <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "#E8B94A" }}><Check size={28} color="#16262E" /></div>
-        <h2 className="font-serif text-xl mb-2" style={{ color: "#F2EDE4" }}>E'lon yuborildi!</h2>
-        <p className="text-[14px]" style={{ color: "#93A5AA" }}>E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi. Holatini "Profil → Mening e'lonlarim"da kuzatib boring.</p>
+        <h2 className="font-serif text-xl mb-2" style={{ color: "#F2EDE4" }}>{t.successTitle}</h2>
+        <p className="text-[14px]" style={{ color: "#93A5AA" }}>{t.successBody} {t.successBody2}</p>
       </div>
     );
   }
@@ -631,18 +748,18 @@ function PostForm({ onPublish, userId }) {
     <div className="p-4 pb-28 space-y-5">
       <div className="rounded-xl p-3.5 flex items-start gap-2.5" style={{ background: "#26343A", border: "1px solid #3E5560" }}>
         <ShieldCheck size={18} color="#3E92B0" className="shrink-0 mt-0.5" />
-        <p className="text-[12.5px] leading-snug" style={{ color: "#C8D4D6" }}>Bu platformada faqat <b>uy egalari</b> e'lon joylashi mumkin. Rieltor yoki vositachi ekanligi aniqlansa, e'lon o'chiriladi va akkaunt bloklanadi.</p>
+        <p className="text-[12.5px] leading-snug" style={{ color: "#C8D4D6" }}>{t.ownersOnlyNotice}</p>
       </div>
       {error && (
         <div className="rounded-xl p-3.5" style={{ background: "#3A2429", border: "1px solid #6B3A42" }}>
           <p className="text-[12.5px]" style={{ color: "#F2C2C2" }}>{error}</p>
         </div>
       )}
-      <Field label="E'lon sarlavhasi"><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Masalan: Yunusobodda yorug' 2 xonali" style={inputStyle} /></Field>
+      <Field label={t.titleLabel}><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder={t.titlePlaceholder} style={inputStyle} /></Field>
 
-      <Field label="Uy turi">
+      <Field label={t.propertyTypeLabel}>
         <div className="grid grid-cols-3 gap-2">
-          {PROPERTY_TYPES.map(pt => (
+          {getPropertyTypes(t).map(pt => (
             <button key={pt.id} type="button" onClick={() => setForm(f => ({ ...f, propertyType: pt.id }))}
               className="flex flex-col items-center gap-1.5 py-3 rounded-xl text-[11.5px] font-medium"
               style={{ background: form.propertyType === pt.id ? "#3E92B0" : "#16262E", color: form.propertyType === pt.id ? "#0E1B21" : "#93A5AA", border: "1px solid #2A424C" }}>
@@ -653,31 +770,31 @@ function PostForm({ onPublish, userId }) {
         </div>
       </Field>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Shahar"><select value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} style={inputStyle}>{CITIES.map(c => <option key={c}>{c}</option>)}</select></Field>
-        <Field label="Tuman"><select value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} style={inputStyle}>{(DISTRICTS[form.city] || ["Markaz"]).map(d => <option key={d}>{d}</option>)}</select></Field>
+        <Field label={t.cityLabel}><select value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} style={inputStyle}>{CITIES.map(c => <option key={c}>{c}</option>)}</select></Field>
+        <Field label={t.districtLabel}><select value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} style={inputStyle}>{(DISTRICTS[form.city] || ["Markaz"]).map(d => <option key={d}>{d}</option>)}</select></Field>
       </div>
-      <Field label="Aniq manzil (xaritada belgilang)">
+      <Field label={t.addressMapLabel}>
         <MapPicker lat={form.lat} lng={form.lng} onChange={(lat, lng) => setForm(f => ({ ...f, lat, lng }))} />
-        <p className="text-[11px] mt-1.5" style={{ color: "#65787E" }}>{form.lat ? "Belgilandi — o'zgartirish uchun xaritaga bosing" : "Xaritaga bosib yoki markerni sudrab, uyingiz joylashuvini belgilang"}</p>
+        <p className="text-[11px] mt-1.5" style={{ color: "#65787E" }}>{form.lat ? t.mapMarkedHint : t.mapUnmarkedHint}</p>
       </Field>
       <div className="grid grid-cols-3 gap-3">
-        <Field label="Xonalar"><input type="number" min={1} value={form.rooms} onChange={e => setForm(f => ({ ...f, rooms: e.target.value }))} style={inputStyle} /></Field>
-        <Field label="Maydon (m²)"><input type="number" value={form.area} onChange={e => setForm(f => ({ ...f, area: e.target.value }))} style={inputStyle} /></Field>
-        <Field label="Qavat"><input placeholder="3/9" value={form.floor} onChange={e => setForm(f => ({ ...f, floor: e.target.value }))} style={inputStyle} /></Field>
+        <Field label={t.roomsHeader}><input type="number" min={1} value={form.rooms} onChange={e => setForm(f => ({ ...f, rooms: e.target.value }))} style={inputStyle} /></Field>
+        <Field label={t.areaLabelM2}><input type="number" value={form.area} onChange={e => setForm(f => ({ ...f, area: e.target.value }))} style={inputStyle} /></Field>
+        <Field label={t.floorLabel}><input placeholder="3/9" value={form.floor} onChange={e => setForm(f => ({ ...f, floor: e.target.value }))} style={inputStyle} /></Field>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Ijara turi">
+        <Field label={t.rentTypeLabel}>
           <div className="flex rounded-lg p-0.5" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
-            {["Oylik", "Kunlik"].map(t => <button key={t} type="button" onClick={() => setForm(f => ({ ...f, rentType: t }))} className="flex-1 py-2 rounded-md text-[13px] font-medium" style={{ background: form.rentType === t ? "#3E92B0" : "transparent", color: form.rentType === t ? "#0E1B21" : "#93A5AA" }}>{t}</button>)}
+            {[["Oylik", t.monthly], ["Kunlik", t.daily]].map(([val, label]) => <button key={val} type="button" onClick={() => setForm(f => ({ ...f, rentType: val }))} className="flex-1 py-2 rounded-md text-[13px] font-medium" style={{ background: form.rentType === val ? "#3E92B0" : "transparent", color: form.rentType === val ? "#0E1B21" : "#93A5AA" }}>{label}</button>)}
           </div>
         </Field>
-        <Field label="Narx (so'm)"><input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="4200000" style={inputStyle} /></Field>
+        <Field label={t.priceLabelSom}><input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="4200000" style={inputStyle} /></Field>
       </div>
-      <Field label="Qulayliklar">
+      <Field label={t.amenitiesLabel}>
         <div className="flex flex-wrap gap-2">{AMENITIES_LIST.map(a => <button key={a} type="button" onClick={() => toggleAmenity(a)} className="px-3 py-1.5 rounded-full text-[12.5px]" style={{ background: form.amenities.includes(a) ? "#D4783C" : "#16262E", color: form.amenities.includes(a) ? "#16262E" : "#93A5AA", border: "1px solid #2A424C" }}>{a}</button>)}</div>
       </Field>
-      <Field label="Tavsif"><textarea rows={3} value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} placeholder="Uyingiz haqida qisqacha yozing..." style={{ ...inputStyle, resize: "none" }} /></Field>
-      <Field label={`Rasmlar (kamida 3 ta) — ${images.length} ta qo'shildi`}>
+      <Field label={t.descLabel}><textarea rows={3} value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} placeholder={t.descPlaceholder} style={{ ...inputStyle, resize: "none" }} /></Field>
+      <Field label={`${t.photosCountPrefix}${images.length}${t.photosCountSuffix}`}>
         <div className="flex gap-2 flex-wrap">
           {images.map((img, i) => (
             <div key={img.url} className="w-16 h-16 rounded-lg overflow-hidden relative">
@@ -687,18 +804,18 @@ function PostForm({ onPublish, userId }) {
           ))}
           {images.length < 8 && (
             <button type="button" onClick={() => fileInputRef.current?.click()} className="w-16 h-16 rounded-lg flex flex-col items-center justify-center gap-1" style={{ border: "1.5px dashed #3E5560", color: "#93A5AA" }}>
-              <Camera size={18} /><span className="text-[10px]">Qo'shish</span>
+              <Camera size={18} /><span className="text-[10px]">{t.addPhotoBtn}</span>
             </button>
           )}
           <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={handleFiles} />
         </div>
-        <p className="text-[11px] mt-1.5" style={{ color: "#65787E" }}>Telefon galereyasidan yoki kameradan tanlashingiz mumkin</p>
+        <p className="text-[11px] mt-1.5" style={{ color: "#65787E" }}>{t.photosHint}</p>
       </Field>
       <label className="flex items-start gap-2.5 cursor-pointer">
         <input type="checkbox" checked={form.ownerConfirm} onChange={e => setForm(f => ({ ...f, ownerConfirm: e.target.checked }))} className="mt-0.5 w-4 h-4 shrink-0" />
-        <span className="text-[13px]" style={{ color: "#C8D4D6" }}>Men ushbu ko'chmas mulk egasiman (yoki egasining rasmiy vakiliman), <b>rieltor emasman</b> va <Link to="/qoidalar" target="_blank" style={{ color: "#3E92B0" }} onClick={e => e.stopPropagation()}>platforma qoidalariga</Link> roziman.</span>
+        <span className="text-[13px]" style={{ color: "#C8D4D6" }}>{t.ownerConfirm1}<b>{t.ownerConfirmBold}</b>{t.ownerConfirm2}<Link to="/qoidalar" target="_blank" style={{ color: "#3E92B0" }} onClick={e => e.stopPropagation()}>{t.ruleLinkText}</Link>{t.ownerConfirm3}</span>
       </label>
-      <button disabled={!valid} onClick={submit} className="w-full py-3.5 rounded-xl font-medium text-[15px]" style={{ background: valid ? "#3E92B0" : "#2A424C", color: valid ? "#0E1B21" : "#65787E" }}>{submitting ? "Yuklanmoqda..." : "E'lonni joylash"}</button>
+      <button disabled={!valid} onClick={submit} className="w-full py-3.5 rounded-xl font-medium text-[15px]" style={{ background: valid ? "#3E92B0" : "#2A424C", color: valid ? "#0E1B21" : "#65787E" }}>{submitting ? t.submitting : t.submitBtn}</button>
     </div>
   );
 }
@@ -936,7 +1053,7 @@ function MonthNav({ viewDate, setViewDate }) {
 }
 
 // Ijarachi uchun: band kunlarni faqat ko'rsatadi (o'zgartirib bo'lmaydi)
-function BookingCalendarView({ listingId }) {
+function BookingCalendarView({ listingId, t = STR.uz }) {
   const [bookedSet, setBookedSet] = useState(new Set());
   const [viewDate, setViewDate] = useState(() => new Date());
   const [loading, setLoading] = useState(true);
@@ -953,12 +1070,12 @@ function BookingCalendarView({ listingId }) {
   return (
     <div className="rounded-2xl p-4" style={box}>
       <div className="flex items-center justify-between mb-1">
-        <div className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: "#F2EDE4" }}><Ban size={14} color="#D4783C" /> Band kunlar</div>
+        <div className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: "#F2EDE4" }}><Ban size={14} color="#D4783C" /> {t.occupiedDays}</div>
         <MonthNav viewDate={viewDate} setViewDate={setViewDate} />
       </div>
       <MonthGrid viewDate={viewDate} bookedSet={bookedSet} />
       <div className="flex items-center gap-1.5 mt-2 text-[11px]" style={{ color: "#65787E" }}>
-        <span className="w-3 h-3 rounded" style={{ background: "#D4783C" }} /> Band <span className="ml-2 w-3 h-3 rounded" style={{ border: "1px solid #2A424C" }} /> Bo'sh
+        <span className="w-3 h-3 rounded" style={{ background: "#D4783C" }} /> {t.occupiedLegend} <span className="ml-2 w-3 h-3 rounded" style={{ border: "1px solid #2A424C" }} /> {t.freeLegend}
       </div>
     </div>
   );
@@ -1065,7 +1182,7 @@ function OsmMapPicker({ lat, lng, onChange }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div ref={ref} style={{ width: "100%", height: 220, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />;
+  return <div ref={ref} style={{ width: "100%", height: 220, borderRadius: 12, overflow: "hidden", background: "#16262E", touchAction: "none" }} />;
 }
 
 function OsmMapListView({ listings, onOpen, userLoc }) {
@@ -1109,10 +1226,10 @@ function OsmMapListView({ listings, onOpen, userLoc }) {
 
   useEffect(() => () => { if (mapObj.current) { mapObj.current.remove(); mapObj.current = null; } }, []);
 
-  return <div ref={ref} style={{ width: "100%", height: "calc(100vh - 210px)" }} />;
+  return <div ref={ref} style={{ width: "100%", height: "calc(100vh - 210px)", touchAction: "none" }} />;
 }
 
-function OsmMapStatic({ lat, lng }) {
+function OsmMapStatic({ lat, lng, addressTitle = "Manzil" }) {
   const ref = useRef(null);
   const mapObj = useRef(null);
 
@@ -1131,8 +1248,8 @@ function OsmMapStatic({ lat, lng }) {
   if (!lat || !lng) return null;
   return (
     <div>
-      <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>Manzil</div>
-      <div ref={ref} style={{ width: "100%", height: 160, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />
+      <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>{addressTitle}</div>
+      <div ref={ref} style={{ width: "100%", height: 160, borderRadius: 12, overflow: "hidden", background: "#16262E", touchAction: "none" }} />
     </div>
   );
 }
@@ -1158,7 +1275,7 @@ function YandexMapPicker({ lat, lng, onChange, onFail }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div ref={ref} style={{ width: "100%", height: 220, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />;
+  return <div ref={ref} style={{ width: "100%", height: 220, borderRadius: 12, overflow: "hidden", background: "#16262E", touchAction: "none" }} />;
 }
 
 function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
@@ -1194,10 +1311,10 @@ function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
     mapRef.current.geoObjects.add(meMarkRef.current);
   }, [userLoc]);
 
-  return <div ref={ref} style={{ width: "100%", height: "calc(100vh - 210px)" }} />;
+  return <div ref={ref} style={{ width: "100%", height: "calc(100vh - 210px)", touchAction: "none" }} />;
 }
 
-function YandexMapStatic({ lat, lng, onFail }) {
+function YandexMapStatic({ lat, lng, onFail, addressTitle = "Manzil" }) {
   const ref = useRef(null);
   const mapRef = useRef(null);
 
@@ -1217,8 +1334,8 @@ function YandexMapStatic({ lat, lng, onFail }) {
   if (!lat || !lng) return null;
   return (
     <div>
-      <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>Manzil</div>
-      <div ref={ref} style={{ width: "100%", height: 160, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />
+      <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>{addressTitle}</div>
+      <div ref={ref} style={{ width: "100%", height: 160, borderRadius: 12, overflow: "hidden", background: "#16262E", touchAction: "none" }} />
     </div>
   );
 }
@@ -1697,16 +1814,16 @@ export default function Uy247App() {
 
           {tab === "browse" && (
             <>
-              <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} onSaveSearch={saveCurrentSearch} viewMode={viewMode} setViewMode={setViewMode} />
+              <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} onSaveSearch={saveCurrentSearch} viewMode={viewMode} setViewMode={setViewMode} t={t} />
               {viewMode === "map" ? (
                 <MapListView listings={filtered} onOpen={openListing} />
               ) : (
                 <div className="px-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-28 pt-1">
                   {loadingListings ? (
-                    <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>Yuklanmoqda...</p></div>
+                    <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>{t.loadingText}</p></div>
                   ) : filtered.length === 0 ? (
-                    <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>Bu filtrlar bo'yicha e'lon topilmadi. Filtrni o'zgartirib ko'ring.</p></div>
-                  ) : filtered.map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav={favs.has(item.id)} onToggleFav={toggleFav} />)}
+                    <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>{t.noResults}</p></div>
+                  ) : filtered.map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav={favs.has(item.id)} onToggleFav={toggleFav} t={t} />)}
                 </div>
               )}
             </>
@@ -1715,14 +1832,14 @@ export default function Uy247App() {
           {tab === "favs" && (
             <div className="px-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-28 pt-4">
               {listings.filter(l => favs.has(l.id)).length === 0 ? (
-                <div className="col-span-full text-center py-20"><Heart size={32} color="#3E5560" className="mx-auto mb-3" /><p className="text-[14px]" style={{ color: "#93A5AA" }}>Sevimlilar bo'sh. Yoqqan e'lonlarni yurak belgisi bilan saqlang.</p></div>
-              ) : listings.filter(l => favs.has(l.id)).map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav onToggleFav={toggleFav} />)}
+                <div className="col-span-full text-center py-20"><Heart size={32} color="#3E5560" className="mx-auto mb-3" /><p className="text-[14px]" style={{ color: "#93A5AA" }}>{t.emptyFavs}</p></div>
+              ) : listings.filter(l => favs.has(l.id)).map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav onToggleFav={toggleFav} t={t} />)}
             </div>
           )}
 
           {tab === "chats" && <ChatsListView chats={chats} onOpen={(c) => setActiveChat(c.listingId)} t={t} />}
 
-          {tab === "post" && <PostForm userId={userId} onPublish={() => { fetchListings(userId); setTab("profile"); }} />}
+          {tab === "post" && <PostForm userId={userId} onPublish={() => { fetchListings(userId); setTab("profile"); }} t={t} />}
 
           {tab === "profile" && (
             <div className="px-4 py-6 pb-28 space-y-4">
@@ -1734,12 +1851,12 @@ export default function Uy247App() {
                 </div>
                 {verified && <button onClick={() => setVerified(false)} className="flex items-center gap-1 text-[12px]" style={{ color: "#D4783C" }}><LogOut size={13} /> {t.logout}</button>}
               </div>
-              {!verified && <button onClick={() => setShowVerify(true)} className="w-full py-3 rounded-xl font-medium text-[14px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Raqamni tasdiqlash</button>}
+              {!verified && <button onClick={() => setShowVerify(true)} className="w-full py-3 rounded-xl font-medium text-[14px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{t.verifyPhoneBtn}</button>}
 
               <div className="rounded-2xl p-4" style={box}>
                 <div className="text-[13px] font-medium mb-3" style={{ color: "#F2EDE4" }}>{t.myListings} ({myListings.length})</div>
                 {myListings.length === 0 ? (
-                  <p className="text-[12.5px]" style={{ color: "#93A5AA" }}>Hali e'lon joylamagansiz.</p>
+                  <p className="text-[12.5px]" style={{ color: "#93A5AA" }}>{t.noListingsYet}</p>
                 ) : (
                   <div className="space-y-2.5">
                     {myListings.map(l => (
@@ -1747,7 +1864,7 @@ export default function Uy247App() {
                         <div className="flex items-center justify-between">
                           <span className="text-[13px] font-medium" style={{ color: "#F2EDE4" }}>{l.title}</span>
                           <div className="flex items-center gap-1.5">
-                            {l.isOccupied && <Badge color="#16262E" bg="#D4783C">Band</Badge>}
+                            {l.isOccupied && <Badge color="#16262E" bg="#D4783C">{t.occupiedBadge}</Badge>}
                             <Badge color={l.status === "approved" ? "#16262E" : "#16262E"} bg={l.status === "approved" ? "#8FD19E" : l.status === "pending" ? "#E8B94A" : "#65787E"}>
                               {l.status === "approved" ? t.approved : l.status === "pending" ? t.pending : t.blocked}
                             </Badge>
@@ -1756,23 +1873,23 @@ export default function Uy247App() {
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-[11.5px] flex items-center gap-1" style={{ color: "#93A5AA" }}><Eye size={12} /> {l.views} {t.views}</span>
                           {l.boosted ? (
-                            <span className="text-[11px] flex items-center gap-1 font-medium" style={{ color: "#E8B94A" }}><Sparkles size={12} /> TOP faol</span>
+                            <span className="text-[11px] flex items-center gap-1 font-medium" style={{ color: "#E8B94A" }}><Sparkles size={12} /> {t.topActiveLabel}</span>
                           ) : (
                             <button onClick={() => setBoostTarget(l.id)} className="text-[11.5px] flex items-center gap-1 px-2.5 py-1 rounded-full font-medium" style={{ background: "#D4783C", color: "#16262E" }}><Sparkles size={11} /> {t.boost}</button>
                           )}
                         </div>
                         <div className="flex items-center gap-3 mt-1.5">
-                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><Heart size={11} /> {ownerStats[l.id]?.favCount || 0} sevimliga qo'shgan</span>
-                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><MessageCircle size={11} /> {ownerStats[l.id]?.chatCount || 0} kishi yozgan</span>
+                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><Heart size={11} /> {ownerStats[l.id]?.favCount || 0} {t.favCountSuffix}</span>
+                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><MessageCircle size={11} /> {ownerStats[l.id]?.chatCount || 0} {t.chatCountSuffix}</span>
                         </div>
                         <button onClick={() => toggleOccupied(l.id, l.isOccupied)}
                           className="w-full mt-2 py-1.5 rounded-lg text-[11.5px] font-medium flex items-center justify-center gap-1.5"
                           style={{ background: l.isOccupied ? "#3E92B0" : "#1E333C", color: l.isOccupied ? "#0E1B21" : "#F2EDE4", border: l.isOccupied ? "none" : "1px solid #2A424C" }}>
-                          <Ban size={12} /> {l.isOccupied ? "Bo'sh deb belgilash (qidiruvda qayta ko'rinadi)" : "Band deb belgilash (vaqtincha yashirish)"}
+                          <Ban size={12} /> {l.isOccupied ? t.markFreeBtn : t.markOccupiedBtn}
                         </button>
                         {l.rentType === "Kunlik" && (
                           <button onClick={() => setBookingEditorId(l.id)} className="w-full mt-1.5 py-1.5 rounded-lg text-[11.5px] font-medium flex items-center justify-center gap-1.5" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}>
-                            <CalendarDays size={12} /> Band kunlarni belgilash
+                            <CalendarDays size={12} /> {t.markBookingBtn}
                           </button>
                         )}
                       </div>
@@ -1783,24 +1900,24 @@ export default function Uy247App() {
 
               {verified && (
                 <div className="rounded-2xl p-4" style={box}>
-                  <div className="text-[13px] font-medium mb-1 flex items-center gap-1.5" style={{ color: "#F2EDE4" }}><Sparkles size={14} color="#E8B94A" /> Do'stingizni taklif qiling</div>
-                  <p className="text-[12px] mb-3" style={{ color: "#93A5AA" }}>Har bir taklif qilingan do'stingiz ro'yxatdan o'tsa — ikkalangizga ham bepul "Top e'lon" krediti beriladi.</p>
+                  <div className="text-[13px] font-medium mb-1 flex items-center gap-1.5" style={{ color: "#F2EDE4" }}><Sparkles size={14} color="#E8B94A" /> {t.referralTitle}</div>
+                  <p className="text-[12px] mb-3" style={{ color: "#93A5AA" }}>{t.referralSubtitle}</p>
                   <div className="flex items-center justify-between p-3 rounded-xl mb-2" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
                     <span className="font-mono text-[13px]" style={{ color: "#E8B94A" }}>{window.location.origin}/?ref={profile.referralCode}</span>
-                    <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/?ref=${profile.referralCode}`); }} className="shrink-0 ml-2 px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>Nusxalash</button>
+                    <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/?ref=${profile.referralCode}`); }} className="shrink-0 ml-2 px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>{t.copyBtn}</button>
                   </div>
-                  <div className="text-[12.5px]" style={{ color: "#93A5AA" }}>Joriy bonus kredit: <b style={{ color: "#F2EDE4" }}>{profile.boostCredits} ta</b></div>
+                  <div className="text-[12.5px]" style={{ color: "#93A5AA" }}>{t.currentCreditsLabel} <b style={{ color: "#F2EDE4" }}>{profile.boostCredits} {t.ta}</b></div>
                 </div>
               )}
 
               {verified && savedSearches.length > 0 && (
                 <div className="rounded-2xl p-4" style={box}>
-                  <div className="text-[13px] font-medium mb-3" style={{ color: "#F2EDE4" }}>Saqlangan qidiruvlar</div>
+                  <div className="text-[13px] font-medium mb-3" style={{ color: "#F2EDE4" }}>{t.savedSearchesTitle}</div>
                   <div className="space-y-2">
                     {savedSearches.map(s => (
                       <div key={s.id} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
                         <span className="text-[12.5px]" style={{ color: "#C8D4D6" }}>
-                          {s.city} · {s.rent_type} · {s.rooms} xona{s.min_price || s.max_price ? ` · ${fmt(s.min_price || 0)}–${fmt(s.max_price || 0)}` : ""}
+                          {s.city} · {s.rent_type} · {s.rooms} {t.roomsWord}{s.min_price || s.max_price ? ` · ${fmt(s.min_price || 0)}–${fmt(s.max_price || 0)}` : ""}
                         </span>
                         <button onClick={() => deleteSavedSearch(s.id)}><Trash2 size={14} color="#D4783C" /></button>
                       </div>
@@ -1819,6 +1936,7 @@ export default function Uy247App() {
 
       {showVerify && (
         <VerifyModal
+          t={t}
           onClose={() => setShowVerify(false)}
           onVerified={async (confirmedPhone) => {
             const { data: { session } } = await supabase.auth.getSession();
