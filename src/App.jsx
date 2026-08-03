@@ -1020,6 +1020,30 @@ function dotIcon(color = "#D4783C") {
   });
 }
 
+// Narxni xaritada sig'adigan qisqa shaklga o'giradi: 4200000 -> "4.2mln"
+function shortPrice(price) {
+  if (price >= 1000000) {
+    const m = price / 1000000;
+    return (Number.isInteger(m) ? m : m.toFixed(1)) + "mln";
+  }
+  if (price >= 1000) return Math.round(price / 1000) + "ming";
+  return String(price);
+}
+
+// E'lon pin'lari uchun — narx to'g'ridan-to'g'ri ko'rinadigan yorliq (Airbnb uslubida)
+function priceIcon(price, boosted) {
+  const bg = boosted ? "#D4783C" : "#E8B94A";
+  return L.divIcon({
+    className: "",
+    html: `<div style="transform:translate(-50%,-100%);white-space:nowrap;display:flex;flex-direction:column;align-items:center;">
+      <div style="background:${bg};color:#16262E;font-weight:700;font-size:12px;padding:4px 10px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:1.5px solid #16262E;">${shortPrice(price)}</div>
+      <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${bg};margin-top:-1px;"></div>
+    </div>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+  });
+}
+
 // ---- OpenStreetMap (zaxira, kalit talab qilmaydi) ----
 function OsmMapPicker({ lat, lng, onChange }) {
   const ref = useRef(null);
@@ -1065,7 +1089,7 @@ function OsmMapListView({ listings, onOpen, userLoc }) {
     if (layerRef.current) mapObj.current.removeLayer(layerRef.current);
     const group = L.layerGroup();
     withCoords.forEach(l => {
-      const marker = L.marker([l.lat, l.lng], { icon: dotIcon() });
+      const marker = L.marker([l.lat, l.lng], { icon: priceIcon(l.price, l.boosted) });
       marker.bindPopup(`<b>${l.title}</b><br/>${fmt(l.price)} so'm`);
       marker.on("click", () => onOpen(l));
       marker.addTo(group);
@@ -1151,8 +1175,8 @@ function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
       const map = new ymaps.Map(ref.current, { center, zoom: 11, controls: ["zoomControl"] });
       withCoords.forEach(l => {
         const pm = new ymaps.Placemark([l.lat, l.lng],
-          { balloonContentHeader: l.title, balloonContentBody: `${fmt(l.price)} so'm` },
-          { preset: "islands#orangeDollarIcon" });
+          { balloonContentHeader: l.title, balloonContentBody: `${fmt(l.price)} so'm`, iconContent: shortPrice(l.price) },
+          { preset: l.boosted ? "islands#orangeStretchyIcon" : "islands#darkOrangeStretchyIcon" });
         pm.events.add("click", () => onOpen(l));
         map.geoObjects.add(pm);
       });
