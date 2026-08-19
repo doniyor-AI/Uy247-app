@@ -30,7 +30,7 @@ L.Icon.Default.mergeOptions({ iconRetinaUrl: markerIcon2x, iconUrl: markerIcon, 
 const CITIES = ["Toshkent shahri", "Samarqand", "Buxoro", "Farg'ona", "Andijon", "Namangan"];
 const DISTRICTS = { "Toshkent shahri": ["Yunusobod", "Chilonzor", "Mirzo Ulug'bek", "Mirobod", "Yakkasaroy", "Shayxontohur"] };
 const AMENITIES_LIST = ["Wi-Fi", "Konditsioner", "Mashina turargohi", "Lift", "Muzlatgich", "Kir yuvish mashinasi"];
-const ADMIN_PASSWORD = "admin2026";
+
 
 const STR = {
   uz: {
@@ -906,99 +906,6 @@ function Row({ label, children }) {
   return <div className="flex items-center justify-between"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>{label}</span>{children}</div>;
 }
 
-function AdminPanel({ onBack, listings, reports, setReports, revenue, setStatus, removeListing }) {
-  const [tab, setTab] = useState("stats");
-  const pending = listings.filter(l => l.status === "pending").length;
-  const approved = listings.filter(l => l.status === "approved").length;
-  const blocked = listings.filter(l => l.status === "blocked").length;
-
-  const dismissReport = async (id) => {
-    setReports(rs => rs.filter(r => r.id !== id));
-    await supabase.from("reports").update({ status: "resolved" }).eq("id", id);
-  };
-
-  return (
-    <div className="pb-10 min-h-screen">
-      <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B" }}>
-        <button onClick={onBack}><ArrowLeft size={19} color="#F2EDE4" /></button>
-        <h2 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>Admin panel</h2>
-      </header>
-
-      <div className="flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar">
-        {[["stats", "Statistika", TrendingUp], ["listings", "E'lonlar", ClipboardList], ["reports", `Shikoyatlar (${reports.length})`, AlertTriangle]].map(([id, label, Icon]) => (
-          <button key={id} onClick={() => setTab(id)} className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-medium" style={{ background: tab === id ? "#3E92B0" : "#1E333C", color: tab === id ? "#0E1B21" : "#93A5AA", border: "1px solid #2A424C" }}>
-            <Icon size={14} /> {label}
-          </button>
-        ))}
-      </div>
-
-      {tab === "stats" && (
-        <div className="px-4 grid grid-cols-2 gap-3">
-          <StatCard icon={ClipboardList} label="Jami e'lonlar" value={listings.length} color="#3E92B0" />
-          <StatCard icon={CircleCheck} label="Faol" value={approved} color="#E8B94A" />
-          <StatCard icon={AlertTriangle} label="Kutilmoqda" value={pending} color="#D4783C" />
-          <StatCard icon={CircleX} label="Bloklangan" value={blocked} color="#93A5AA" />
-          <StatCard icon={Users} label="Foydalanuvchilar" value={128} color="#3E92B0" />
-          <StatCard icon={TrendingUp} label="Oylik daromad" value={`${fmt(revenue)} so'm`} color="#E8B94A" wide />
-        </div>
-      )}
-
-      {tab === "listings" && (
-        <div className="px-4 space-y-2.5">
-          {listings.map(l => (
-            <div key={l.id} className="rounded-xl p-3.5" style={box}>
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="text-[14px] font-medium" style={{ color: "#F2EDE4" }}>{l.title}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: "#93A5AA" }}>{l.district}, {l.city} · {fmt(l.price)} so'm</div>
-                </div>
-                <Badge
-                  color={l.status === "approved" ? "#16262E" : l.status === "pending" ? "#16262E" : "#F2EDE4"}
-                  bg={l.status === "approved" ? "#8FD19E" : l.status === "pending" ? "#E8B94A" : "#65787E"}
-                >
-                  {l.status === "approved" ? "Faol" : l.status === "pending" ? "Kutilmoqda" : "Bloklangan"}
-                </Badge>
-              </div>
-              <div className="flex gap-2 mt-3">
-                {l.status !== "approved" && <button onClick={() => setStatus(l.id, "approved")} className="flex-1 py-1.5 rounded-lg text-[12px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>Tasdiqlash</button>}
-                {l.status !== "blocked" && <button onClick={() => setStatus(l.id, "blocked")} className="flex-1 py-1.5 rounded-lg text-[12px] font-medium" style={{ background: "#2A424C", color: "#F2EDE4" }}>Bloklash</button>}
-                <button onClick={() => removeListing(l.id)} className="flex-1 py-1.5 rounded-lg text-[12px] font-medium" style={{ background: "transparent", color: "#D4783C", border: "1px solid #D4783C" }}>O'chirish</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {tab === "reports" && (
-        <div className="px-4 space-y-2.5">
-          {reports.length === 0 ? (
-            <div className="text-center py-16"><p className="text-[13.5px]" style={{ color: "#93A5AA" }}>Hozircha shikoyatlar yo'q.</p></div>
-          ) : reports.map(r => (
-            <div key={r.id} className="rounded-xl p-3.5" style={box}>
-              <div className="text-[13.5px] font-medium" style={{ color: "#F2EDE4" }}>{r.listingTitle}</div>
-              <div className="text-[12.5px] mt-1" style={{ color: "#D4783C" }}>{r.reason}</div>
-              <div className="flex gap-2 mt-3">
-                <button onClick={() => { setStatus(r.listingId, "blocked"); dismissReport(r.id); }} className="flex-1 py-1.5 rounded-lg text-[12px] font-medium" style={{ background: "#D4783C", color: "#16262E" }}>E'lonni bloklash</button>
-                <button onClick={() => dismissReport(r.id)} className="flex-1 py-1.5 rounded-lg text-[12px] font-medium" style={{ background: "#2A424C", color: "#F2EDE4" }}>E'tiborsiz qoldirish</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function StatCard({ icon: Icon, label, value, color, wide }) {
-  return (
-    <div className={`rounded-2xl p-4 ${wide ? "col-span-2" : ""}`} style={box}>
-      <Icon size={17} color={color} />
-      <div className="text-[19px] font-semibold mt-2 font-mono" style={{ color: "#F2EDE4" }}>{value}</div>
-      <div className="text-[11.5px] mt-0.5" style={{ color: "#93A5AA" }}>{label}</div>
-    </div>
-  );
-}
-
 const WEEKDAYS_UZ = ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"];
 const MONTHS_UZ = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"];
 
@@ -1385,22 +1292,6 @@ function MapStatic(props) {
   return useOsm ? <OsmMapStatic {...props} /> : <YandexMapStatic {...props} onFail={() => setUseOsm(true)} />;
 }
 
-function AdminLoginModal({ onClose, onSuccess }) {
-  const [pass, setPass] = useState("");
-  const [error, setError] = useState(false);
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
-      <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
-        <div className="flex justify-between items-center mb-4"><h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>Admin kirish</h3><button onClick={onClose}><X size={20} color="#93A5AA" /></button></div>
-        <input type="password" placeholder="Admin paroli" value={pass} onChange={(e) => { setPass(e.target.value); setError(false); }} className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none mb-1.5" style={inputStyle} />
-        <div className="text-[11px] mb-3" style={{ color: "#65787E" }}>Demo parol: {ADMIN_PASSWORD}</div>
-        {error && <div className="text-[12.5px] mb-2" style={{ color: "#D4783C" }}>Parol noto'g'ri.</div>}
-        <button onClick={() => pass === ADMIN_PASSWORD ? onSuccess() : setError(true)} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Kirish</button>
-      </div>
-    </div>
-  );
-}
-
 const TAB_PATHS = { browse: "/", chats: "/xabarlar", post: "/elon-berish", favs: "/sevimli", profile: "/profil" };
 const pathToTab = (path) => {
   if (path.startsWith("/xabarlar")) return "chats";
@@ -1434,9 +1325,6 @@ export default function Uy247App() {
   const [query, setQuery] = useState("");
   const [lang, setLang] = useState("uz");
   const [showSettings, setShowSettings] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [reports, setReports] = useState([]);
   const [revenue, setRevenue] = useState(340000);
   const [boostTarget, setBoostTarget] = useState(null);
@@ -1733,34 +1621,6 @@ export default function Uy247App() {
     setBoostTarget(null);
   };
 
-  const adminSetStatus = async (id, status) => {
-    const { error } = await supabase.from("listings").update({ status }).eq("id", id);
-    if (error) { console.error("Holatni yangilashda xato:", error.message); return; }
-    setListings(ls => ls.map(l => l.id === id ? { ...l, status } : l));
-    if (status === "approved") {
-      const l = listings.find(x => x.id === id);
-      if (l) {
-        fetch("/api/on-listing-approved", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            listing: {
-              id: l.id, title: l.title, city: l.city, district: l.district,
-              rooms: l.rooms, area: l.area, price: l.price, rent_type: l.rentType,
-              property_type: l.propertyType, imageUrl: l.images?.[0] || null,
-            },
-          }),
-        }).catch(err => console.error("Bildirishnoma yuborishda xato:", err.message));
-      }
-    }
-  };
-
-  const adminRemoveListing = async (id) => {
-    const { error } = await supabase.from("listings").delete().eq("id", id);
-    if (error) { console.error("O'chirishda xato:", error.message); return; }
-    setListings(ls => ls.filter(l => l.id !== id));
-  };
-
   if (activeChat && chats[activeChat]) {
     return (
       <div className="min-h-screen" style={{ background: "#16262E", fontFamily: "Inter, sans-serif" }}>
@@ -1776,15 +1636,6 @@ export default function Uy247App() {
         <GlobalStyle />
         <SettingsView onBack={() => setShowSettings(false)} lang={lang} setLang={setLang} verified={verified} security={security} setSecurity={setSecurity}
           onDeleteAccount={() => { setVerified(false); setPhone(""); setShowSettings(false); }} />
-      </div>
-    );
-  }
-
-  if (showAdmin) {
-    return (
-      <div className="min-h-screen" style={{ background: "#16262E", fontFamily: "Inter, sans-serif" }}>
-        <GlobalStyle />
-        <AdminPanel onBack={() => setShowAdmin(false)} listings={listings} reports={reports} setReports={setReports} revenue={revenue} setStatus={adminSetStatus} removeListing={adminRemoveListing} />
       </div>
     );
   }
@@ -1925,10 +1776,6 @@ export default function Uy247App() {
                   </div>
                 </div>
               )}
-
-              <button onClick={() => setShowAdminLogin(true)} className="w-full py-3 rounded-xl font-medium text-[13.5px] flex items-center justify-center gap-2" style={{ background: "transparent", color: "#93A5AA", border: "1px dashed #2A424C" }}>
-                <Lock size={14} /> {t.adminPanel}
-              </button>
             </div>
           )}
         </>
@@ -1964,7 +1811,6 @@ export default function Uy247App() {
       )}
       {boostTarget && <BoostModal onClose={() => setBoostTarget(null)} onBoost={handleBoost} onUseCredit={handleUseCredit} boostCredits={profile.boostCredits} />}
       {bookingEditorId && <BookingEditorModal listingId={bookingEditorId} onClose={() => setBookingEditorId(null)} />}
-      {showAdminLogin && <AdminLoginModal onClose={() => setShowAdminLogin(false)} onSuccess={() => { setIsAdmin(true); setShowAdminLogin(false); setShowAdmin(true); }} />}
 
       {!selected && (
         <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2.5" style={{ background: "#1A2B33", borderTop: "1px solid #22343B" }}>
