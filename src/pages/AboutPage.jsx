@@ -19,7 +19,7 @@ export default function AboutPage() {
           <span className="font-serif text-3xl font-semibold" style={{ color: "#D4783C" }}>24/7</span>
         </div>
         <p className="text-[14.5px] leading-relaxed" style={{ color: "#C8D4D6" }}>
-          Uy24/7 — O'zbekistonda uy-joy ijarasini oddiy va ishonchli qiladigan platforma. Biz uy egalari va ijarachilarni hech qanday vositachisiz to'g'ridan-to'g'ri bog'laymiz.
+          Uy24/7 — O'zbekistonda uy-joy ijarasini oddiy va ishonchli qiladigan platforma. Rieltorsiz — to'g'ridan-to'g'ri uy egasidan.
         </p>
 
         <div className="grid gap-3">
