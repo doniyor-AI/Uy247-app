@@ -64,6 +64,8 @@ const STR = {
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
     reportTitle: "Shubhali deb belgilash", reportSubmit: "Yuborish", reportFooter: "Shikoyat admin tomonidan 24 soat ichida ko'rib chiqiladi.",
     titlePlaceholder: "Masalan: Yunusobodda yorug' 2 xonali", mapMarkedHint: "Belgilandi — o'zgartirish uchun xaritaga bosing",
+    ismLabel: "Ism", ismPlaceholder: "Ismingiz", familiyaLabel: "Familiya", familiyaPlaceholder: "Familiyangiz",
+    nameHint: "Faqat tasdiqlash uchun, e'londa ochiq ko'rsatilmaydi.",
     mapUnmarkedHint: "Xaritaga bosib yoki markerni sudrab, uyingiz joylashuvini belgilang",
     photosCountPrefix: "Rasmlar (kamida 3 ta) — ", photosCountSuffix: " ta qo'shildi", addPhotoBtn: "Qo'shish",
     photosHint: "Telefon galereyasidan yoki kameradan tanlashingiz mumkin", descPlaceholder: "Uyingiz haqida qisqacha yozing...",
@@ -115,6 +117,8 @@ const STR = {
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
     reportTitle: "Пожаловаться", reportSubmit: "Отправить", reportFooter: "Жалоба будет рассмотрена администратором в течение 24 часов.",
     titlePlaceholder: "Например: Светлая 2-комнатная в Юнусабаде", mapMarkedHint: "Отмечено — нажмите на карту, чтобы изменить",
+    ismLabel: "Имя", ismPlaceholder: "Ваше имя", familiyaLabel: "Фамилия", familiyaPlaceholder: "Ваша фамилия",
+    nameHint: "Только для подтверждения, в объявлении не показывается.",
     mapUnmarkedHint: "Нажмите на карту или перетащите метку, чтобы отметить местоположение",
     photosCountPrefix: "Фото (минимум 3) — добавлено ", photosCountSuffix: "", addPhotoBtn: "Добавить",
     photosHint: "Можно выбрать из галереи телефона или снять камерой", descPlaceholder: "Кратко опишите жильё...",
@@ -166,6 +170,8 @@ const STR = {
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
     reportTitle: "Report as suspicious", reportSubmit: "Submit", reportFooter: "The report will be reviewed by an admin within 24 hours.",
     titlePlaceholder: "e.g. Bright 2-room in Yunusabad", mapMarkedHint: "Marked — tap the map to change",
+    ismLabel: "First name", ismPlaceholder: "Your first name", familiyaLabel: "Last name", familiyaPlaceholder: "Your last name",
+    nameHint: "For verification only, not shown publicly on the listing.",
     mapUnmarkedHint: "Tap the map or drag the marker to mark your home's location",
     photosCountPrefix: "Photos (at least 3) — ", photosCountSuffix: " added", addPhotoBtn: "Add",
     photosHint: "You can choose from your phone gallery or take a photo", descPlaceholder: "Write a short description of your place...",
@@ -673,8 +679,12 @@ function ChatsListView({ chats, onOpen, t }) {
   );
 }
 
-function PostForm({ onPublish, userId, t = STR.uz }) {
-  const [form, setForm] = useState({ title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false, lat: null, lng: null });
+function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullNameSaved }) {
+  const [nameParts] = useState(() => {
+    const parts = (initialFullName || "").trim().split(/\s+/);
+    return { ism: parts[0] || "", familiya: parts.slice(1).join(" ") || "" };
+  });
+  const [form, setForm] = useState({ ism: nameParts.ism, familiya: nameParts.familiya, title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false, lat: null, lng: null });
   const [images, setImages] = useState([]); // { file, url, name }
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -691,13 +701,19 @@ function PostForm({ onPublish, userId, t = STR.uz }) {
   };
   const removeImage = (i) => setImages(prev => { URL.revokeObjectURL(prev[i].url); return prev.filter((_, idx) => idx !== i); });
 
-  const valid = form.title && form.area && form.price && form.ownerConfirm && images.length >= 3 && !submitting;
+  const valid = form.ism.trim() && form.familiya.trim() && form.title && form.area && form.price && form.ownerConfirm && images.length >= 3 && !submitting;
 
   const submit = async () => {
     if (!userId) { setError(t.sessionNotFoundError); return; }
     setSubmitting(true);
     setError("");
     try {
+      // 0) Ism-familiyani profilga saqlash
+      const fullName = `${form.ism.trim()} ${form.familiya.trim()}`.trim();
+      const { error: nameErr } = await supabase.from("profiles").update({ full_name: fullName }).eq("id", userId);
+      if (nameErr) throw nameErr;
+      onFullNameSaved && onFullNameSaved(fullName);
+
       // 1) E'lonni yaratish (pending holatda)
       const { data: listingRow, error: insertErr } = await supabase.from("listings").insert({
         owner_id: userId, title: form.title, city: form.city, district: form.district,
@@ -755,6 +771,11 @@ function PostForm({ onPublish, userId, t = STR.uz }) {
           <p className="text-[12.5px]" style={{ color: "#F2C2C2" }}>{error}</p>
         </div>
       )}
+      <div className="grid grid-cols-2 gap-3">
+        <Field label={t.ismLabel}><input value={form.ism} onChange={e => setForm(f => ({ ...f, ism: e.target.value }))} placeholder={t.ismPlaceholder} style={inputStyle} /></Field>
+        <Field label={t.familiyaLabel}><input value={form.familiya} onChange={e => setForm(f => ({ ...f, familiya: e.target.value }))} placeholder={t.familiyaPlaceholder} style={inputStyle} /></Field>
+      </div>
+      <p className="text-[11px] -mt-3" style={{ color: "#65787E" }}>{t.nameHint}</p>
       <Field label={t.titleLabel}><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder={t.titlePlaceholder} style={inputStyle} /></Field>
 
       <Field label={t.propertyTypeLabel}>
@@ -1332,7 +1353,7 @@ export default function Uy247App() {
   const [chats, setChats] = useState({});
   const [activeChat, setActiveChat] = useState(null);
   const [refCode] = useState(() => new URLSearchParams(window.location.search).get("ref"));
-  const [profile, setProfile] = useState({ referralCode: "", boostCredits: 0 });
+  const [profile, setProfile] = useState({ referralCode: "", boostCredits: 0, fullName: "" });
   const [ownerStats, setOwnerStats] = useState({});
   const [savedSearches, setSavedSearches] = useState([]);
   const [bookingEditorId, setBookingEditorId] = useState(null);
@@ -1447,8 +1468,8 @@ export default function Uy247App() {
       if (myId) {
         // Profil qatori bo'lmasa yaratamiz (listings.owner_id shu jadvalga bog'langan)
         await supabase.from("profiles").upsert({ id: myId }, { onConflict: "id", ignoreDuplicates: true });
-        const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits").eq("id", myId).maybeSingle();
-        if (profRow) setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0 });
+        const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits, full_name").eq("id", myId).maybeSingle();
+        if (profRow) setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0, fullName: profRow.full_name || "" });
         // Agar bu foydalanuvchi avval telefonini tasdiqlagan bo'lsa — eslab qolamiz
         if (session.user.phone && session.user.phone_confirmed_at) {
           setVerified(true);
@@ -1690,7 +1711,7 @@ export default function Uy247App() {
 
           {tab === "chats" && <ChatsListView chats={chats} onOpen={(c) => setActiveChat(c.listingId)} t={t} />}
 
-          {tab === "post" && <PostForm userId={userId} onPublish={() => { fetchListings(userId); setTab("profile"); }} t={t} />}
+          {tab === "post" && <PostForm userId={userId} onPublish={() => { fetchListings(userId); setTab("profile"); }} t={t} initialFullName={profile.fullName} onFullNameSaved={(name) => setProfile(p => ({ ...p, fullName: name }))} />}
 
           {tab === "profile" && (
             <div className="px-4 py-6 pb-28 space-y-4">
@@ -1795,8 +1816,8 @@ export default function Uy247App() {
                 const { data: claimed } = await supabase.rpc("claim_referral", { p_ref_code: refCode });
                 if (claimed) console.log("Referal bonusi berildi");
               }
-              const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits").eq("id", newUserId).maybeSingle();
-              if (profRow) setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0 });
+              const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits, full_name").eq("id", newUserId).maybeSingle();
+              if (profRow) setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0, fullName: profRow.full_name || "" });
               setUserId(newUserId);
               setPhone(confirmedPhone);
               setVerified(true);
