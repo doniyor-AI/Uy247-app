@@ -85,6 +85,12 @@ function escapeHtml(s) {
 }
 
 export default async function handler(req, res) {
+  // CORS: uy247-admin.vercel.app (boshqa domen) shu funksiyaga so'rov yubora olishi uchun
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.status(200).end();
+
   if (req.method !== "POST") return res.status(405).json({ message: "Faqat POST" });
   try {
     const { listing } = req.body; // { id, title, city, district, rooms, area, price, rent_type, property_type, imageUrl }
