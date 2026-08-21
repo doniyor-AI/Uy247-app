@@ -43,7 +43,10 @@ async function sendSms(phone, message) {
 async function postToTelegram(listing) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHANNEL_ID;
-  if (!token || !chatId) return; // sozlanmagan bo'lsa, jim o'tkazib yuboradi
+  if (!token || !chatId) {
+    console.error("Telegram sozlanmagan: TELEGRAM_BOT_TOKEN yoki TELEGRAM_CHANNEL_ID yo'q");
+    return { ok: false, reason: "TELEGRAM_BOT_TOKEN yoki TELEGRAM_CHANNEL_ID muhit o'zgaruvchisi topilmadi" };
+  }
 
   const url = `${process.env.SITE_URL || "https://uy247.uz"}/elon/${listing.id}`;
   const rentLabel = listing.rent_type === "Kunlik" ? "kuniga" : "oyiga";
@@ -55,21 +58,25 @@ async function postToTelegram(listing) {
     `🔗 ${url}`;
 
   try {
-    if (listing.imageUrl) {
-      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: chatId, photo: listing.imageUrl, caption, parse_mode: "HTML" }),
-      });
-    } else {
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: chatId, text: caption, parse_mode: "HTML" }),
-      });
+    const endpoint = listing.imageUrl ? "sendPhoto" : "sendMessage";
+    const body = listing.imageUrl
+      ? { chat_id: chatId, photo: listing.imageUrl, caption, parse_mode: "HTML" }
+      : { chat_id: chatId, text: caption, parse_mode: "HTML" };
+
+    const res = await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      console.error("Telegram API xatosi:", JSON.stringify(data));
+      return { ok: false, reason: data.description || `Telegram xato qaytardi (${res.status})` };
     }
+    return { ok: true };
   } catch (e) {
     console.error("Telegram xatosi:", e.message);
+    return { ok: false, reason: e.message };
   }
 }
 
@@ -84,36 +91,42 @@ export default async function handler(req, res) {
     if (!listing?.id) return res.status(400).json({ message: "listing topilmadi" });
 
     // 1) Telegram
-    await postToTelegram(listing);
+    const telegramResult = await postToTelegram(listing);
 
-    // 2) Mos saqlangan qidiruvlarni topib, egalariga SMS yuborish
-    const { data: searches, error } = await admin
-      .from("saved_searches")
-      .select("*, profiles(phone)")
-      .eq("city", listing.city);
-    if (error) throw error;
+    // 2) Mos saqlangan qidiruvlarni topib, egalariga SMS yuborish (bu qismdagi xato Telegram natijasini yashirmasin)
+    let notifiedCount = 0;
+    try {
+      const { data: searches, error } = await admin
+        .from("saved_searches")
+        .select("*, profiles(phone)")
+        .eq("city", listing.city);
+      if (error) throw error;
 
-    const matches = (searches || []).filter((s) => {
-      if (s.rent_type && s.rent_type !== "Barchasi" && s.rent_type !== listing.rent_type) return false;
-      if (s.property_type && s.property_type !== "Barchasi" && s.property_type !== listing.property_type) return false;
-      if (s.rooms && s.rooms !== "Barchasi") {
-        const want = s.rooms === "4+" ? listing.rooms >= 4 : Number(s.rooms) === listing.rooms;
-        if (!want) return false;
+      const matches = (searches || []).filter((s) => {
+        if (s.rent_type && s.rent_type !== "Barchasi" && s.rent_type !== listing.rent_type) return false;
+        if (s.property_type && s.property_type !== "Barchasi" && s.property_type !== listing.property_type) return false;
+        if (s.rooms && s.rooms !== "Barchasi") {
+          const want = s.rooms === "4+" ? listing.rooms >= 4 : Number(s.rooms) === listing.rooms;
+          if (!want) return false;
+        }
+        if (s.min_price && listing.price < s.min_price) return false;
+        if (s.max_price && listing.price > s.max_price) return false;
+        return true;
+      });
+
+      const seenPhones = new Set();
+      for (const m of matches) {
+        const phone = m.profiles?.phone;
+        if (!phone || seenPhones.has(phone)) continue;
+        seenPhones.add(phone);
+        await sendSms(phone, `Uy24/7: saqlangan qidiruvingizga mos yangi e'lon qo'shildi — "${listing.title}". Ko'rish: ${process.env.SITE_URL || "uy247.uz"}/elon/${listing.id}`);
       }
-      if (s.min_price && listing.price < s.min_price) return false;
-      if (s.max_price && listing.price > s.max_price) return false;
-      return true;
-    });
-
-    const seenPhones = new Set();
-    for (const m of matches) {
-      const phone = m.profiles?.phone;
-      if (!phone || seenPhones.has(phone)) continue;
-      seenPhones.add(phone);
-      await sendSms(phone, `Uy24/7: saqlangan qidiruvingizga mos yangi e'lon qo'shildi — "${listing.title}". Ko'rish: ${process.env.SITE_URL || "uy247.uz"}/elon/${listing.id}`);
+      notifiedCount = seenPhones.size;
+    } catch (smsErr) {
+      console.error("Saqlangan qidiruv/SMS qismida xato:", smsErr.message);
     }
 
-    return res.status(200).json({ notified: seenPhones.size });
+    return res.status(200).json({ notified: notifiedCount, telegram: telegramResult });
   } catch (e) {
     console.error("on-listing-approved xatosi:", e);
     return res.status(500).json({ message: e.message });
