@@ -523,14 +523,14 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
     <div className="pb-32">
       <div className="relative">
         <Gallery images={item.images} hue={item.hue} />
-        <button onClick={onBack} className="absolute top-4 left-4 w-9 h-9 rounded-full flex items-center justify-center z-10" style={{ background: "rgba(22,38,46,0.8)" }}><ArrowLeft size={18} color="#F2EDE4" /></button>
-        <div className="absolute top-4 right-4 flex gap-2 z-10">
-          <button onClick={share} className="w-9 h-9 rounded-full flex items-center justify-center relative" style={{ background: "rgba(22,38,46,0.8)" }}>
-            <Share2 size={16} color="#F2EDE4" />
-            {copied && <span className="absolute top-11 right-0 whitespace-nowrap px-2 py-1 rounded-lg text-[11px]" style={{ background: "#E8B94A", color: "#16262E" }}>{t.linkCopied}</span>}
+        <button onClick={onBack} className="absolute left-4 w-11 h-11 rounded-full flex items-center justify-center z-10" style={{ background: "rgba(22,38,46,0.85)", top: "calc(env(safe-area-inset-top, 0px) + 20px)" }}><ArrowLeft size={19} color="#F2EDE4" /></button>
+        <div className="absolute right-4 flex gap-2 z-10" style={{ top: "calc(env(safe-area-inset-top, 0px) + 20px)" }}>
+          <button onClick={share} className="w-11 h-11 rounded-full flex items-center justify-center relative" style={{ background: "rgba(22,38,46,0.85)" }}>
+            <Share2 size={17} color="#F2EDE4" />
+            {copied && <span className="absolute top-12 right-0 whitespace-nowrap px-2 py-1 rounded-lg text-[11px]" style={{ background: "#E8B94A", color: "#16262E" }}>{t.linkCopied}</span>}
           </button>
-          <button onClick={() => setShowReport(true)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.8)" }}><Flag size={16} color="#F2EDE4" /></button>
-          <button onClick={() => onToggleFav(item.id)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.8)" }}><Heart size={17} fill={isFav ? "#D4783C" : "none"} color={isFav ? "#D4783C" : "#F2EDE4"} /></button>
+          <button onClick={() => setShowReport(true)} className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.85)" }}><Flag size={17} color="#F2EDE4" /></button>
+          <button onClick={() => onToggleFav(item.id)} className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.85)" }}><Heart size={18} fill={isFav ? "#D4783C" : "none"} color={isFav ? "#D4783C" : "#F2EDE4"} /></button>
         </div>
       </div>
       <div className="p-4 space-y-4">
@@ -575,7 +575,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
         </div>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 p-4" style={{ background: "linear-gradient(to top, #16262E 75%, transparent)" }}>
+      <div className="fixed bottom-0 left-0 right-0 p-4" style={{ background: "linear-gradient(to top, #16262E 75%, transparent)", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}>
         {verified ? (
           <div className="space-y-2">
             <button onClick={() => onOpenChat(item)} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-[15px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>
@@ -614,7 +614,7 @@ function ChatThread({ chat, onBack, onSend, t }) {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#16262E" }}>
-      <header className="sticky top-0 z-20 px-4 py-3 flex items-center gap-3" style={{ background: "#1A2B33", borderBottom: "1px solid #22343B" }}>
+      <header className="sticky top-0 z-20 px-4 py-3 flex items-center gap-3" style={{ background: "#1A2B33", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}>
         <button onClick={onBack}><ArrowLeft size={19} color="#F2EDE4" /></button>
         <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: `hsl(${chat.hue} 45% 28%)` }}>
           <Building2 size={16} color="rgba(242,237,228,0.7)" />
@@ -640,7 +640,7 @@ function ChatThread({ chat, onBack, onSend, t }) {
         <div ref={endRef} />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-3 flex items-center gap-2" style={{ background: "#1A2B33", borderTop: "1px solid #22343B" }}>
+      <div className="fixed bottom-0 left-0 right-0 p-3 flex items-center gap-2" style={{ background: "#1A2B33", borderTop: "1px solid #22343B", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)" }}>
         <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()}
           placeholder={t.writeMessage} className="flex-1 px-3.5 py-2.5 rounded-full text-[13.5px] outline-none" style={{ background: "#16262E", color: "#F2EDE4", border: "1px solid #2A424C" }} />
         <button onClick={submit} className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#D4783C" }}>
@@ -858,7 +858,7 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
   const t = STR[lang];
   return (
     <div className="pb-10">
-      <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B" }}>
+      <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
         <button onClick={onBack}><ArrowLeft size={19} color="#F2EDE4" /></button>
         <h2 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{t.settings}</h2>
       </header>
@@ -1710,7 +1710,7 @@ export default function Uy247App() {
         <DetailView item={selected} onBack={closeListing} verified={verified} onRequestVerify={() => setShowVerify(true)} isFav={favs.has(selected.id)} onToggleFav={toggleFav} onReport={handleReport} onOpenChat={openChat} t={t} similar={similarListings} favs={favs} onOpenSimilar={openListing} />
       ) : (
         <>
-          <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center justify-between" style={{ background: "#16262E", borderBottom: "1px solid #22343B" }}>
+          <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center justify-between" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
             <div className="flex items-baseline gap-0.5">
               <span className="font-serif text-[22px] font-semibold" style={{ color: "#F2EDE4" }}>Uy</span>
               <span className="font-serif text-[22px] font-semibold" style={{ color: "#D4783C" }}>24/7</span>
@@ -1874,7 +1874,7 @@ export default function Uy247App() {
       {bookingEditorId && <BookingEditorModal listingId={bookingEditorId} onClose={() => setBookingEditorId(null)} />}
 
       {!selected && (
-        <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2.5" style={{ background: "#1A2B33", borderTop: "1px solid #22343B" }}>
+        <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2.5" style={{ background: "#1A2B33", borderTop: "1px solid #22343B", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)" }}>
           {[{ id: "browse", icon: Search, label: t.navSearch }, { id: "chats", icon: MessageCircle, label: t.navChats }, { id: "post", icon: Plus, label: t.navPost }, { id: "favs", icon: Heart, label: t.navFavs }, { id: "profile", icon: User, label: t.navProfile }].map(x => (
             <button key={x.id} onClick={() => switchTab(x.id)} className="flex flex-col items-center gap-1 px-3 py-1">
               <x.icon size={20} color={tab === x.id ? "#D4783C" : "#65787E"} />
