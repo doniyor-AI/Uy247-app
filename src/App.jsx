@@ -1080,8 +1080,8 @@ function priceIcon(price, boosted) {
   const bg = boosted ? "#D4783C" : "#E8B94A";
   return L.divIcon({
     className: "",
-    html: `<div style="transform:translate(-50%,-100%);white-space:nowrap;display:flex;flex-direction:column;align-items:center;">
-      <div style="background:${bg};color:#16262E;font-weight:700;font-size:12px;padding:4px 10px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:1.5px solid #16262E;">${shortPrice(price)}</div>
+    html: `<div style="transform:translate(-50%,-100%);white-space:nowrap;display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:6px;margin:-6px;">
+      <div style="background:${bg};color:#16262E;font-weight:700;font-size:12px;padding:5px 11px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:1.5px solid #16262E;">${shortPrice(price)}</div>
       <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${bg};margin-top:-1px;"></div>
     </div>`,
     iconSize: [0, 0],
@@ -1148,7 +1148,7 @@ function OsmMapListView({ listings, onOpen, userLoc }) {
     const group = L.layerGroup();
     withCoords.forEach(l => {
       const marker = L.marker([l.lat, l.lng], { icon: priceIcon(l.price, l.boosted) });
-      marker.bindPopup(`<b>${l.title}</b><br/>${fmt(l.price)} so'm`);
+      // Popup o'rniga — bosilganda to'g'ridan-to'g'ri e'lon sahifasi ochiladi
       marker.on("click", () => onOpen(l));
       marker.addTo(group);
     });
@@ -1253,9 +1253,16 @@ function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
       const map = new ymaps.Map(ref.current, { center, zoom: 11, controls: ["zoomControl"] });
       withCoords.forEach(l => {
         const pm = new ymaps.Placemark([l.lat, l.lng],
-          { balloonContentHeader: l.title, balloonContentBody: `${fmt(l.price)} so'm`, iconContent: shortPrice(l.price) },
-          { preset: l.boosted ? "islands#orangeStretchyIcon" : "islands#darkOrangeStretchyIcon" });
-        pm.events.add("click", () => onOpen(l));
+          { iconContent: shortPrice(l.price) },
+          {
+            preset: l.boosted ? "islands#orangeStretchyIcon" : "islands#darkOrangeStretchyIcon",
+            // Balon oynasi bosishni to'sib qo'ymasligi uchun o'chiramiz —
+            // bosilganda to'g'ridan-to'g'ri e'lon sahifasi ochiladi
+            hasBalloon: false,
+            hasHint: false,
+            cursor: "pointer",
+          });
+        pm.events.add("click", (e) => { e.preventDefault(); onOpen(l); });
         map.geoObjects.add(pm);
       });
       mapRef.current = map;
