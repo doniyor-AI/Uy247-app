@@ -9,6 +9,8 @@ html, body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
+  /* iPhone'da soat qatori ham ilova rangida bo'lishi uchun */
+  background: #16262E;
 }
 
 #root {
