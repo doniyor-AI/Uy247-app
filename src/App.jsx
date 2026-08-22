@@ -272,7 +272,7 @@ function ListingCard({ item, onOpen, isFav, onToggleFav, t = STR.uz }) {
         </div>
       )}
       <div className="h-40 relative flex items-center justify-center overflow-hidden" style={item.images?.length ? { background: "#0E1B21" } : { background: `linear-gradient(135deg, hsl(${item.hue} 45% 28%), hsl(${item.hue + 30} 40% 18%))` }}>
-        {item.images?.length ? <img src={item.images[0]} alt="" className="w-full h-full object-cover" /> : <Building2 size={40} color="rgba(242,237,228,0.35)" strokeWidth={1.3} />}
+        {item.images?.length ? <img src={item.images[0]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <Building2 size={40} color="rgba(242,237,228,0.35)" strokeWidth={1.3} />}
         {item.verified && (
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium" style={{ background: "rgba(22,38,46,0.85)", color: "#E8B94A" }}>
             <ShieldCheck size={13} /> {t.verifiedOwner}
@@ -1106,7 +1106,20 @@ function OsmMapPicker({ lat, lng, onChange }) {
     marker.on("dragend", () => { const p = marker.getLatLng(); onChange(p.lat, p.lng); });
     map.on("click", (e) => { marker.setLatLng(e.latlng); onChange(e.latlng.lat, e.latlng.lng); });
     mapObj.current = map;
-    return () => { map.remove(); mapObj.current = null; };
+
+    // Konteyner o'lchami/joyi o'zgarganda qayta hisoblash (bosilgan joy to'g'ri aniqlanishi uchun)
+    const refresh = () => { try { map.invalidateSize(); } catch (_) {} };
+    refresh();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(refresh) : null;
+    if (ro) ro.observe(ref.current);
+    window.addEventListener("orientationchange", refresh);
+
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener("orientationchange", refresh);
+      map.remove();
+      mapObj.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1197,9 +1210,29 @@ function YandexMapPicker({ lat, lng, onChange, onFail }) {
       placemark.events.add("dragend", () => { const c = placemark.geometry.getCoordinates(); onChange(c[0], c[1]); });
       map.events.add("click", (e) => { const c = e.get("coords"); placemark.geometry.setCoordinates(c); onChange(c[0], c[1]); });
       map.geoObjects.add(placemark);
-      objs.current = { map };
+
+      // Xarita konteyneri joyi o'zgarganda (rasm yuklandi, forma siljidi, ekran burildi)
+      // Yandex eski hisobni ishlatib, bosilgan joyni noto'g'ri aniqlaydi — shuni qayta hisoblaymiz
+      const refresh = () => { try { map.container.fitToViewport(); } catch (_) {} };
+      refresh();
+      const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(refresh) : null;
+      if (ro && ref.current) ro.observe(ref.current);
+      window.addEventListener("resize", refresh);
+      window.addEventListener("scroll", refresh, { passive: true });
+      window.addEventListener("orientationchange", refresh);
+
+      objs.current = { map, cleanup: () => {
+        if (ro) ro.disconnect();
+        window.removeEventListener("resize", refresh);
+        window.removeEventListener("scroll", refresh);
+        window.removeEventListener("orientationchange", refresh);
+      } };
     }).catch(() => onFail());
-    return () => { cancelled = true; if (objs.current.map) objs.current.map.destroy(); };
+    return () => {
+      cancelled = true;
+      if (objs.current.cleanup) objs.current.cleanup();
+      if (objs.current.map) objs.current.map.destroy();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
