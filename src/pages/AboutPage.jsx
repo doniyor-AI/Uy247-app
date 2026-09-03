@@ -1,12 +1,19 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { PAGE_STR, getPageLang } from "./pageStrings";
 
 const box = { background: "#1E333C", border: "1px solid #2A424C" };
 
 export default function AboutPage() {
+  const navigate = useNavigate();
   const [lang, setLang] = useState(getPageLang);
+
+  // Qayerdan kelgan bo'lsa — o'sha yerga qaytadi (Sozlamalar, e'lon formasi va h.k.)
+  const goBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate("/");
+  };
   const t = PAGE_STR[lang] || PAGE_STR.uz;
 
   const switchLang = (l) => {
@@ -18,7 +25,7 @@ export default function AboutPage() {
     <div className="min-h-screen" style={{ background: "#16262E", fontFamily: "Inter, sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap'); .font-serif{font-family:'Fraunces',serif;}`}</style>
       <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
-        <Link to="/"><ArrowLeft size={19} color="#F2EDE4" /></Link>
+        <button onClick={goBack} aria-label="Orqaga"><ArrowLeft size={19} color="#F2EDE4" /></button>
         <h1 className="font-serif text-lg flex-1" style={{ color: "#F2EDE4" }}>{t.aboutTitle}</h1>
         <div className="flex rounded-full p-0.5" style={box}>
           {["uz", "ru", "en"].map(l => (

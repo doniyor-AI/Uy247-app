@@ -62,6 +62,7 @@ const STR = {
     submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
+    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda",
     boostTitle: "Top e'lon qilish", boostDays7: "7 kun", boostDays30: "30 kun",
     boostDesc7: "Qidiruv natijalarida yuqorida chiqadi", boostDesc30: "Eng ko'p tanlanadigan variant",
     boostFreeCredit: "Bepul kredit bilan (7 kun)", boostLeft: "ta qoldi",
@@ -119,6 +120,7 @@ const STR = {
     submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
     successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
+    termsLink: "Правила пользования", aboutLink: "О нас",
     boostTitle: "Продвинуть объявление", boostDays7: "7 дней", boostDays30: "30 дней",
     boostDesc7: "Показывается выше в результатах поиска", boostDesc30: "Самый популярный вариант",
     boostFreeCredit: "Бесплатным кредитом (7 дней)", boostLeft: "осталось",
@@ -176,6 +178,7 @@ const STR = {
     submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
     successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
+    termsLink: "Terms of Use", aboutLink: "About us",
     boostTitle: "Boost listing", boostDays7: "7 days", boostDays30: "30 days",
     boostDesc7: "Shown higher in search results", boostDesc30: "Most popular option",
     boostFreeCredit: "Use free credit (7 days)", boostLeft: "left",
@@ -918,8 +921,8 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
 
         <Section icon={ClipboardList} title="Huquqiy">
           <div className="space-y-2">
-            <Link to="/qoidalar" target="_blank" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>Foydalanish qoidalari</span><ChevronRight size={15} color="#65787E" /></Link>
-            <Link to="/biz-haqimizda" target="_blank" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>Biz haqimizda</span><ChevronRight size={15} color="#65787E" /></Link>
+            <Link to="/qoidalar" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>{t.termsLink}</span><ChevronRight size={15} color="#65787E" /></Link>
+            <Link to="/biz-haqimizda" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>{t.aboutLink}</span><ChevronRight size={15} color="#65787E" /></Link>
           </div>
         </Section>
       </div>
