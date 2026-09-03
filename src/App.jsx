@@ -62,7 +62,7 @@ const STR = {
     submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
-    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda",
+    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil",
     boostTitle: "Top e'lon qilish", boostDays7: "7 kun", boostDays30: "30 kun",
     boostDesc7: "Qidiruv natijalarida yuqorida chiqadi", boostDesc30: "Eng ko'p tanlanadigan variant",
     boostFreeCredit: "Bepul kredit bilan (7 kun)", boostLeft: "ta qoldi",
@@ -120,7 +120,7 @@ const STR = {
     submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
     successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
-    termsLink: "Правила пользования", aboutLink: "О нас",
+    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее",
     boostTitle: "Продвинуть объявление", boostDays7: "7 дней", boostDays30: "30 дней",
     boostDesc7: "Показывается выше в результатах поиска", boostDesc30: "Самый популярный вариант",
     boostFreeCredit: "Бесплатным кредитом (7 дней)", boostLeft: "осталось",
@@ -178,7 +178,7 @@ const STR = {
     submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
     successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
-    termsLink: "Terms of Use", aboutLink: "About us",
+    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details",
     boostTitle: "Boost listing", boostDays7: "7 days", boostDays30: "30 days",
     boostDesc7: "Shown higher in search results", boostDesc30: "Most popular option",
     boostFreeCredit: "Use free credit (7 days)", boostLeft: "left",
@@ -1328,11 +1328,71 @@ function MapPicker(props) {
   const [useOsm, setUseOsm] = useState(!YANDEX_MAPS_API_KEY);
   return useOsm ? <OsmMapPicker {...props} /> : <YandexMapPicker {...props} onFail={() => setUseOsm(true)} />;
 }
+// Xaritada pin bosilganda pastdan chiqadigan kartochka
+function MapPreviewCard({ item, onOpen, onClose, isFav, onToggleFav, t }) {
+  if (!item) return null;
+  return (
+    <div className="absolute left-3 right-3 rounded-2xl overflow-hidden shadow-2xl"
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)", zIndex: 1200, background: "#1E333C", border: "1px solid #2A424C" }}>
+      <div className="flex">
+        <div className="w-28 h-28 shrink-0 relative flex items-center justify-center"
+          style={item.images?.length ? { background: "#0E1B21" } : { background: `linear-gradient(135deg, hsl(${item.hue} 45% 28%), hsl(${item.hue + 30} 40% 18%))` }}>
+          {item.images?.length
+            ? <img src={item.images[0]} alt="" className="w-full h-full object-cover" />
+            : <Building2 size={30} color="rgba(242,237,228,0.35)" strokeWidth={1.3} />}
+          {item.boosted && (
+            <div className="absolute top-0 left-0 px-2 py-0.5 text-[9.5px] font-semibold flex items-center gap-0.5"
+              style={{ background: "#D4783C", color: "#16262E" }}>
+              <Sparkles size={9} /> TOP
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0 p-3 flex flex-col justify-between">
+          <div className="min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <PriceTag price={item.price} rentType={item.rentType} />
+              <button onClick={onClose} className="shrink-0 -mt-0.5 -mr-0.5 p-1"><X size={16} color="#93A5AA" /></button>
+            </div>
+            <div className="font-serif text-[14.5px] leading-snug mt-1 truncate" style={{ color: "#F2EDE4" }}>{item.title}</div>
+            <div className="flex items-center gap-1 text-[11.5px] mt-0.5 truncate" style={{ color: "#93A5AA" }}>
+              <MapPin size={11} className="shrink-0" /> <span className="truncate">{item.district}, {item.city}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mt-1.5">
+            <div className="flex items-center gap-2.5 text-[11.5px]" style={{ color: "#93A5AA" }}>
+              <span className="flex items-center gap-1"><BedDouble size={12} /> {item.rooms}</span>
+              <span className="flex items-center gap-1"><Maximize2 size={12} /> {item.area} m²</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button onClick={() => onToggleFav(item.id)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#16262E" }}>
+                <Heart size={13} fill={isFav ? "#D4783C" : "none"} color={isFav ? "#D4783C" : "#93A5AA"} />
+              </button>
+              <button onClick={() => onOpen(item)} className="px-3 py-1.5 rounded-full text-[12px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>
+                {t?.detailBtn || "Batafsil"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MapListView(props) {
+  const { listings, onOpen, favs, onToggleFav, t } = props;
   const [useOsm, setUseOsm] = useState(!YANDEX_MAPS_API_KEY);
   const [userLoc, setUserLoc] = useState(null);
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState("");
+  const [preview, setPreview] = useState(null); // pin bosilganda ko'rinadigan e'lon
+
+  // Ro'yxat o'zgarsa (filtr almashsa), ochiq kartochkani yopamiz
+  useEffect(() => {
+    if (preview && !listings.some(l => l.id === preview.id)) setPreview(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listings]);
 
   const findMe = () => {
     if (!navigator.geolocation) { setLocateError("Bu qurilma joylashuvni aniqlay olmaydi"); return; }
@@ -1345,21 +1405,35 @@ function MapListView(props) {
     );
   };
 
+  // Pin bosilganda — darhol ochish o'rniga, avval kartochkani ko'rsatamiz
+  const mapProps = { ...props, onOpen: (l) => setPreview(l), userLoc };
+
   return (
     <div className="relative">
       {useOsm
-        ? <OsmMapListView {...props} userLoc={userLoc} />
-        : <YandexMapListView {...props} userLoc={userLoc} onFail={() => setUseOsm(true)} />}
+        ? <OsmMapListView {...mapProps} />
+        : <YandexMapListView {...mapProps} onFail={() => setUseOsm(true)} />}
+
       <button onClick={findMe} disabled={locating}
-        className="absolute bottom-5 right-3 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
-        style={{ background: "#3E92B0", zIndex: 1000 }}>
+        className="absolute right-3 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+        style={{ background: "#3E92B0", zIndex: 1000, bottom: preview ? "calc(env(safe-area-inset-bottom, 0px) + 160px)" : "calc(env(safe-area-inset-bottom, 0px) + 20px)", transition: "bottom 0.2s" }}>
         <LocateFixed size={20} color="#0E1B21" />
       </button>
+
       {locateError && (
         <div className="absolute bottom-20 right-3 px-3 py-2 rounded-lg text-[11.5px]" style={{ background: "#1E333C", color: "#F2EDE4", zIndex: 1000, maxWidth: 200 }}>
           {locateError}
         </div>
       )}
+
+      <MapPreviewCard
+        item={preview}
+        onOpen={onOpen}
+        onClose={() => setPreview(null)}
+        isFav={favs?.has(preview?.id)}
+        onToggleFav={onToggleFav}
+        t={t}
+      />
     </div>
   );
 }
@@ -1754,7 +1828,7 @@ export default function Uy247App() {
             <>
               <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} onSaveSearch={saveCurrentSearch} viewMode={viewMode} setViewMode={setViewMode} t={t} />
               {viewMode === "map" ? (
-                <MapListView listings={filtered} onOpen={openListing} />
+                <MapListView listings={filtered} onOpen={openListing} favs={favs} onToggleFav={toggleFav} t={t} />
               ) : (
                 <div className="px-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-28 pt-1">
                   {loadingListings ? (
