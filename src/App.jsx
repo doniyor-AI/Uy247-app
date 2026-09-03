@@ -62,6 +62,10 @@ const STR = {
     submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
+    boostTitle: "Top e'lon qilish", boostDays7: "7 kun", boostDays30: "30 kun",
+    boostDesc7: "Qidiruv natijalarida yuqorida chiqadi", boostDesc30: "Eng ko'p tanlanadigan variant",
+    boostFreeCredit: "Bepul kredit bilan (7 kun)", boostLeft: "ta qoldi",
+    payMethod: "To'lov usuli", payVia: "orqali",
     reportTitle: "Shubhali deb belgilash", reportSubmit: "Yuborish", reportFooter: "Shikoyat admin tomonidan 24 soat ichida ko'rib chiqiladi.",
     titlePlaceholder: "Masalan: Yunusobodda yorug' 2 xonali", mapMarkedHint: "Belgilandi — o'zgartirish uchun xaritaga bosing",
     ismLabel: "Ism", ismPlaceholder: "Ismingiz", familiyaLabel: "Familiya", familiyaPlaceholder: "Familiyangiz",
@@ -115,6 +119,10 @@ const STR = {
     submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
     successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
+    boostTitle: "Продвинуть объявление", boostDays7: "7 дней", boostDays30: "30 дней",
+    boostDesc7: "Показывается выше в результатах поиска", boostDesc30: "Самый популярный вариант",
+    boostFreeCredit: "Бесплатным кредитом (7 дней)", boostLeft: "осталось",
+    payMethod: "Способ оплаты", payVia: "через",
     reportTitle: "Пожаловаться", reportSubmit: "Отправить", reportFooter: "Жалоба будет рассмотрена администратором в течение 24 часов.",
     titlePlaceholder: "Например: Светлая 2-комнатная в Юнусабаде", mapMarkedHint: "Отмечено — нажмите на карту, чтобы изменить",
     ismLabel: "Имя", ismPlaceholder: "Ваше имя", familiyaLabel: "Фамилия", familiyaPlaceholder: "Ваша фамилия",
@@ -168,6 +176,10 @@ const STR = {
     submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
     successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
+    boostTitle: "Boost listing", boostDays7: "7 days", boostDays30: "30 days",
+    boostDesc7: "Shown higher in search results", boostDesc30: "Most popular option",
+    boostFreeCredit: "Use free credit (7 days)", boostLeft: "left",
+    payMethod: "Payment method", payVia: "via",
     reportTitle: "Report as suspicious", reportSubmit: "Submit", reportFooter: "The report will be reviewed by an admin within 24 hours.",
     titlePlaceholder: "e.g. Bright 2-room in Yunusabad", mapMarkedHint: "Marked — tap the map to change",
     ismLabel: "First name", ismPlaceholder: "Your first name", familiyaLabel: "Last name", familiyaPlaceholder: "Your last name",
@@ -462,23 +474,23 @@ function ReportModal({ onClose, onSubmit, t = STR.uz }) {
   );
 }
 
-function BoostModal({ onClose, onBoost, onUseCredit, boostCredits }) {
+function BoostModal({ onClose, onBoost, onUseCredit, boostCredits, t = STR.uz }) {
   const packages = [
-    { id: "7d", label: "7 kun", price: 25000, desc: "Qidiruv natijalarida yuqorida chiqadi" },
-    { id: "30d", label: "30 kun", price: 80000, desc: "Eng ko'p tanlanadigan variant" },
+    { id: "7d", label: t.boostDays7, price: 25000, desc: t.boostDesc7 },
+    { id: "30d", label: t.boostDays30, price: 80000, desc: t.boostDesc30 },
   ];
   const [selected, setSelected] = useState("7d");
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}><Sparkles size={17} color="#E8B94A" /> Top e'lon qilish</h3>
+          <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}><Sparkles size={17} color="#E8B94A" /> {t.boostTitle}</h3>
           <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
         </div>
         {boostCredits > 0 && (
           <button onClick={() => onUseCredit()} className="w-full flex items-center justify-between p-3.5 rounded-xl mb-3" style={{ background: "#26343A", border: "1.5px solid #E8B94A" }}>
-            <span className="text-[13.5px] font-medium flex items-center gap-2" style={{ color: "#E8B94A" }}><Sparkles size={15} /> Bepul kredit bilan (7 kun)</span>
-            <span className="text-[12px]" style={{ color: "#93A5AA" }}>{boostCredits} ta qoldi</span>
+            <span className="text-[13.5px] font-medium flex items-center gap-2" style={{ color: "#E8B94A" }}><Sparkles size={15} /> {t.boostFreeCredit}</span>
+            <span className="text-[12px]" style={{ color: "#93A5AA" }}>{boostCredits} {t.boostLeft}</span>
           </button>
         )}
         <div className="space-y-2.5 mb-4">
@@ -492,10 +504,10 @@ function BoostModal({ onClose, onBoost, onUseCredit, boostCredits }) {
             </button>
           ))}
         </div>
-        <div className="text-[12px] mb-2" style={{ color: "#93A5AA" }}>To'lov usuli</div>
+        <div className="text-[12px] mb-2" style={{ color: "#93A5AA" }}>{t.payMethod}</div>
         <div className="grid grid-cols-2 gap-2.5">
-          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price)} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Payme orqali</button>
-          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price)} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Click orqali</button>
+          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price)} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Payme {t.payVia}</button>
+          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price)} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Click {t.payVia}</button>
         </div>
       </div>
     </div>
@@ -1384,7 +1396,18 @@ export default function Uy247App() {
   const [showVerify, setShowVerify] = useState(false);
   const [phone, setPhone] = useState("");
   const [query, setQuery] = useState("");
-  const [lang, setLang] = useState("uz");
+  const [lang, setLang] = useState(() => {
+    // Avval tanlangan tilni eslab qolamiz (statik sahifalar ham shundan o'qiydi)
+    try {
+      const saved = localStorage.getItem("uy247_lang");
+      if (saved && STR[saved]) return saved;
+    } catch (_) {}
+    return "uz";
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem("uy247_lang", lang); } catch (_) {}
+  }, [lang]);
   const [showSettings, setShowSettings] = useState(false);
   const [reports, setReports] = useState([]);
   const [revenue, setRevenue] = useState(340000);
@@ -1870,7 +1893,7 @@ export default function Uy247App() {
           }}
         />
       )}
-      {boostTarget && <BoostModal onClose={() => setBoostTarget(null)} onBoost={handleBoost} onUseCredit={handleUseCredit} boostCredits={profile.boostCredits} />}
+      {boostTarget && <BoostModal onClose={() => setBoostTarget(null)} onBoost={handleBoost} onUseCredit={handleUseCredit} boostCredits={profile.boostCredits} t={t} />}
       {bookingEditorId && <BookingEditorModal listingId={bookingEditorId} onClose={() => setBookingEditorId(null)} />}
 
       {!selected && (

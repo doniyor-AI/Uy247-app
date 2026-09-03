@@ -1,50 +1,57 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, MessageCircle, Ban } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { PAGE_STR, getPageLang } from "./pageStrings";
 
 const box = { background: "#1E333C", border: "1px solid #2A424C" };
 
 export default function AboutPage() {
+  const [lang, setLang] = useState(getPageLang);
+  const t = PAGE_STR[lang] || PAGE_STR.uz;
+
+  const switchLang = (l) => {
+    setLang(l);
+    try { localStorage.setItem("uy247_lang", l); } catch (_) {}
+  };
+
   return (
     <div className="min-h-screen" style={{ background: "#16262E", fontFamily: "Inter, sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap'); .font-serif{font-family:'Fraunces',serif;}`}</style>
-      <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B" }}>
+      <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
         <Link to="/"><ArrowLeft size={19} color="#F2EDE4" /></Link>
-        <h1 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>Biz haqimizda</h1>
+        <h1 className="font-serif text-lg flex-1" style={{ color: "#F2EDE4" }}>{t.aboutTitle}</h1>
+        <div className="flex rounded-full p-0.5" style={box}>
+          {["uz", "ru", "en"].map(l => (
+            <button key={l} onClick={() => switchLang(l)} className="px-2.5 py-1 rounded-full text-[11.5px] font-medium uppercase"
+              style={{ background: lang === l ? "#3E92B0" : "transparent", color: lang === l ? "#0E1B21" : "#93A5AA" }}>{l}</button>
+          ))}
+        </div>
       </header>
 
-      <div className="max-w-2xl mx-auto p-5 space-y-5">
-        <div className="flex items-baseline gap-0.5">
+      <div className="max-w-2xl mx-auto p-5 space-y-5" style={{ color: "#C8D4D6" }}>
+        <div className="flex items-baseline gap-0.5 justify-center py-2">
           <span className="font-serif text-3xl font-semibold" style={{ color: "#F2EDE4" }}>Uy</span>
           <span className="font-serif text-3xl font-semibold" style={{ color: "#D4783C" }}>24/7</span>
         </div>
-        <p className="text-[14.5px] leading-relaxed" style={{ color: "#C8D4D6" }}>
-          Uy24/7 — O'zbekistonda uy-joy ijarasini oddiy va ishonchli qiladigan platforma. Rieltorsiz — to'g'ridan-to'g'ri uy egasidan.
-        </p>
 
-        <div className="grid gap-3">
-          <Feature icon={Ban} title="Faqat egalar" text="Rieltor va vositachilar e'lon joylay olmaydi — har bir e'lon egasi tomonidan tasdiqlanadi." />
-          <Feature icon={ShieldCheck} title="Tasdiqlangan raqamlar" text="Har bir foydalanuvchi telefon raqami orqali tasdiqlanadi, bu soxta e'lonlarni kamaytiradi." />
-          <Feature icon={MessageCircle} title="Xavfsiz muloqot" text="Ichki chat orqali raqamingizni oshkor qilmasdan yozishishingiz mumkin." />
-        </div>
+        <p className="text-[14px] leading-relaxed text-center" style={{ color: "#C8D4D6" }}>{t.aboutIntro}</p>
 
-        <div className="rounded-xl p-4" style={box}>
-          <h2 className="text-[14px] font-medium mb-1.5" style={{ color: "#F2EDE4" }}>Aloqa</h2>
-          <p className="text-[13.5px]" style={{ color: "#93A5AA" }}>info@uy247.uz</p>
-        </div>
+        <Section title={t.a1Title}>{t.a1Body}</Section>
+        <Section title={t.a2Title}>{t.a2Body}</Section>
+        <Section title={t.a3Title}>{t.a3Body}</Section>
+        <Section title={t.a4Title}>
+          {t.a4Body} <a href="mailto:info@uy247.uz" style={{ color: "#3E92B0" }}>info@uy247.uz</a>
+        </Section>
       </div>
     </div>
   );
 }
 
-function Feature({ icon: Icon, title, text }) {
+function Section({ title, children }) {
   return (
-    <div className="rounded-xl p-4 flex gap-3" style={box}>
-      <Icon size={20} color="#3E92B0" className="shrink-0 mt-0.5" />
-      <div>
-        <div className="text-[13.5px] font-medium mb-0.5" style={{ color: "#F2EDE4" }}>{title}</div>
-        <div className="text-[13px]" style={{ color: "#93A5AA" }}>{text}</div>
-      </div>
+    <div className="rounded-xl p-4" style={box}>
+      <h2 className="text-[14px] font-medium mb-2" style={{ color: "#F2EDE4" }}>{title}</h2>
+      <p className="text-[13.5px] leading-relaxed">{children}</p>
     </div>
   );
 }
