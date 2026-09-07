@@ -62,7 +62,7 @@ const STR = {
     submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
-    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ",
+    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish",
     months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
     weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
     bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
@@ -130,7 +130,7 @@ const STR = {
     submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
     successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
-    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ",
+    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё",
     months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
     weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
     bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
@@ -198,7 +198,7 @@ const STR = {
     submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
     successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
-    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ",
+    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more",
     months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
     weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
     bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
@@ -279,8 +279,63 @@ function PriceTag({ price, rentType }) {
   );
 }
 
-function Gallery({ images, hue, height = "h-64" }) {
+// Rasmni to'liq ekranda ko'rish oynasi
+function ImageLightbox({ images, startIdx = 0, onClose }) {
+  const [idx, setIdx] = useState(startIdx);
+  const touchX = useRef(null);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") setIdx(i => (i - 1 + images.length) % images.length);
+      if (e.key === "ArrowRight") setIdx(i => (i + 1) % images.length);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [images.length, onClose]);
+
+  // Barmoq bilan surib almashtirish
+  const onTouchStart = (e) => { touchX.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touchX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(dx) > 50) {
+      setIdx(i => dx > 0 ? (i - 1 + images.length) % images.length : (i + 1) % images.length);
+    }
+    touchX.current = null;
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center" style={{ background: "rgba(8,14,17,0.97)" }}
+      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <button onClick={onClose} className="absolute right-4 w-10 h-10 rounded-full flex items-center justify-center z-10"
+        style={{ background: "rgba(30,51,60,0.9)", top: "calc(env(safe-area-inset-top, 0px) + 16px)" }}>
+        <X size={20} color="#F2EDE4" />
+      </button>
+
+      <img src={images[idx]} alt="" className="max-w-full max-h-full object-contain" />
+
+      {images.length > 1 && (
+        <>
+          <button onClick={(e) => { e.stopPropagation(); setIdx(i => (i - 1 + images.length) % images.length); }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(30,51,60,0.9)" }}><ChevronLeft size={20} color="#F2EDE4" /></button>
+          <button onClick={(e) => { e.stopPropagation(); setIdx(i => (i + 1) % images.length); }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(30,51,60,0.9)" }}><ChevronRight size={20} color="#F2EDE4" /></button>
+          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[12.5px] font-mono"
+            style={{ background: "rgba(30,51,60,0.9)", color: "#F2EDE4", bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)" }}>
+            {idx + 1} / {images.length}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Gallery({ images, hue, height = "h-64", zoomable = false }) {
   const [idx, setIdx] = useState(0);
+  const [lightbox, setLightbox] = useState(false);
   if (!images || images.length === 0) {
     return (
       <div className={`${height} relative flex items-center justify-center`} style={{ background: `linear-gradient(135deg, hsl(${hue} 45% 28%), hsl(${hue + 30} 40% 18%))` }}>
@@ -290,7 +345,9 @@ function Gallery({ images, hue, height = "h-64" }) {
   }
   return (
     <div className={`${height} relative overflow-hidden`} style={{ background: "#0E1B21" }}>
-      <img src={images[idx]} alt="" className="w-full h-full object-cover" />
+      {lightbox && <ImageLightbox images={images} startIdx={idx} onClose={() => setLightbox(false)} />}
+      <img src={images[idx]} alt="" onClick={() => zoomable && setLightbox(true)}
+        className="w-full h-full object-cover" style={{ cursor: zoomable ? "zoom-in" : "default" }} />
       {images.length > 1 && (
         <>
           <button onClick={() => setIdx(i => (i - 1 + images.length) % images.length)} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.7)" }}><ChevronLeft size={17} color="#F2EDE4" /></button>
@@ -567,7 +624,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
   return (
     <div className="pb-32">
       <div className="relative">
-        <Gallery images={item.images} hue={item.hue} />
+        <Gallery images={item.images} hue={item.hue} zoomable />
         <button onClick={onBack} className="absolute left-4 w-11 h-11 rounded-full flex items-center justify-center z-10" style={{ background: "rgba(22,38,46,0.85)", top: "calc(env(safe-area-inset-top, 0px) + 20px)" }}><ArrowLeft size={19} color="#F2EDE4" /></button>
         <div className="absolute right-4 flex gap-2 z-10" style={{ top: "calc(env(safe-area-inset-top, 0px) + 20px)" }}>
           <button onClick={share} className="w-11 h-11 rounded-full flex items-center justify-center relative" style={{ background: "rgba(22,38,46,0.85)" }}>
@@ -745,11 +802,51 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
 
   const toggleAmenity = (a) => setForm(f => ({ ...f, amenities: f.amenities.includes(a) ? f.amenities.filter(x => x !== a) : [...f.amenities, a] }));
 
-  const handleFiles = (e) => {
+// Rasmni yuklashdan oldin kichraytiradi (telefon rasmlari 5-10 MB bo'ladi — bu juda katta).
+// Eni/bo'yi 1600px dan oshmaydi, sifat 82% — ko'z bilan farq sezilmaydi, hajm ~10 barobar kamayadi.
+async function compressImage(file, maxSize = 1600, quality = 0.82) {
+  // Rasm bo'lmasa yoki juda kichik bo'lsa — tegmaymiz
+  if (!file.type.startsWith("image/") || file.size < 300 * 1024) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    let { width, height } = bitmap;
+    if (width > maxSize || height > maxSize) {
+      const ratio = Math.min(maxSize / width, maxSize / height);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close?.();
+
+    const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", quality));
+    if (!blob || blob.size >= file.size) return file; // foyda bo'lmasa — asl faylni qoldiramiz
+
+    const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+    return new File([blob], name, { type: "image/jpeg" });
+  } catch (_) {
+    return file; // eski brauzerlarda ishlamasa — asl fayl bilan davom etamiz
+  }
+}
+
+
+  const [compressing, setCompressing] = useState(false);
+
+  const handleFiles = async (e) => {
     const files = Array.from(e.target.files || []).slice(0, 8 - images.length);
-    const next = files.map(file => ({ file, url: URL.createObjectURL(file), name: file.name }));
-    setImages(prev => [...prev, ...next]);
     e.target.value = "";
+    if (!files.length) return;
+    setCompressing(true);
+    const next = [];
+    for (const raw of files) {
+      const file = await compressImage(raw);
+      next.push({ file, url: URL.createObjectURL(file), name: file.name });
+    }
+    setImages(prev => [...prev, ...next]);
+    setCompressing(false);
   };
   const removeImage = (i) => setImages(prev => { URL.revokeObjectURL(prev[i].url); return prev.filter((_, idx) => idx !== i); });
 
@@ -876,8 +973,10 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
             </div>
           ))}
           {images.length < 8 && (
-            <button type="button" onClick={() => fileInputRef.current?.click()} className="w-16 h-16 rounded-lg flex flex-col items-center justify-center gap-1" style={{ border: "1.5px dashed #3E5560", color: "#93A5AA" }}>
-              <Camera size={18} /><span className="text-[10px]">{t.addPhotoBtn}</span>
+            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={compressing} className="w-16 h-16 rounded-lg flex flex-col items-center justify-center gap-1" style={{ border: "1.5px dashed #3E5560", color: "#93A5AA" }}>
+              {compressing
+                ? <span className="text-[9.5px] text-center leading-tight px-1">{t.preparingPhotos}</span>
+                : <><Camera size={18} /><span className="text-[10px]">{t.addPhotoBtn}</span></>}
             </button>
           )}
           <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={handleFiles} />
@@ -1077,10 +1176,62 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  // Rasmlar: mavjudlari (URL) + yangi qo'shilganlar (fayl)
+  const [existingImages, setExistingImages] = useState(listing.images || []);
+  const [newImages, setNewImages] = useState([]);
+  const [compressing, setCompressing] = useState(false);
+  const editFileRef = useRef(null);
+
+  const totalImages = existingImages.length + newImages.length;
+
+  const handleEditFiles = async (e) => {
+    const files = Array.from(e.target.files || []).slice(0, 8 - totalImages);
+    e.target.value = "";
+    if (!files.length) return;
+    setCompressing(true);
+    const next = [];
+    for (const raw of files) {
+      const file = await compressImage(raw);
+      next.push({ file, url: URL.createObjectURL(file) });
+    }
+    setNewImages(prev => [...prev, ...next]);
+    setCompressing(false);
+  };
+
   const toggleAmenity = (a) => setForm(f => ({ ...f, amenities: f.amenities.includes(a) ? f.amenities.filter(x => x !== a) : [...f.amenities, a] }));
 
   const save = async () => {
     setSaving(true); setError("");
+
+    // Rasmlar o'zgargan bo'lsa — bazadagi ro'yxatni yangilaymiz
+    try {
+      const removed = (listing.images || []).filter(u => !existingImages.includes(u));
+      if (removed.length) {
+        await supabase.from("listing_images").delete().eq("listing_id", listing.id).in("url", removed);
+      }
+      if (newImages.length) {
+        const uploaded = [];
+        for (let i = 0; i < newImages.length; i++) {
+          const img = newImages[i];
+          const ext = (img.file.name || "img.jpg").split(".").pop() || "jpg";
+          const path = `${listing.ownerId}/${listing.id}/${Date.now()}_${i}.${ext}`;
+          const { error: upErr } = await supabase.storage.from("listing-images").upload(path, img.file);
+          if (upErr) throw upErr;
+          const { data: pub } = supabase.storage.from("listing-images").getPublicUrl(path);
+          uploaded.push(pub.publicUrl);
+        }
+        const startPos = existingImages.length;
+        await supabase.from("listing_images").insert(
+          uploaded.map((url, i) => ({ listing_id: listing.id, url, position: startPos + i }))
+        );
+        existingImages.push(...uploaded);
+      }
+    } catch (imgErr) {
+      setSaving(false);
+      setError(imgErr.message || "Rasmlarni yangilashda xato");
+      return;
+    }
+
     const { error: err } = await supabase.from("listings").update({
       title: form.title,
       price: Number(form.price),
@@ -1093,11 +1244,11 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
     }).eq("id", listing.id);
     setSaving(false);
     if (err) { setError(err.message); return; }
-    onSaved({ ...listing, ...form, price: Number(form.price), rooms: Number(form.rooms), area: Number(form.area) });
+    onSaved({ ...listing, ...form, price: Number(form.price), rooms: Number(form.rooms), area: Number(form.area), images: existingImages });
     onClose();
   };
 
-  const valid = form.title && form.price && form.area && !saving;
+  const valid = form.title && form.price && form.area && totalImages >= 3 && !saving && !compressing;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
@@ -1145,6 +1296,38 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
 
           <Field label={t.descLabel}>
             <textarea rows={3} value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} style={{ ...inputStyle, resize: "none" }} />
+          </Field>
+
+          <Field label={`${t.photosCountPrefix}${totalImages}${t.photosCountSuffix}`}>
+            <div className="flex gap-2 flex-wrap">
+              {existingImages.map((url, i) => (
+                <div key={url} className="w-16 h-16 rounded-lg overflow-hidden relative">
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => setExistingImages(prev => prev.filter((_, idx) => idx !== i))}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#D4783C" }}>
+                    <Trash2 size={11} color="#16262E" />
+                  </button>
+                </div>
+              ))}
+              {newImages.map((img, i) => (
+                <div key={img.url} className="w-16 h-16 rounded-lg overflow-hidden relative" style={{ border: "1.5px solid #E8B94A" }}>
+                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => setNewImages(prev => { URL.revokeObjectURL(prev[i].url); return prev.filter((_, idx) => idx !== i); })}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#D4783C" }}>
+                    <Trash2 size={11} color="#16262E" />
+                  </button>
+                </div>
+              ))}
+              {totalImages < 8 && (
+                <button type="button" onClick={() => editFileRef.current?.click()} disabled={compressing}
+                  className="w-16 h-16 rounded-lg flex flex-col items-center justify-center gap-1" style={{ border: "1.5px dashed #3E5560", color: "#93A5AA" }}>
+                  {compressing
+                    ? <span className="text-[9.5px] text-center leading-tight px-1">{t.preparingPhotos}</span>
+                    : <><Camera size={18} /><span className="text-[10px]">{t.addPhotoBtn}</span></>}
+                </button>
+              )}
+              <input ref={editFileRef} type="file" accept="image/*" multiple hidden onChange={handleEditFiles} />
+            </div>
           </Field>
         </div>
 
@@ -1261,6 +1444,16 @@ function shortPrice(price) {
 }
 
 // E'lon pin'lari uchun — narx to'g'ridan-to'g'ri ko'rinadigan yorliq (Airbnb uslubida)
+// Bir joyga to'plangan e'lonlar uchun guruh belgisi
+function clusterIcon(count) {
+  return L.divIcon({
+    className: "",
+    html: `<div style="transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:#D4783C;border:2.5px solid #16262E;box-shadow:0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;color:#16262E;font-weight:700;font-size:14px;cursor:pointer;">${count}</div>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+  });
+}
+
 function priceIcon(price, boosted) {
   const bg = boosted ? "#D4783C" : "#E8B94A";
   return L.divIcon({
@@ -1316,6 +1509,7 @@ function OsmMapListView({ listings, onOpen, userLoc }) {
   const mapObj = useRef(null);
   const layerRef = useRef(null);
   const meMarker = useRef(null);
+  const [zoomTick, setZoomTick] = useState(0); // zoom o'zgarganda guruhlarni qayta hisoblash uchun
 
   useEffect(() => {
     if (!ref.current) return;
@@ -1331,16 +1525,45 @@ function OsmMapListView({ listings, onOpen, userLoc }) {
     }
     if (layerRef.current) mapObj.current.removeLayer(layerRef.current);
     const group = L.layerGroup();
+    // Yaqin joylashganlarni guruhlaymiz (zoom darajasiga qarab)
+    const zoom = mapObj.current.getZoom();
+    const cellSize = zoom >= 15 ? 0.0004 : zoom >= 13 ? 0.002 : 0.01;
+    const buckets = {};
     withCoords.forEach(l => {
-      const marker = L.marker([l.lat, l.lng], { icon: priceIcon(l.price, l.boosted) });
-      // Popup o'rniga — bosilganda to'g'ridan-to'g'ri e'lon sahifasi ochiladi
-      marker.on("click", () => onOpen(l));
-      marker.addTo(group);
+      const key = `${Math.round(l.lat / cellSize)}_${Math.round(l.lng / cellSize)}`;
+      (buckets[key] = buckets[key] || []).push(l);
+    });
+
+    Object.values(buckets).forEach(items => {
+      if (items.length === 1) {
+        const l = items[0];
+        const marker = L.marker([l.lat, l.lng], { icon: priceIcon(l.price, l.boosted) });
+        marker.on("click", () => onOpen(l));
+        marker.addTo(group);
+      } else {
+        // Guruh markazi
+        const lat = items.reduce((s, x) => s + x.lat, 0) / items.length;
+        const lng = items.reduce((s, x) => s + x.lng, 0) / items.length;
+        const marker = L.marker([lat, lng], { icon: clusterIcon(items.length) });
+        marker.on("click", () => {
+          // Bosilganda shu joyga yaqinlashadi — guruh yoyiladi
+          mapObj.current.setView([lat, lng], Math.min(mapObj.current.getZoom() + 3, 18));
+        });
+        marker.addTo(group);
+      }
     });
     group.addTo(mapObj.current);
     layerRef.current = group;
     return () => {};
-  }, [listings]);
+  }, [listings, zoomTick]);
+
+  // Zoom o'zgarganda guruhlar qayta hisoblanadi
+  useEffect(() => {
+    if (!mapObj.current) return;
+    const onZoom = () => setZoomTick(n => n + 1);
+    mapObj.current.on("zoomend", onZoom);
+    return () => { if (mapObj.current) mapObj.current.off("zoomend", onZoom); };
+  }, [zoomTick]);
 
   // "Mening joylashuvim" bosilganda — xaritani o'sha joyga suradi va ko'k belgi qo'yadi
   useEffect(() => {
@@ -1436,20 +1659,29 @@ function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
       const withCoords = listings.filter(l => l.lat && l.lng);
       const center = withCoords.length ? [withCoords[0].lat, withCoords[0].lng] : TASHKENT_CENTER;
       const map = new ymaps.Map(ref.current, { center, zoom: 11, controls: ["zoomControl"] });
-      withCoords.forEach(l => {
+      // Yaqin joylashgan pinlarni guruhlaymiz — aks holda ular bir-birini yopadi
+      const clusterer = new ymaps.Clusterer({
+        preset: "islands#invertedOrangeClusterIcons",
+        groupByCoordinates: false,
+        clusterDisableClickZoom: false,
+        clusterHideIconOnBalloonOpen: false,
+        geoObjectHideIconOnBalloonOpen: false,
+        gridSize: 64,
+      });
+      const placemarks = withCoords.map(l => {
         const pm = new ymaps.Placemark([l.lat, l.lng],
           { iconContent: shortPrice(l.price) },
           {
             preset: l.boosted ? "islands#orangeStretchyIcon" : "islands#darkOrangeStretchyIcon",
-            // Balon oynasi bosishni to'sib qo'ymasligi uchun o'chiramiz —
-            // bosilganda to'g'ridan-to'g'ri e'lon sahifasi ochiladi
             hasBalloon: false,
             hasHint: false,
             cursor: "pointer",
           });
         pm.events.add("click", (e) => { e.preventDefault(); onOpen(l); });
-        map.geoObjects.add(pm);
+        return pm;
       });
+      clusterer.add(placemarks);
+      map.geoObjects.add(clusterer);
       mapRef.current = map;
     }).catch(() => onFail());
     return () => { cancelled = true; if (mapRef.current) mapRef.current.destroy(); };
@@ -1667,6 +1899,9 @@ export default function Uy247App() {
   const [ownerStats, setOwnerStats] = useState({});
   const [savedSearches, setSavedSearches] = useState([]);
   const [bookingEditorId, setBookingEditorId] = useState(null);
+  // Ro'yxatni bo'lib-bo'lib ko'rsatamiz (bir vaqtda yuzlab kartochka chizilsa telefon sekinlashadi)
+  const PAGE_SIZE = 24;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   // Har bir suhbat oxirgi marta qachon ochilgani (o'qilmagan xabarlarni aniqlash uchun)
   const [lastSeen, setLastSeen] = useState(() => {
     try { return JSON.parse(localStorage.getItem("uy247_last_seen") || "{}"); } catch (_) { return {}; }
@@ -1731,7 +1966,8 @@ export default function Uy247App() {
       .from("listings")
       .select("*, listing_images(url, position)")
       .order("boosted", { ascending: false })
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(500); // xavfsizlik chegarasi — bazadan bir vaqtda juda ko'p tortmaslik uchun
     if (error) { console.error("E'lonlarni yuklashda xato:", error.message); setLoadingListings(false); return []; }
     const mapped = (data || []).map(r => mapRow(r, myId));
     setListings(mapped);
@@ -1914,6 +2150,9 @@ export default function Uy247App() {
     return 0; // "new" — Supabase'dan created_at bo'yicha allaqachon tartiblangan, shu tartib saqlanadi
   }), [listings, filters, query]);
 
+  // Filtr yoki qidiruv o'zgarganda ro'yxatni boshidan ko'rsatamiz
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [filters, query]);
+
   // Ochilgan e'longa o'xshash boshqa e'lonlar (bir xil shahar + tuman yoki xonalar soni mos)
   const similarListings = useMemo(() => {
     if (!selected) return [];
@@ -2038,7 +2277,20 @@ export default function Uy247App() {
                     <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>{t.loadingText}</p></div>
                   ) : filtered.length === 0 ? (
                     <div className="col-span-full text-center py-20"><p className="text-[14px]" style={{ color: "#93A5AA" }}>{t.noResults}</p></div>
-                  ) : filtered.map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav={favs.has(item.id)} onToggleFav={toggleFav} t={t} />)}
+                  ) : (
+                    <>
+                      {filtered.slice(0, visibleCount).map(item => <ListingCard key={item.id} item={item} onOpen={openListing} isFav={favs.has(item.id)} onToggleFav={toggleFav} t={t} />)}
+                      {filtered.length > visibleCount && (
+                        <div className="col-span-full flex justify-center py-3">
+                          <button onClick={() => setVisibleCount(n => n + PAGE_SIZE)}
+                            className="px-5 py-2.5 rounded-full text-[13.5px] font-medium"
+                            style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}>
+                            {t.loadMore} ({filtered.length - visibleCount})
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
             </>
