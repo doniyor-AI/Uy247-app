@@ -7,7 +7,7 @@ import {
   ImagePlus, Trash2, Settings as SettingsIcon, Globe, Lock,
   Bell, LogOut, TrendingUp, Users, ClipboardList, AlertTriangle,
   Sparkles, Eye, CircleCheck, CircleX, ShieldAlert, MessageCircle, Send, Camera,
-  ArrowUpDown, Home, Building, Store, Share2, Ban, Map, List, CalendarDays, LocateFixed
+  ArrowUpDown, Home, Building, Store, Share2, Ban, Map, List, CalendarDays, LocateFixed, Pencil
 } from "lucide-react";
 import { supabase } from "./lib/supabaseClient";
 import { loadYmaps, YANDEX_MAPS_API_KEY } from "./lib/yandexMaps";
@@ -62,7 +62,17 @@ const STR = {
     submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
-    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil",
+    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ",
+    months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
+    weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
+    bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
+    saveBtn: "Saqlash", savingBtn: "Saqlanmoqda...",
+    geoUnsupported: "Bu qurilma joylashuvni aniqlay olmaydi", geoDenied: "Joylashuvga ruxsat berilmadi",
+    editListing: "Tahrirlash", deleteListing: "O'chirish",
+    editTitle: "E'lonni tahrirlash", deleteConfirmTitle: "E'lonni o'chirish",
+    deleteConfirmBody: "Bu e'lon butunlay o'chiriladi. Bu amalni qaytarib bo'lmaydi.",
+    cancelBtn: "Bekor qilish", confirmDeleteBtn: "Ha, o'chirish",
+    blockedReason: "Bloklanish sababi", noReasonGiven: "Sabab ko'rsatilmagan",
     boostTitle: "Top e'lon qilish", boostDays7: "7 kun", boostDays30: "30 kun",
     boostDesc7: "Qidiruv natijalarida yuqorida chiqadi", boostDesc30: "Eng ko'p tanlanadigan variant",
     boostFreeCredit: "Bepul kredit bilan (7 kun)", boostLeft: "ta qoldi",
@@ -120,7 +130,17 @@ const STR = {
     submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
     successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
-    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее",
+    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ",
+    months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
+    weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
+    bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
+    saveBtn: "Сохранить", savingBtn: "Сохранение...",
+    geoUnsupported: "Это устройство не может определить местоположение", geoDenied: "Доступ к местоположению запрещён",
+    editListing: "Редактировать", deleteListing: "Удалить",
+    editTitle: "Редактировать объявление", deleteConfirmTitle: "Удалить объявление",
+    deleteConfirmBody: "Объявление будет удалено полностью. Это действие нельзя отменить.",
+    cancelBtn: "Отмена", confirmDeleteBtn: "Да, удалить",
+    blockedReason: "Причина блокировки", noReasonGiven: "Причина не указана",
     boostTitle: "Продвинуть объявление", boostDays7: "7 дней", boostDays30: "30 дней",
     boostDesc7: "Показывается выше в результатах поиска", boostDesc30: "Самый популярный вариант",
     boostFreeCredit: "Бесплатным кредитом (7 дней)", boostLeft: "осталось",
@@ -178,7 +198,17 @@ const STR = {
     submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
     successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
-    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details",
+    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ",
+    months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+    weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
+    saveBtn: "Save", savingBtn: "Saving...",
+    geoUnsupported: "This device can't determine your location", geoDenied: "Location access denied",
+    editListing: "Edit", deleteListing: "Delete",
+    editTitle: "Edit listing", deleteConfirmTitle: "Delete listing",
+    deleteConfirmBody: "This listing will be permanently deleted. This action cannot be undone.",
+    cancelBtn: "Cancel", confirmDeleteBtn: "Yes, delete",
+    blockedReason: "Reason for blocking", noReasonGiven: "No reason given",
     boostTitle: "Boost listing", boostDays7: "7 days", boostDays30: "30 days",
     boostDesc7: "Shown higher in search results", boostDesc30: "Most popular option",
     boostFreeCredit: "Use free credit (7 days)", boostLeft: "left",
@@ -666,7 +696,7 @@ function ChatThread({ chat, onBack, onSend, t }) {
   );
 }
 
-function ChatsListView({ chats, onOpen, t }) {
+function ChatsListView({ chats, onOpen, t, unreadByChat = {} }) {
   const threads = Object.values(chats).sort((a, b) => (b.messages.at(-1)?.id || 0) - (a.messages.at(-1)?.id || 0));
   return (
     <div className="px-4 pt-4 pb-28 space-y-2.5">
@@ -683,10 +713,17 @@ function ChatsListView({ chats, onOpen, t }) {
               <Building2 size={18} color="rgba(242,237,228,0.7)" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[13.5px] font-medium truncate" style={{ color: "#F2EDE4" }}>{c.listingTitle}</div>
-              <div className="text-[12px] truncate" style={{ color: "#93A5AA" }}>{last ? (last.from === "me" ? "Siz: " : "") + last.text : ""}</div>
+              <div className="text-[13.5px] font-medium truncate" style={{ color: unreadByChat[c.listingId] ? "#F2EDE4" : "#F2EDE4" }}>{c.listingTitle}</div>
+              <div className="text-[12px] truncate" style={{ color: unreadByChat[c.listingId] ? "#C8D4D6" : "#93A5AA", fontWeight: unreadByChat[c.listingId] ? 500 : 400 }}>{last ? (last.from === "me" ? t.youPrefix : "") + last.text : ""}</div>
             </div>
-            <ChevronRight size={16} color="#65787E" />
+            {unreadByChat[c.listingId] ? (
+              <span className="min-w-[20px] h-[20px] px-1.5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
+                style={{ background: "#D4783C", color: "#16262E" }}>
+                {unreadByChat[c.listingId] > 9 ? "9+" : unreadByChat[c.listingId]}
+              </span>
+            ) : (
+              <ChevronRight size={16} color="#65787E" />
+            )}
           </button>
         );
       })}
@@ -947,7 +984,7 @@ const MONTHS_UZ = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "
 
 function toDateStr(y, m, d) { return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`; }
 
-function MonthGrid({ viewDate, bookedSet, onToggle }) {
+function MonthGrid({ viewDate, bookedSet, onToggle, t = STR.uz }) {
   const year = viewDate.getFullYear(), monthIndex = viewDate.getMonth();
   const first = new Date(year, monthIndex, 1);
   const startWeekday = (first.getDay() + 6) % 7; // Dushanbadan boshlanadi
@@ -957,9 +994,9 @@ function MonthGrid({ viewDate, bookedSet, onToggle }) {
 
   return (
     <div>
-      <div className="text-center text-[13px] font-medium mb-2.5" style={{ color: "#F2EDE4" }}>{MONTHS_UZ[monthIndex]} {year}</div>
+      <div className="text-center text-[13px] font-medium mb-2.5" style={{ color: "#F2EDE4" }}>{(t.months || MONTHS_UZ)[monthIndex]} {year}</div>
       <div className="grid grid-cols-7 gap-1 mb-1.5">
-        {WEEKDAYS_UZ.map(d => <div key={d} className="text-center text-[10px]" style={{ color: "#65787E" }}>{d}</div>)}
+        {(t.weekdays || WEEKDAYS_UZ).map(d => <div key={d} className="text-center text-[10px]" style={{ color: "#65787E" }}>{d}</div>)}
       </div>
       <div className="grid grid-cols-7 gap-1">
         {cells.map((d, i) => {
@@ -1016,7 +1053,7 @@ function BookingCalendarView({ listingId, t = STR.uz }) {
         <div className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: "#F2EDE4" }}><Ban size={14} color="#D4783C" /> {t.occupiedDays}</div>
         <MonthNav viewDate={viewDate} setViewDate={setViewDate} />
       </div>
-      <MonthGrid viewDate={viewDate} bookedSet={bookedSet} />
+      <MonthGrid viewDate={viewDate} bookedSet={bookedSet} t={t} />
       <div className="flex items-center gap-1.5 mt-2 text-[11px]" style={{ color: "#65787E" }}>
         <span className="w-3 h-3 rounded" style={{ background: "#D4783C" }} /> {t.occupiedLegend} <span className="ml-2 w-3 h-3 rounded" style={{ border: "1px solid #2A424C" }} /> {t.freeLegend}
       </div>
@@ -1025,7 +1062,140 @@ function BookingCalendarView({ listingId, t = STR.uz }) {
 }
 
 // Uy egasi uchun: band kunlarni belgilash/bekor qilish
-function BookingEditorModal({ listingId, onClose }) {
+// E'lonni tahrirlash oynasi (egasi uchun)
+function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
+  const [form, setForm] = useState({
+    title: listing.title || "",
+    price: listing.price || "",
+    rooms: listing.rooms || 1,
+    area: listing.area || "",
+    floor: listing.floor || "",
+    rentType: listing.rentType || "Oylik",
+    desc: listing.desc || "",
+    amenities: listing.amenities || [],
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const toggleAmenity = (a) => setForm(f => ({ ...f, amenities: f.amenities.includes(a) ? f.amenities.filter(x => x !== a) : [...f.amenities, a] }));
+
+  const save = async () => {
+    setSaving(true); setError("");
+    const { error: err } = await supabase.from("listings").update({
+      title: form.title,
+      price: Number(form.price),
+      rooms: Number(form.rooms),
+      area: Number(form.area),
+      floor: form.floor,
+      rent_type: form.rentType,
+      description: form.desc,
+      amenities: form.amenities,
+    }).eq("id", listing.id);
+    setSaving(false);
+    if (err) { setError(err.message); return; }
+    onSaved({ ...listing, ...form, price: Number(form.price), rooms: Number(form.rooms), area: Number(form.area) });
+    onClose();
+  };
+
+  const valid = form.title && form.price && form.area && !saving;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
+      <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5 max-h-[85vh] overflow-y-auto" style={{ background: "#1E333C" }}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{t.editTitle}</h3>
+          <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
+        </div>
+
+        {error && <p className="text-[12.5px] mb-3" style={{ color: "#D4783C" }}>{error}</p>}
+
+        <div className="space-y-3.5">
+          <Field label={t.titleLabel}>
+            <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={inputStyle} />
+          </Field>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={t.rentTypeLabel}>
+              <div className="flex rounded-lg p-0.5" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
+                {[["Oylik", t.monthly], ["Kunlik", t.daily]].map(([val, label]) => (
+                  <button key={val} type="button" onClick={() => setForm(f => ({ ...f, rentType: val }))} className="flex-1 py-2 rounded-md text-[12.5px] font-medium"
+                    style={{ background: form.rentType === val ? "#3E92B0" : "transparent", color: form.rentType === val ? "#0E1B21" : "#93A5AA" }}>{label}</button>
+                ))}
+              </div>
+            </Field>
+            <Field label={t.priceLabelSom}>
+              <input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} style={inputStyle} />
+            </Field>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <Field label={t.roomsHeader}><input type="number" min={1} value={form.rooms} onChange={e => setForm(f => ({ ...f, rooms: e.target.value }))} style={inputStyle} /></Field>
+            <Field label={t.areaLabelM2}><input type="number" value={form.area} onChange={e => setForm(f => ({ ...f, area: e.target.value }))} style={inputStyle} /></Field>
+            <Field label={t.floorLabel}><input value={form.floor} onChange={e => setForm(f => ({ ...f, floor: e.target.value }))} style={inputStyle} /></Field>
+          </div>
+
+          <Field label={t.amenitiesLabel}>
+            <div className="flex flex-wrap gap-2">
+              {AMENITIES_LIST.map(a => (
+                <button key={a} type="button" onClick={() => toggleAmenity(a)} className="px-3 py-1.5 rounded-full text-[12px]"
+                  style={{ background: form.amenities.includes(a) ? "#D4783C" : "#16262E", color: form.amenities.includes(a) ? "#16262E" : "#93A5AA", border: "1px solid #2A424C" }}>{a}</button>
+              ))}
+            </div>
+          </Field>
+
+          <Field label={t.descLabel}>
+            <textarea rows={3} value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} style={{ ...inputStyle, resize: "none" }} />
+          </Field>
+        </div>
+
+        <button onClick={save} disabled={!valid} className="w-full mt-4 py-3 rounded-xl font-medium text-[14.5px]"
+          style={{ background: valid ? "#3E92B0" : "#2A424C", color: valid ? "#0E1B21" : "#65787E" }}>
+          {saving ? t.savingBtn : t.saveBtn}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// E'lonni o'chirishni tasdiqlash oynasi
+function DeleteConfirmModal({ listing, onClose, onDeleted, t = STR.uz }) {
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState("");
+
+  const doDelete = async () => {
+    setDeleting(true); setError("");
+    // Avval bog'liq yozuvlarni, keyin e'lonning o'zini o'chiramiz
+    await supabase.from("listing_images").delete().eq("listing_id", listing.id);
+    await supabase.from("listing_bookings").delete().eq("listing_id", listing.id);
+    const { error: err } = await supabase.from("listings").delete().eq("id", listing.id);
+    setDeleting(false);
+    if (err) { setError(err.message); return; }
+    onDeleted(listing.id);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
+      <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}><Trash2 size={17} color="#D4783C" /> {t.deleteConfirmTitle}</h3>
+          <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
+        </div>
+        <p className="text-[13.5px] mb-1.5" style={{ color: "#F2EDE4" }}>{listing.title}</p>
+        <p className="text-[12.5px] mb-4" style={{ color: "#93A5AA" }}>{t.deleteConfirmBody}</p>
+        {error && <p className="text-[12.5px] mb-3" style={{ color: "#D4783C" }}>{error}</p>}
+        <div className="grid grid-cols-2 gap-2.5">
+          <button onClick={onClose} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#2A424C", color: "#F2EDE4" }}>{t.cancelBtn}</button>
+          <button onClick={doDelete} disabled={deleting} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#D4783C", color: "#16262E" }}>
+            {deleting ? t.savingBtn : t.confirmDeleteBtn}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BookingEditorModal({ listingId, onClose, t = STR.uz }) {
   const [original, setOriginal] = useState(new Set());
   const [localBooked, setLocalBooked] = useState(new Set());
   const [viewDate, setViewDate] = useState(() => new Date());
@@ -1058,13 +1228,13 @@ function BookingEditorModal({ listingId, onClose }) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-3">
-          <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>Band kunlarni belgilash</h3>
+          <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{t.bookingEditTitle}</h3>
           <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
         </div>
-        <p className="text-[12px] mb-3" style={{ color: "#93A5AA" }}>Kunlarga bosib, band/bo'sh holatini belgilang.</p>
+        <p className="text-[12px] mb-3" style={{ color: "#93A5AA" }}>{t.bookingEditHint}</p>
         <MonthNav viewDate={viewDate} setViewDate={setViewDate} />
-        <MonthGrid viewDate={viewDate} bookedSet={localBooked} onToggle={toggle} />
-        <button onClick={save} disabled={saving} className="w-full mt-4 py-2.5 rounded-lg font-medium text-[14px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{saving ? "Saqlanmoqda..." : "Saqlash"}</button>
+        <MonthGrid viewDate={viewDate} bookedSet={localBooked} onToggle={toggle} t={t} />
+        <button onClick={save} disabled={saving} className="w-full mt-4 py-2.5 rounded-lg font-medium text-[14px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{saving ? t.savingBtn : t.saveBtn}</button>
       </div>
     </div>
   );
@@ -1395,12 +1565,12 @@ function MapListView(props) {
   }, [listings]);
 
   const findMe = () => {
-    if (!navigator.geolocation) { setLocateError("Bu qurilma joylashuvni aniqlay olmaydi"); return; }
+    if (!navigator.geolocation) { setLocateError(t?.geoUnsupported || "Bu qurilma joylashuvni aniqlay olmaydi"); return; }
     setLocating(true);
     setLocateError("");
     navigator.geolocation.getCurrentPosition(
       (pos) => { setUserLoc([pos.coords.latitude, pos.coords.longitude]); setLocating(false); },
-      () => { setLocating(false); setLocateError("Joylashuvga ruxsat berilmadi"); },
+      () => { setLocating(false); setLocateError(t?.geoDenied || "Joylashuvga ruxsat berilmadi"); },
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
@@ -1497,6 +1667,37 @@ export default function Uy247App() {
   const [ownerStats, setOwnerStats] = useState({});
   const [savedSearches, setSavedSearches] = useState([]);
   const [bookingEditorId, setBookingEditorId] = useState(null);
+  // Har bir suhbat oxirgi marta qachon ochilgani (o'qilmagan xabarlarni aniqlash uchun)
+  const [lastSeen, setLastSeen] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("uy247_last_seen") || "{}"); } catch (_) { return {}; }
+  });
+  // Har bir suhbatda nechta o'qilmagan xabar borligi
+  const unreadByChat = useMemo(() => {
+    const res = {};
+    for (const [listingId, chat] of Object.entries(chats)) {
+      const seenAt = lastSeen[listingId];
+      const count = (chat.messages || []).filter(m =>
+        m.from !== "me" && m.createdAt && (!seenAt || new Date(m.createdAt) > new Date(seenAt))
+      ).length;
+      if (count > 0) res[listingId] = count;
+    }
+    return res;
+  }, [chats, lastSeen]);
+
+  const totalUnread = useMemo(
+    () => Object.values(unreadByChat).reduce((s, n) => s + n, 0),
+    [unreadByChat]
+  );
+
+  const markChatSeen = (listingId) => {
+    setLastSeen(prev => {
+      const next = { ...prev, [listingId]: new Date().toISOString() };
+      try { localStorage.setItem("uy247_last_seen", JSON.stringify(next)); } catch (_) {}
+      return next;
+    });
+  };
+  const [editingListing, setEditingListing] = useState(null);
+  const [deletingListing, setDeletingListing] = useState(null);
   const [viewMode, setViewMode] = useState("map");
   const t = STR[lang];
 
@@ -1520,6 +1721,7 @@ export default function Uy247App() {
       ownerPhone: null, ownerId: row.owner_id, propertyType: row.property_type || "kvartira",
       lat: row.lat ? Number(row.lat) : null, lng: row.lng ? Number(row.lng) : null,
       isOccupied: !!row.is_occupied,
+      blockReason: row.block_reason || "",
     };
   };
 
@@ -1638,7 +1840,7 @@ export default function Uy247App() {
         setChats(prev => {
           const entry = Object.values(prev).find(c => c.chatId === m.chat_id);
           if (!entry) return prev;
-          return { ...prev, [entry.listingId]: { ...entry, messages: [...entry.messages, { id: m.id, from: "owner", text: m.text }] } };
+          return { ...prev, [entry.listingId]: { ...entry, messages: [...entry.messages, { id: m.id, from: "owner", text: m.text, createdAt: m.created_at || new Date().toISOString() }] } };
         });
       })
       .subscribe();
@@ -1659,7 +1861,7 @@ export default function Uy247App() {
       next[c.listing_id] = {
         chatId: c.id, listingId: c.listing_id, listingTitle: c.listings?.title || "E'lon", hue: hash,
         messages: (c.messages || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-          .map(m => ({ id: m.id, from: m.sender_id === myId ? "me" : "owner", text: m.text })),
+          .map(m => ({ id: m.id, from: m.sender_id === myId ? "me" : "owner", text: m.text, createdAt: m.created_at })),
       };
     }
     setChats(next);
@@ -1679,6 +1881,7 @@ export default function Uy247App() {
       setChats(prev => ({ ...prev, [item.id]: { chatId: existing.id, listingId: item.id, listingTitle: item.title, hue: item.hue, messages: [] } }));
     }
     setActiveChat(item.id);
+    markChatSeen(item.id);
     setSelected(null);
     setTab("chats");
     navigate("/xabarlar");
@@ -1849,7 +2052,7 @@ export default function Uy247App() {
             </div>
           )}
 
-          {tab === "chats" && <ChatsListView chats={chats} onOpen={(c) => setActiveChat(c.listingId)} t={t} />}
+          {tab === "chats" && <ChatsListView chats={chats} onOpen={(c) => { setActiveChat(c.listingId); markChatSeen(c.listingId); }} t={t} unreadByChat={unreadByChat} />}
 
           {tab === "post" && <PostForm userId={userId} onPublish={() => { fetchListings(userId); setTab("profile"); }} t={t} initialFullName={profile.fullName} onFullNameSaved={(name) => setProfile(p => ({ ...p, fullName: name }))} />}
 
@@ -1894,6 +2097,12 @@ export default function Uy247App() {
                           <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><Heart size={11} /> {ownerStats[l.id]?.favCount || 0} {t.favCountSuffix}</span>
                           <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><MessageCircle size={11} /> {ownerStats[l.id]?.chatCount || 0} {t.chatCountSuffix}</span>
                         </div>
+                        {l.status === "blocked" && (
+                          <div className="mt-2 p-2.5 rounded-lg" style={{ background: "#3A2429", border: "1px solid #6B3A42" }}>
+                            <div className="text-[11px] font-medium mb-0.5" style={{ color: "#F2C2C2" }}>{t.blockedReason}</div>
+                            <div className="text-[11.5px]" style={{ color: "#E8A8A8" }}>{l.blockReason || t.noReasonGiven}</div>
+                          </div>
+                        )}
                         <button onClick={() => toggleOccupied(l.id, l.isOccupied)}
                           className="w-full mt-2 py-1.5 rounded-lg text-[11.5px] font-medium flex items-center justify-center gap-1.5"
                           style={{ background: l.isOccupied ? "#3E92B0" : "#1E333C", color: l.isOccupied ? "#0E1B21" : "#F2EDE4", border: l.isOccupied ? "none" : "1px solid #2A424C" }}>
@@ -1904,6 +2113,14 @@ export default function Uy247App() {
                             <CalendarDays size={12} /> {t.markBookingBtn}
                           </button>
                         )}
+                        <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+                          <button onClick={() => setEditingListing(l)} className="py-1.5 rounded-lg text-[11.5px] font-medium flex items-center justify-center gap-1.5" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}>
+                            <Pencil size={12} /> {t.editListing}
+                          </button>
+                          <button onClick={() => setDeletingListing(l)} className="py-1.5 rounded-lg text-[11.5px] font-medium flex items-center justify-center gap-1.5" style={{ background: "transparent", color: "#D4783C", border: "1px solid #D4783C" }}>
+                            <Trash2 size={12} /> {t.deleteListing}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1971,13 +2188,39 @@ export default function Uy247App() {
         />
       )}
       {boostTarget && <BoostModal onClose={() => setBoostTarget(null)} onBoost={handleBoost} onUseCredit={handleUseCredit} boostCredits={profile.boostCredits} t={t} />}
-      {bookingEditorId && <BookingEditorModal listingId={bookingEditorId} onClose={() => setBookingEditorId(null)} />}
+      {bookingEditorId && <BookingEditorModal listingId={bookingEditorId} onClose={() => setBookingEditorId(null)} t={t} />}
+
+      {editingListing && (
+        <EditListingModal
+          listing={editingListing}
+          onClose={() => setEditingListing(null)}
+          onSaved={(updated) => setListings(ls => ls.map(x => x.id === updated.id ? { ...x, ...updated } : x))}
+          t={t}
+        />
+      )}
+
+      {deletingListing && (
+        <DeleteConfirmModal
+          listing={deletingListing}
+          onClose={() => setDeletingListing(null)}
+          onDeleted={(id) => setListings(ls => ls.filter(x => x.id !== id))}
+          t={t}
+        />
+      )}
 
       {!selected && (
         <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2.5" style={{ background: "#1A2B33", borderTop: "1px solid #22343B", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)" }}>
           {[{ id: "browse", icon: Search, label: t.navSearch }, { id: "chats", icon: MessageCircle, label: t.navChats }, { id: "post", icon: Plus, label: t.navPost }, { id: "favs", icon: Heart, label: t.navFavs }, { id: "profile", icon: User, label: t.navProfile }].map(x => (
             <button key={x.id} onClick={() => switchTab(x.id)} className="flex flex-col items-center gap-1 px-3 py-1">
-              <x.icon size={20} color={tab === x.id ? "#D4783C" : "#65787E"} />
+              <div className="relative">
+                <x.icon size={20} color={tab === x.id ? "#D4783C" : "#65787E"} />
+                {x.id === "chats" && totalUnread > 0 && (
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full flex items-center justify-center text-[9.5px] font-bold"
+                    style={{ background: "#D4783C", color: "#16262E" }}>
+                    {totalUnread > 9 ? "9+" : totalUnread}
+                  </span>
+                )}
+              </div>
               <span className="text-[10.5px] font-medium" style={{ color: tab === x.id ? "#D4783C" : "#65787E" }}>{x.label}</span>
             </button>
           ))}
