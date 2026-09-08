@@ -62,7 +62,7 @@ const STR = {
     submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
-    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish",
+    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha",
     months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
     weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
     bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
@@ -130,7 +130,7 @@ const STR = {
     submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
     successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
-    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё",
+    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера",
     months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
     weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
     bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
@@ -198,7 +198,7 @@ const STR = {
     submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
     successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
-    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more",
+    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday",
     months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
     weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
     bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
@@ -256,7 +256,27 @@ const getSortOptions = (t) => [
   { id: "popular", label: t.sortPopular },
 ];
 
-const fmt = (n) => new Intl.NumberFormat("uz-UZ").format(n);
+// Chat xabari vaqti: bugun bo'lsa faqat soat, kecha bo'lsa "Kecha", eskisi bo'lsa sana
+const msgTime = (iso, yesterdayLabel = "Kecha") => {
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const hhmm = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const sameDay = d.toDateString() === now.toDateString();
+    if (sameDay) return hhmm;
+    const yest = new Date(now); yest.setDate(now.getDate() - 1);
+    if (d.toDateString() === yest.toDateString()) return yesterdayLabel + " " + hhmm;
+    return d.toLocaleDateString([], { day: "2-digit", month: "2-digit" }) + " " + hhmm;
+  } catch (_) { return ""; }
+};
+
+// Top tugashiga necha kun qolganini hisoblaydi
+const daysLeft = (until) => {
+  const diff = new Date(until) - new Date();
+  return Math.max(0, Math.ceil(diff / 86400000));
+};
+
+const fmt = (n) = new Intl.NumberFormat("uz-UZ").format(n);
 const box = { background: "#1E333C", border: "1px solid #2A424C" };
 const inputStyle = { width: "100%", padding: "10px 12px", borderRadius: "10px", fontSize: "14px", background: "#16262E", color: "#F2EDE4", border: "1px solid #2A424C", outline: "none" };
 
@@ -735,7 +755,12 @@ function ChatThread({ chat, onBack, onSend, t }) {
               style={m.from === "me"
                 ? { background: "#3E92B0", color: "#0E1B21", borderBottomRightRadius: 4 }
                 : { background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C", borderBottomLeftRadius: 4 }}>
-              {m.text}
+              <div>{m.text}</div>
+              {m.createdAt && (
+                <div className="text-[10px] mt-1 text-right" style={{ color: m.from === "me" ? "rgba(14,27,33,0.55)" : "#65787E" }}>
+                  {msgTime(m.createdAt, t.yesterday)}
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -1939,7 +1964,24 @@ export default function Uy247App() {
   const switchTab = (id) => { setTab(id); setSelected(null); navigate(TAB_PATHS[id]); };
 
   // Tugma bosilganda e'lonni ochish: bir zumda ko'rsatish (agar ro'yxatda bo'lsa) + havolani yangilash
-  const openListing = (item) => { setSelected(item); navigate(`/elon/${item.id}`); incrementView(item); };
+  const openListing = (item) => {
+    setSelected(item);
+    navigate(`/elon/${item.id}`);
+    incrementView(item);
+    fetchOwnerPhone(item);
+  };
+
+  // Egasining raqamini e'lon ochilganda birma-bir olib kelamiz
+  const fetchOwnerPhone = async (item) => {
+    if (!item || item.mine || item.ownerPhone) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user?.phone_confirmed_at) return; // faqat raqami tasdiqlanganlarga
+    const { data, error } = await supabase.rpc("get_owner_phone", { p_listing_id: item.id });
+    if (error || !data) return;
+    const phone = data.startsWith("+") ? data : "+" + data;
+    setSelected(prev => prev && prev.id === item.id ? { ...prev, ownerPhone: phone } : prev);
+    setListings(ls => ls.map(l => l.id === item.id ? { ...l, ownerPhone: phone } : l));
+  };
   const closeListing = () => { setSelected(null); navigate(TAB_PATHS[tab] || "/"); };
 
   // Bazadagi qatorni ilova ishlatadigan shaklga o'giradi
@@ -1952,7 +1994,10 @@ export default function Uy247App() {
       rooms: row.rooms, area: row.area, floor: row.floor, rentType: row.rent_type,
       price: row.price, amenities: row.amenities || [], desc: row.description,
       verified: row.verified, status: row.status, views: row.views || 0,
-      boosted: row.boosted, mine: row.owner_id === myId, images: imgs, hue: hash,
+      // Top faqat muddati o'tmagan bo'lsa amal qiladi
+      boosted: !!row.boosted && (!row.boost_until || new Date(row.boost_until) > new Date()),
+      boostUntil: row.boost_until || null,
+      mine: row.owner_id === myId, images: imgs, hue: hash,
       ownerPhone: null, ownerId: row.owner_id, propertyType: row.property_type || "kvartira",
       lat: row.lat ? Number(row.lat) : null, lng: row.lng ? Number(row.lng) : null,
       isOccupied: !!row.is_occupied,
@@ -2015,13 +2060,14 @@ export default function Uy247App() {
     const mapped = mapRow(data, myId);
     setSelected(mapped);
     incrementView(mapped);
+    fetchOwnerPhone(mapped);
   };
 
   // URL'da /elon/:id bo'lsa va hali ochilmagan bo'lsa — bazadan yuklaydi (havola orqali kirilganda ishlaydi)
   useEffect(() => {
     if (routeListingId && (!selected || selected.id !== routeListingId)) {
       const fromList = listings.find(l => l.id === routeListingId);
-      if (fromList) { setSelected(fromList); incrementView(fromList); }
+      if (fromList) { setSelected(fromList); incrementView(fromList); fetchOwnerPhone(fromList); }
       else if (userId !== null || listings.length > 0) fetchOneListing(routeListingId, userId);
     }
     if (!routeListingId && selected) setSelected(null);
@@ -2340,7 +2386,10 @@ export default function Uy247App() {
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-[11.5px] flex items-center gap-1" style={{ color: "#93A5AA" }}><Eye size={12} /> {l.views} {t.views}</span>
                           {l.boosted ? (
-                            <span className="text-[11px] flex items-center gap-1 font-medium" style={{ color: "#E8B94A" }}><Sparkles size={12} /> {t.topActiveLabel}</span>
+                            <span className="text-[11px] flex items-center gap-1 font-medium" style={{ color: "#E8B94A" }}>
+                              <Sparkles size={12} /> {t.topActiveLabel}
+                              {l.boostUntil && <span style={{ color: "#93A5AA" }}>· {daysLeft(l.boostUntil)} {t.daysLeftSuffix}</span>}
+                            </span>
                           ) : (
                             <button onClick={() => setBoostTarget(l.id)} className="text-[11.5px] flex items-center gap-1 px-2.5 py-1 rounded-full font-medium" style={{ background: "#D4783C", color: "#16262E" }}><Sparkles size={11} /> {t.boost}</button>
                           )}
