@@ -62,7 +62,7 @@ const STR = {
     submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
-    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", centerPinHint: "Belgi shu joyda", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
+    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
     months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
     weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
     bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
@@ -130,7 +130,7 @@ const STR = {
     submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
     successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
-    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", centerPinHint: "Метка здесь", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
+    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
     months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
     weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
     bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
@@ -198,7 +198,7 @@ const STR = {
     submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
     successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
-    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", centerPinHint: "Pin is here", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
+    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
     months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
     weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
     bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
@@ -969,7 +969,7 @@ async function compressImage(file, maxSize = 1600, quality = 0.82) {
         <Field label={t.districtLabel}><select value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} style={inputStyle}>{(DISTRICTS[form.city] || ["Markaz"]).map(d => <option key={d}>{d}</option>)}</select></Field>
       </div>
       <Field label={t.addressMapLabel}>
-        <MapPicker lat={form.lat} lng={form.lng} onChange={(lat, lng) => setForm(f => ({ ...f, lat, lng }))} hint={t.centerPinHint} />
+        <MapPicker lat={form.lat} lng={form.lng} onChange={(lat, lng) => setForm(f => ({ ...f, lat, lng }))} />
         <p className="text-[11px] mt-1.5" style={{ color: "#65787E" }}>{t.mapDragHint}</p>
       </Field>
       <div className="grid grid-cols-3 gap-3">
@@ -1493,7 +1493,7 @@ function priceIcon(price, boosted) {
 }
 
 // ---- OpenStreetMap (zaxira, kalit talab qilmaydi) ----
-function OsmMapPicker({ lat, lng, onChange, hint }) {
+function OsmMapPicker({ lat, lng, onChange }) {
   const ref = useRef(null);
   const mapObj = useRef(null);
 
@@ -1532,7 +1532,7 @@ function OsmMapPicker({ lat, lng, onChange, hint }) {
   return (
     <div style={{ position: "relative" }}>
       <div ref={ref} style={{ width: "100%", height: 240, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />
-      <CenterPin hint={hint} />
+      <CenterPin />
     </div>
   );
 }
@@ -1640,7 +1640,7 @@ function OsmMapStatic({ lat, lng, addressTitle = "Manzil" }) {
 // Xarita markazida turadigan belgi (Yandex Go / Uber uslubi).
 // Foydalanuvchi xaritani suradi, belgi doim markazda — bosish kerak emas,
 // shuning uchun "bosgan joyim emas" degan xato umuman bo'lmaydi.
-function CenterPin({ hint }) {
+function CenterPin() {
   return (
     <>
       <div style={{
@@ -1658,19 +1658,11 @@ function CenterPin({ hint }) {
           margin: "0 auto", boxShadow: "0 1px 3px rgba(0,0,0,0.4)",
         }} />
       </div>
-      {hint && (
-        <div style={{
-          position: "absolute", left: "50%", bottom: 10, transform: "translateX(-50%)",
-          background: "rgba(22,38,46,0.9)", color: "#F2EDE4",
-          padding: "5px 12px", borderRadius: 999, fontSize: 11.5,
-          whiteSpace: "nowrap", pointerEvents: "none", zIndex: 500,
-        }}>{hint}</div>
-      )}
     </>
   );
 }
 
-function YandexMapPicker({ lat, lng, onChange, onFail, hint }) {
+function YandexMapPicker({ lat, lng, onChange, onFail }) {
   const ref = useRef(null);
   const objs = useRef({});
 
@@ -1714,7 +1706,7 @@ function YandexMapPicker({ lat, lng, onChange, onFail, hint }) {
   return (
     <div style={{ position: "relative" }}>
       <div ref={ref} style={{ width: "100%", height: 240, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />
-      <CenterPin hint={hint} />
+      <CenterPin />
     </div>
   );;
 }
