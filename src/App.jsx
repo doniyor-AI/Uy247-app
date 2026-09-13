@@ -62,7 +62,7 @@ const STR = {
     submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
-    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha",
+    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", centerPinHint: "Belgi shu joyda", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
     months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
     weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
     bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
@@ -130,7 +130,7 @@ const STR = {
     submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
     successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
-    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера",
+    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", centerPinHint: "Метка здесь", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
     months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
     weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
     bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
@@ -198,7 +198,7 @@ const STR = {
     submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
     successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
-    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday",
+    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", centerPinHint: "Pin is here", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
     months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
     weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
     bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
@@ -969,8 +969,8 @@ async function compressImage(file, maxSize = 1600, quality = 0.82) {
         <Field label={t.districtLabel}><select value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} style={inputStyle}>{(DISTRICTS[form.city] || ["Markaz"]).map(d => <option key={d}>{d}</option>)}</select></Field>
       </div>
       <Field label={t.addressMapLabel}>
-        <MapPicker lat={form.lat} lng={form.lng} onChange={(lat, lng) => setForm(f => ({ ...f, lat, lng }))} />
-        <p className="text-[11px] mt-1.5" style={{ color: "#65787E" }}>{form.lat ? t.mapMarkedHint : t.mapUnmarkedHint}</p>
+        <MapPicker lat={form.lat} lng={form.lng} onChange={(lat, lng) => setForm(f => ({ ...f, lat, lng }))} hint={t.centerPinHint} />
+        <p className="text-[11px] mt-1.5" style={{ color: "#65787E" }}>{t.mapDragHint}</p>
       </Field>
       <div className="grid grid-cols-3 gap-3">
         <Field label={t.roomsHeader}><input type="number" min={1} value={form.rooms} onChange={e => setForm(f => ({ ...f, rooms: e.target.value }))} style={inputStyle} /></Field>
@@ -1493,24 +1493,27 @@ function priceIcon(price, boosted) {
 }
 
 // ---- OpenStreetMap (zaxira, kalit talab qilmaydi) ----
-function OsmMapPicker({ lat, lng, onChange }) {
+function OsmMapPicker({ lat, lng, onChange, hint }) {
   const ref = useRef(null);
   const mapObj = useRef(null);
 
   useEffect(() => {
     if (!ref.current || mapObj.current) return;
     const center = [lat || TASHKENT_CENTER[0], lng || TASHKENT_CENTER[1]];
-    const map = L.map(ref.current, { center, zoom: 14 });
+    const map = L.map(ref.current, { center, zoom: 16 });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       maxZoom: 19,
     }).addTo(map);
-    const marker = L.marker(center, { draggable: true, icon: dotIcon() }).addTo(map);
-    marker.on("dragend", () => { const p = marker.getLatLng(); onChange(p.lat, p.lng); });
-    map.on("click", (e) => { marker.setLatLng(e.latlng); onChange(e.latlng.lat, e.latlng.lng); });
     mapObj.current = map;
 
-    // Konteyner o'lchami/joyi o'zgarganda qayta hisoblash (bosilgan joy to'g'ri aniqlanishi uchun)
+    // Xarita to'xtaganda markaz koordinatasini olamiz (belgi doim markazda turadi)
+    map.on("moveend", () => {
+      const c = map.getCenter();
+      onChange(c.lat, c.lng);
+    });
+    onChange(center[0], center[1]);
+
     const refresh = () => { try { map.invalidateSize(); } catch (_) {} };
     refresh();
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(refresh) : null;
@@ -1526,7 +1529,12 @@ function OsmMapPicker({ lat, lng, onChange }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div ref={ref} style={{ width: "100%", height: 220, borderRadius: 12, overflow: "hidden", background: "#16262E", touchAction: "none" }} />;
+  return (
+    <div style={{ position: "relative" }}>
+      <div ref={ref} style={{ width: "100%", height: 240, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />
+      <CenterPin hint={hint} />
+    </div>
+  );
 }
 
 function OsmMapListView({ listings, onOpen, userLoc }) {
@@ -1629,7 +1637,40 @@ function OsmMapStatic({ lat, lng, addressTitle = "Manzil" }) {
 }
 
 // ---- Yandex Maps (kalit sozlangan bo'lsa ishlatiladi, aniqroq xarita) ----
-function YandexMapPicker({ lat, lng, onChange, onFail }) {
+// Xarita markazida turadigan belgi (Yandex Go / Uber uslubi).
+// Foydalanuvchi xaritani suradi, belgi doim markazda — bosish kerak emas,
+// shuning uchun "bosgan joyim emas" degan xato umuman bo'lmaydi.
+function CenterPin({ hint }) {
+  return (
+    <>
+      <div style={{
+        position: "absolute", left: "50%", top: "50%",
+        transform: "translate(-50%, -100%)",
+        pointerEvents: "none", zIndex: 500,
+      }}>
+        <div style={{
+          width: 26, height: 26, borderRadius: "50%",
+          background: "#D4783C", border: "3px solid #F2EDE4",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.45)",
+        }} />
+        <div style={{
+          width: 2, height: 12, background: "#F2EDE4",
+          margin: "0 auto", boxShadow: "0 1px 3px rgba(0,0,0,0.4)",
+        }} />
+      </div>
+      {hint && (
+        <div style={{
+          position: "absolute", left: "50%", bottom: 10, transform: "translateX(-50%)",
+          background: "rgba(22,38,46,0.9)", color: "#F2EDE4",
+          padding: "5px 12px", borderRadius: 999, fontSize: 11.5,
+          whiteSpace: "nowrap", pointerEvents: "none", zIndex: 500,
+        }}>{hint}</div>
+      )}
+    </>
+  );
+}
+
+function YandexMapPicker({ lat, lng, onChange, onFail, hint }) {
   const ref = useRef(null);
   const objs = useRef({});
 
@@ -1638,26 +1679,27 @@ function YandexMapPicker({ lat, lng, onChange, onFail }) {
     loadYmaps().then((ymaps) => {
       if (cancelled || !ref.current) return;
       const center = [lat || TASHKENT_CENTER[0], lng || TASHKENT_CENTER[1]];
-      const map = new ymaps.Map(ref.current, { center, zoom: 14, controls: ["zoomControl"] });
-      const placemark = new ymaps.Placemark(center, {}, { draggable: true, preset: "islands#orangeDotIcon" });
-      placemark.events.add("dragend", () => { const c = placemark.geometry.getCoordinates(); onChange(c[0], c[1]); });
-      map.events.add("click", (e) => { const c = e.get("coords"); placemark.geometry.setCoordinates(c); onChange(c[0], c[1]); });
-      map.geoObjects.add(placemark);
+      const map = new ymaps.Map(ref.current, { center, zoom: 16, controls: ["zoomControl"] });
 
-      // Xarita konteyneri joyi o'zgarganda (rasm yuklandi, forma siljidi, ekran burildi)
-      // Yandex eski hisobni ishlatib, bosilgan joyni noto'g'ri aniqlaydi — shuni qayta hisoblaymiz
+      // Xarita to'xtaganda markaz koordinatasini olamiz
+      map.events.add("actionend", () => {
+        const c = map.getCenter();
+        onChange(c[0], c[1]);
+      });
+
+      // Boshlang'ich qiymatni ham darhol yozib qo'yamiz
+      onChange(center[0], center[1]);
+
       const refresh = () => { try { map.container.fitToViewport(); } catch (_) {} };
       refresh();
       const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(refresh) : null;
       if (ro && ref.current) ro.observe(ref.current);
       window.addEventListener("resize", refresh);
-      window.addEventListener("scroll", refresh, { passive: true });
       window.addEventListener("orientationchange", refresh);
 
       objs.current = { map, cleanup: () => {
         if (ro) ro.disconnect();
         window.removeEventListener("resize", refresh);
-        window.removeEventListener("scroll", refresh);
         window.removeEventListener("orientationchange", refresh);
       } };
     }).catch(() => onFail());
@@ -1669,7 +1711,12 @@ function YandexMapPicker({ lat, lng, onChange, onFail }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div ref={ref} style={{ width: "100%", height: 220, borderRadius: 12, overflow: "hidden", background: "#16262E", touchAction: "none" }} />;
+  return (
+    <div style={{ position: "relative" }}>
+      <div ref={ref} style={{ width: "100%", height: 240, borderRadius: 12, overflow: "hidden", background: "#16262E" }} />
+      <CenterPin hint={hint} />
+    </div>
+  );;
 }
 
 function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
