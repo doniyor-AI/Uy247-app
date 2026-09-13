@@ -394,7 +394,7 @@ function ListingCard({ item, onOpen, isFav, onToggleFav, t = STR.uz }) {
         </div>
       )}
       <div className="h-40 relative flex items-center justify-center overflow-hidden" style={item.images?.length ? { background: "#0E1B21" } : { background: `linear-gradient(135deg, hsl(${item.hue} 45% 28%), hsl(${item.hue + 30} 40% 18%))` }}>
-        {item.images?.length ? <img src={item.images[0]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <Building2 size={40} color="rgba(242,237,228,0.35)" strokeWidth={1.3} />}
+        {item.images?.length ? <img src={item.thumbs?.[0] || item.images[0]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <Building2 size={40} color="rgba(242,237,228,0.35)" strokeWidth={1.3} />}
         {item.verified && (
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium" style={{ background: "rgba(22,38,46,0.85)", color: "#E8B94A" }}>
             <ShieldCheck size={13} /> {t.verifiedOwner}
@@ -829,9 +829,21 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
 
 // Rasmni yuklashdan oldin kichraytiradi (telefon rasmlari 5-10 MB bo'ladi — bu juda katta).
 // Eni/bo'yi 1600px dan oshmaydi, sifat 82% — ko'z bilan farq sezilmaydi, hajm ~10 barobar kamayadi.
+// Har bir rasmdan IKKITA nusxa tayyorlaydi:
+//  - katta (1600px) — e'lon sahifasi va to'liq ekran uchun
+//  - kichik (400px) — ro'yxat kartochkalari va xarita uchun (~15 barobar kam trafik)
+async function makeImageVariants(file) {
+  const full = await compressImage(file, 1600, 0.82);
+  const thumb = await compressImage(file, 400, 0.75);
+  return { full, thumb };
+}
+
 async function compressImage(file, maxSize = 1600, quality = 0.82) {
-  // Rasm bo'lmasa yoki juda kichik bo'lsa — tegmaymiz
-  if (!file.type.startsWith("image/") || file.size < 300 * 1024) return file;
+  // Rasm bo'lmasa — tegmaymiz.
+  // Katta nusxa uchun: allaqachon kichik fayl bo'lsa qayta siqmaymiz.
+  // Kichik nusxa (maxSize kichik) uchun esa doim kichraytiramiz.
+  if (!file.type.startsWith("image/")) return file;
+  if (maxSize >= 1000 && file.size < 300 * 1024) return file;
   try {
     const bitmap = await createImageBitmap(file);
     let { width, height } = bitmap;
@@ -897,21 +909,30 @@ async function compressImage(file, maxSize = 1600, quality = 0.82) {
       }).select().single();
       if (insertErr) throw insertErr;
 
-      // 2) Rasmlarni Storage'ga yuklash
-      const uploadedUrls = [];
+      // 2) Rasmlarni Storage'ga yuklash — har biridan katta va kichik nusxa
+      const uploaded = [];
       for (let i = 0; i < images.length; i++) {
         const img = images[i];
-        const ext = img.file.name.split(".").pop() || "jpg";
-        const path = `${userId}/${listingRow.id}/${Date.now()}_${i}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("listing-images").upload(path, img.file);
-        if (upErr) throw upErr;
-        const { data: pub } = supabase.storage.from("listing-images").getPublicUrl(path);
-        uploadedUrls.push(pub.publicUrl);
+        const stamp = `${Date.now()}_${i}`;
+        const { full, thumb } = await makeImageVariants(img.file);
+
+        const fullPath = `${userId}/${listingRow.id}/${stamp}.jpg`;
+        const { error: e1 } = await supabase.storage.from("listing-images").upload(fullPath, full);
+        if (e1) throw e1;
+
+        const thumbPath = `${userId}/${listingRow.id}/${stamp}_t.jpg`;
+        const { error: e2 } = await supabase.storage.from("listing-images").upload(thumbPath, thumb);
+        if (e2) throw e2;
+
+        uploaded.push({
+          url: supabase.storage.from("listing-images").getPublicUrl(fullPath).data.publicUrl,
+          thumb_url: supabase.storage.from("listing-images").getPublicUrl(thumbPath).data.publicUrl,
+        });
       }
 
       // 3) Rasm URL'larini bazaga yozish
-      if (uploadedUrls.length) {
-        const rows = uploadedUrls.map((url, position) => ({ listing_id: listingRow.id, url, position }));
+      if (uploaded.length) {
+        const rows = uploaded.map((u, position) => ({ listing_id: listingRow.id, url: u.url, thumb_url: u.thumb_url, position }));
         const { error: imgErr } = await supabase.from("listing_images").insert(rows);
         if (imgErr) throw imgErr;
       }
@@ -1238,18 +1259,27 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
         const uploaded = [];
         for (let i = 0; i < newImages.length; i++) {
           const img = newImages[i];
-          const ext = (img.file.name || "img.jpg").split(".").pop() || "jpg";
-          const path = `${listing.ownerId}/${listing.id}/${Date.now()}_${i}.${ext}`;
-          const { error: upErr } = await supabase.storage.from("listing-images").upload(path, img.file);
-          if (upErr) throw upErr;
-          const { data: pub } = supabase.storage.from("listing-images").getPublicUrl(path);
-          uploaded.push(pub.publicUrl);
+          const stamp = `${Date.now()}_${i}`;
+          const { full, thumb } = await makeImageVariants(img.file);
+
+          const fullPath = `${listing.ownerId}/${listing.id}/${stamp}.jpg`;
+          const { error: e1 } = await supabase.storage.from("listing-images").upload(fullPath, full);
+          if (e1) throw e1;
+
+          const thumbPath = `${listing.ownerId}/${listing.id}/${stamp}_t.jpg`;
+          const { error: e2 } = await supabase.storage.from("listing-images").upload(thumbPath, thumb);
+          if (e2) throw e2;
+
+          uploaded.push({
+            url: supabase.storage.from("listing-images").getPublicUrl(fullPath).data.publicUrl,
+            thumb_url: supabase.storage.from("listing-images").getPublicUrl(thumbPath).data.publicUrl,
+          });
         }
         const startPos = existingImages.length;
         await supabase.from("listing_images").insert(
-          uploaded.map((url, i) => ({ listing_id: listing.id, url, position: startPos + i }))
+          uploaded.map((u, i) => ({ listing_id: listing.id, url: u.url, thumb_url: u.thumb_url, position: startPos + i }))
         );
-        existingImages.push(...uploaded);
+        existingImages.push(...uploaded.map(u => u.url));
       }
     } catch (imgErr) {
       setSaving(false);
@@ -1804,7 +1834,7 @@ function MapPreviewCard({ item, onOpen, onClose, isFav, onToggleFav, t }) {
         <div className="w-28 h-28 shrink-0 relative flex items-center justify-center"
           style={item.images?.length ? { background: "#0E1B21" } : { background: `linear-gradient(135deg, hsl(${item.hue} 45% 28%), hsl(${item.hue + 30} 40% 18%))` }}>
           {item.images?.length
-            ? <img src={item.images[0]} alt="" className="w-full h-full object-cover" />
+            ? <img src={item.thumbs?.[0] || item.images[0]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
             : <Building2 size={30} color="rgba(242,237,228,0.35)" strokeWidth={1.3} />}
           {item.boosted && (
             <div className="absolute top-0 left-0 px-2 py-0.5 text-[9.5px] font-semibold flex items-center gap-0.5"
@@ -2025,7 +2055,10 @@ export default function Uy247App() {
 
   // Bazadagi qatorni ilova ishlatadigan shaklga o'giradi
   const mapRow = (row, myId) => {
-    const imgs = (row.listing_images || []).slice().sort((a, b) => (a.position || 0) - (b.position || 0)).map(i => i.url);
+    const sortedImgs = (row.listing_images || []).slice().sort((a, b) => (a.position || 0) - (b.position || 0));
+    const imgs = sortedImgs.map(i => i.url);
+    // Kichik nusxalar — ro'yxat va xarita uchun (yo'q bo'lsa kattasi ishlatiladi)
+    const thumbs = sortedImgs.map(i => i.thumb_url || i.url);
     let hash = 0;
     for (const ch of String(row.id)) hash = (hash * 31 + ch.charCodeAt(0)) % 360;
     return {
@@ -2036,7 +2069,7 @@ export default function Uy247App() {
       // Top faqat muddati o'tmagan bo'lsa amal qiladi
       boosted: !!row.boosted && (!row.boost_until || new Date(row.boost_until) > new Date()),
       boostUntil: row.boost_until || null,
-      mine: row.owner_id === myId, images: imgs, hue: hash,
+      mine: row.owner_id === myId, images: imgs, thumbs, hue: hash,
       ownerPhone: null, ownerId: row.owner_id, propertyType: row.property_type || "kvartira",
       lat: row.lat ? Number(row.lat) : null, lng: row.lng ? Number(row.lng) : null,
       isOccupied: !!row.is_occupied,
@@ -2044,19 +2077,49 @@ export default function Uy247App() {
     };
   };
 
+  // E'lonlarni bo'lak-bo'lak yuklaymiz: birinchi bo'lak darhol ko'rinadi,
+  // qolgani orqa fonda yuklanadi. Shunday qilib 500 ta chegara yo'q,
+  // lekin sahifa ham tez ochiladi.
+  const BATCH = 300;
+  const MAX_TOTAL = 3000; // aql bovar qiladigan yuqori chegara
+
   const fetchListings = async (myId) => {
     setLoadingListings(true);
-    const { data, error } = await supabase
-      .from("listings")
-      .select("*, listing_images(url, position)")
-      .order("boosted", { ascending: false })
-      .order("created_at", { ascending: false })
-      .limit(500); // xavfsizlik chegarasi — bazadan bir vaqtda juda ko'p tortmaslik uchun
-    if (error) { console.error("E'lonlarni yuklashda xato:", error.message); setLoadingListings(false); return []; }
-    const mapped = (data || []).map(r => mapRow(r, myId));
-    setListings(mapped);
+
+    const fetchBatch = async (from) => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("*, listing_images(url, thumb_url, position)")
+        .order("boosted", { ascending: false })
+        .order("created_at", { ascending: false })
+        .range(from, from + BATCH - 1);
+      if (error) { console.error("E'lonlarni yuklashda xato:", error.message); return null; }
+      return data || [];
+    };
+
+    const first = await fetchBatch(0);
+    if (first === null) { setLoadingListings(false); return []; }
+
+    let all = first.map(r => mapRow(r, myId));
+    setListings(all);
     setLoadingListings(false);
-    return mapped;
+
+    // Qolganini orqa fonda yuklaymiz — foydalanuvchi kutmaydi
+    if (first.length === BATCH) {
+      (async () => {
+        let from = BATCH;
+        while (from < MAX_TOTAL) {
+          const next = await fetchBatch(from);
+          if (!next || next.length === 0) break;
+          all = [...all, ...next.map(r => mapRow(r, myId))];
+          setListings(all);
+          if (next.length < BATCH) break;
+          from += BATCH;
+        }
+      })();
+    }
+
+    return all;
   };
 
   const fetchFavorites = async (myId) => {
@@ -2092,7 +2155,7 @@ export default function Uy247App() {
   const fetchOneListing = async (id, myId) => {
     const { data, error } = await supabase
       .from("listings")
-      .select("*, listing_images(url, position)")
+      .select("*, listing_images(url, thumb_url, position)")
       .eq("id", id)
       .maybeSingle();
     if (error || !data) { console.error("E'lon topilmadi:", error?.message); return; }
