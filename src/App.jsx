@@ -62,7 +62,17 @@ const STR = {
     submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
     typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
-    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
+    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil",
+    modeLabel: "Ijara shakli", modeWhole: "Butun uy", modeShared: "O'rin (sherik bilan)",
+    roomsConfigLabel: "Xonalar va o'rinlar", roomWord: "Xona", capacityLabel: "jami o'rin", occupiedLabel: "band",
+    addRoomBtn: "Xona qo'shish", freeSpotsTotal: "Jami bo'sh o'rin",
+    freeSpots: "o'rin bo'sh", noFreeSpots: "Bo'sh o'rin yo'q",
+    perPerson: "1 kishi uchun", pricePerPersonLabel: "Narx — 1 kishi uchun (so'm)",
+    genderLabel: "Kim yashaydi", genderMale: "Erkaklar", genderFemale: "Ayollar", genderMixed: "Aralash",
+    roomCapacityShort: "kishilik xona",
+    spotFreedBtn: "O'rin bo'shadi", spotTakenBtn: "O'rin band bo'ldi",
+    filterFreeSpots: "Bo'sh o'rinlar", anyMode: "Barchasi",
+    roomsBreakdown: "Xonalar holati", occupiedShort: "band", freeShort: "bo'sh", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
     months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
     weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
     bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
@@ -130,7 +140,17 @@ const STR = {
     submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
     successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
     typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
-    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
+    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее",
+    modeLabel: "Форма аренды", modeWhole: "Вся квартира", modeShared: "Койко-место (с соседями)",
+    roomsConfigLabel: "Комнаты и места", roomWord: "Комната", capacityLabel: "всего мест", occupiedLabel: "занято",
+    addRoomBtn: "Добавить комнату", freeSpotsTotal: "Всего свободных мест",
+    freeSpots: "мест свободно", noFreeSpots: "Свободных мест нет",
+    perPerson: "за 1 человека", pricePerPersonLabel: "Цена — за 1 человека (сум)",
+    genderLabel: "Кто живёт", genderMale: "Мужчины", genderFemale: "Женщины", genderMixed: "Смешанно",
+    roomCapacityShort: "-местная комната",
+    spotFreedBtn: "Место освободилось", spotTakenBtn: "Место занято",
+    filterFreeSpots: "Свободные места", anyMode: "Все",
+    roomsBreakdown: "Состояние комнат", occupiedShort: "занято", freeShort: "свободно", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
     months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
     weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
     bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
@@ -198,7 +218,17 @@ const STR = {
     submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
     successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
     typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
-    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
+    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details",
+    modeLabel: "Rental type", modeWhole: "Whole apartment", modeShared: "A spot (shared)",
+    roomsConfigLabel: "Rooms and spots", roomWord: "Room", capacityLabel: "total spots", occupiedLabel: "taken",
+    addRoomBtn: "Add room", freeSpotsTotal: "Total free spots",
+    freeSpots: "spots free", noFreeSpots: "No free spots",
+    perPerson: "per person", pricePerPersonLabel: "Price — per person (so'm)",
+    genderLabel: "Who lives here", genderMale: "Men", genderFemale: "Women", genderMixed: "Mixed",
+    roomCapacityShort: "-person room",
+    spotFreedBtn: "Spot freed up", spotTakenBtn: "Spot taken",
+    filterFreeSpots: "Free spots", anyMode: "All",
+    roomsBreakdown: "Room status", occupiedShort: "taken", freeShort: "free", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
     months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
     weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
     bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
@@ -290,11 +320,16 @@ function MosaicStrip({ className = "" }) {
   );
 }
 
-function PriceTag({ price, rentType }) {
+function PriceTag({ price, rentType, perPerson = false, perPersonLabel = "" }) {
   return (
-    <div className="relative inline-flex items-baseline gap-1 pl-3 pr-4 py-1.5" style={{ background: "#E8B94A", clipPath: "polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%)" }}>
-      <span className="font-mono font-semibold text-[15px]" style={{ color: "#16262E" }}>{fmt(price)}</span>
-      <span className="text-[11px] font-medium" style={{ color: "#4A3812" }}>so'm/{rentType === "Kunlik" ? "kun" : "oy"}</span>
+    <div className="inline-flex flex-col items-start">
+      <div className="relative inline-flex items-baseline gap-1 pl-3 pr-4 py-1.5" style={{ background: "#E8B94A", clipPath: "polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%)" }}>
+        <span className="font-mono font-semibold text-[15px]" style={{ color: "#16262E" }}>{fmt(price)}</span>
+        <span className="text-[11px] font-medium" style={{ color: "#4A3812" }}>so'm/{rentType === "Kunlik" ? "kun" : "oy"}</span>
+      </div>
+      {perPerson && perPersonLabel && (
+        <span className="text-[10.5px] mt-0.5 pl-3" style={{ color: "#93A5AA" }}>{perPersonLabel}</span>
+      )}
     </div>
   );
 }
@@ -406,17 +441,32 @@ function ListingCard({ item, onOpen, isFav, onToggleFav, t = STR.uz }) {
       </div>
       <div className="p-3.5 space-y-2">
         <div className="flex items-center justify-between">
-          <PriceTag price={item.price} rentType={item.rentType} />
+          <PriceTag price={item.price} rentType={item.rentType} perPerson={item.listingMode === "shared"} perPersonLabel={t.perPerson} />
           <span className="flex items-center gap-1 text-[11px]" style={{ color: "#65787E" }}>
             {React.createElement(typeIcon(item.propertyType), { size: 13 })} {typeLabel(item.propertyType, t)}
           </span>
         </div>
         <h3 className="font-serif text-[16px] leading-snug" style={{ color: "#F2EDE4" }}>{item.title}</h3>
         <div className="flex items-center gap-1 text-[13px]" style={{ color: "#93A5AA" }}><MapPin size={13} /> {item.district}, {item.city}</div>
-        <div className="flex items-center gap-3 text-[13px] pt-1" style={{ color: "#93A5AA" }}>
-          <span className="flex items-center gap-1"><BedDouble size={14} /> {item.rooms} {t.roomsWord}</span>
-          <span className="flex items-center gap-1"><Maximize2 size={14} /> {item.area} m²</span>
-        </div>
+        {item.listingMode === "shared" ? (
+          <div className="flex items-center gap-2 flex-wrap text-[12.5px] pt-1">
+            <span className="px-2 py-0.5 rounded-full font-medium"
+              style={{ background: item.freeSpots > 0 ? "#3E92B0" : "#2A424C", color: item.freeSpots > 0 ? "#0E1B21" : "#93A5AA" }}>
+              {item.freeSpots > 0 ? `${item.freeSpots} ${t.freeSpots}` : t.noFreeSpots}
+            </span>
+            {item.genderPref && (
+              <span style={{ color: "#93A5AA" }}>
+                {item.genderPref === "erkak" ? t.genderMale : item.genderPref === "ayol" ? t.genderFemale : t.genderMixed}
+              </span>
+            )}
+            <span className="flex items-center gap-1" style={{ color: "#93A5AA" }}><Maximize2 size={13} /> {item.area} m²</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 text-[13px] pt-1" style={{ color: "#93A5AA" }}>
+            <span className="flex items-center gap-1"><BedDouble size={14} /> {item.rooms} {t.roomsWord}</span>
+            <span className="flex items-center gap-1"><Maximize2 size={14} /> {item.area} m²</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -474,6 +524,41 @@ function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, 
               ))}
             </div>
           </div>
+
+          {/* Ijara shakli */}
+          <div>
+            <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.modeLabel}</div>
+            <div className="flex gap-2">
+              {[["Barchasi", t.anyMode], ["whole", t.modeWhole], ["shared", t.modeShared]].map(([val, label]) => (
+                <button key={val} onClick={() => setFilters(f => ({ ...f, listingMode: val }))} className="px-3 py-1.5 rounded-lg text-[12.5px]"
+                  style={{ background: filters.listingMode === val ? "#3E92B0" : "#16262E", color: filters.listingMode === val ? "#0E1B21" : "#F2EDE4", border: "1px solid #2A424C" }}>{label}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* O'rin ijarasi tanlanganda — qo'shimcha filtrlar */}
+          {filters.listingMode === "shared" && (
+            <>
+              <div>
+                <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.filterFreeSpots}</div>
+                <div className="flex gap-2">
+                  {[["Barchasi", t.anyMode], ["1", "1+"], ["2", "2+"], ["3", "3+"]].map(([val, label]) => (
+                    <button key={val} onClick={() => setFilters(f => ({ ...f, minFreeSpots: val }))} className="px-3 py-1.5 rounded-lg text-[13px]"
+                      style={{ background: filters.minFreeSpots === val ? "#3E92B0" : "#16262E", color: filters.minFreeSpots === val ? "#0E1B21" : "#F2EDE4", border: "1px solid #2A424C" }}>{label}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.genderLabel}</div>
+                <div className="flex gap-2">
+                  {[["Barchasi", t.anyMode], ["erkak", t.genderMale], ["ayol", t.genderFemale], ["aralash", t.genderMixed]].map(([val, label]) => (
+                    <button key={val} onClick={() => setFilters(f => ({ ...f, gender: val }))} className="px-3 py-1.5 rounded-lg text-[12.5px]"
+                      style={{ background: filters.gender === val ? "#D4783C" : "#16262E", color: filters.gender === val ? "#16262E" : "#F2EDE4", border: "1px solid #2A424C" }}>{label}</button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
       <div className="text-[12px] pt-2 flex items-center justify-between" style={{ color: "#93A5AA" }}>
@@ -657,7 +742,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
       </div>
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <PriceTag price={item.price} rentType={item.rentType} />
+          <PriceTag price={item.price} rentType={item.rentType} perPerson={item.listingMode === "shared"} perPersonLabel={t.perPerson} />
           <span className="flex items-center gap-1 text-[12px]" style={{ color: "#65787E" }}>
             {React.createElement(typeIcon(item.propertyType), { size: 14 })} {typeLabel(item.propertyType, t)}
           </span>
@@ -675,6 +760,45 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
             <div key={l} className="rounded-xl p-3 text-center" style={box}><div className="text-[11px]" style={{ color: "#93A5AA" }}>{l}</div><div className="text-[15px] font-medium mt-0.5" style={{ color: "#F2EDE4" }}>{v}</div></div>
           ))}
         </div>
+
+        {/* O'rin ijarasi: bo'sh o'rinlar va xonalar holati */}
+        {item.listingMode === "shared" && (
+          <div className="rounded-2xl p-4" style={box}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: "#F2EDE4" }}>
+                <Users size={14} color="#3E92B0" /> {t.roomsBreakdown}
+              </span>
+              <span className="px-2.5 py-1 rounded-full text-[12px] font-semibold"
+                style={{ background: item.freeSpots > 0 ? "#3E92B0" : "#2A424C", color: item.freeSpots > 0 ? "#0E1B21" : "#93A5AA" }}>
+                {item.freeSpots > 0 ? `${item.freeSpots} ${t.freeSpots}` : t.noFreeSpots}
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              {(item.roomsConfig || []).map((r, i) => {
+                const free = Math.max(0, (r.capacity || 0) - (r.occupied || 0));
+                return (
+                  <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg" style={{ background: "#16262E" }}>
+                    <span className="text-[12.5px]" style={{ color: "#C8D4D6" }}>
+                      {t.roomWord} {i + 1} · {r.capacity} {t.roomCapacityShort}
+                    </span>
+                    <span className="text-[12px] font-medium" style={{ color: free > 0 ? "#8FD19E" : "#93A5AA" }}>
+                      {free > 0 ? `${free} ${t.freeShort}` : t.noFreeSpots}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {item.genderPref && (
+              <div className="mt-3 text-[12.5px]" style={{ color: "#93A5AA" }}>
+                {t.genderLabel}: <b style={{ color: "#F2EDE4" }}>
+                  {item.genderPref === "erkak" ? t.genderMale : item.genderPref === "ayol" ? t.genderFemale : t.genderMixed}
+                </b>
+              </div>
+            )}
+          </div>
+        )}
         <div><div className="text-[13px] font-medium mb-1.5" style={{ color: "#F2EDE4" }}>{t.descTitle}</div><p className="text-[14px] leading-relaxed" style={{ color: "#93A5AA" }}>{item.desc}</p></div>
         <div>
           <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>{t.amenitiesTitle}</div>
@@ -818,7 +942,8 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
     const parts = (initialFullName || "").trim().split(/\s+/);
     return { ism: parts[0] || "", familiya: parts.slice(1).join(" ") || "" };
   });
-  const [form, setForm] = useState({ ism: nameParts.ism, familiya: nameParts.familiya, title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false, lat: null, lng: null });
+  const [form, setForm] = useState({ ism: nameParts.ism, familiya: nameParts.familiya, title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false, lat: null, lng: null,
+    listingMode: "whole", genderPref: "aralash", roomsConfig: [{ capacity: 4, occupied: 0 }] });
   const [images, setImages] = useState([]); // { file, url, name }
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -906,6 +1031,10 @@ async function compressImage(file, maxSize = 1600, quality = 0.82) {
         property_type: form.propertyType, rooms: Number(form.rooms), area: Number(form.area), floor: form.floor,
         rent_type: form.rentType, price: Number(form.price), amenities: form.amenities,
         description: form.desc, status: "pending", lat: form.lat, lng: form.lng,
+        listing_mode: form.listingMode,
+        gender_pref: form.listingMode === "shared" ? form.genderPref : null,
+        rooms_config: form.listingMode === "shared" ? form.roomsConfig : [],
+        free_spots: form.listingMode === "shared" ? countFreeSpots(form.roomsConfig) : 0,
       }).select().single();
       if (insertErr) throw insertErr;
 
@@ -998,13 +1127,48 @@ async function compressImage(file, maxSize = 1600, quality = 0.82) {
         <Field label={t.areaLabelM2}><input type="number" value={form.area} onChange={e => setForm(f => ({ ...f, area: e.target.value }))} style={inputStyle} /></Field>
         <Field label={t.floorLabel}><input placeholder="3/9" value={form.floor} onChange={e => setForm(f => ({ ...f, floor: e.target.value }))} style={inputStyle} /></Field>
       </div>
+
+      {/* Ijara shakli: butun uy yoki o'rin (sherik bilan) */}
+      <Field label={t.modeLabel}>
+        <div className="grid grid-cols-2 gap-2">
+          {[["whole", t.modeWhole, Home], ["shared", t.modeShared, Users]].map(([val, label, Icon]) => (
+            <button key={val} type="button" onClick={() => setForm(f => ({ ...f, listingMode: val }))}
+              className="flex flex-col items-center gap-1.5 py-3 rounded-xl text-[12px] font-medium"
+              style={{ background: form.listingMode === val ? "#3E92B0" : "#16262E", color: form.listingMode === val ? "#0E1B21" : "#93A5AA", border: "1px solid #2A424C" }}>
+              <Icon size={17} /> {label}
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      {form.listingMode === "shared" && (
+        <>
+          <Field label={t.roomsConfigLabel}>
+            <RoomsEditor rooms={form.roomsConfig} setRooms={(rc) => setForm(f => ({ ...f, roomsConfig: rc }))} t={t} />
+          </Field>
+          <Field label={t.genderLabel}>
+            <div className="grid grid-cols-3 gap-2">
+              {[["erkak", t.genderMale], ["ayol", t.genderFemale], ["aralash", t.genderMixed]].map(([val, label]) => (
+                <button key={val} type="button" onClick={() => setForm(f => ({ ...f, genderPref: val }))}
+                  className="py-2 rounded-lg text-[12.5px] font-medium"
+                  style={{ background: form.genderPref === val ? "#D4783C" : "#16262E", color: form.genderPref === val ? "#16262E" : "#93A5AA", border: "1px solid #2A424C" }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </Field>
+        </>
+      )}
+
       <div className="grid grid-cols-2 gap-3">
         <Field label={t.rentTypeLabel}>
           <div className="flex rounded-lg p-0.5" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
             {[["Oylik", t.monthly], ["Kunlik", t.daily]].map(([val, label]) => <button key={val} type="button" onClick={() => setForm(f => ({ ...f, rentType: val }))} className="flex-1 py-2 rounded-md text-[13px] font-medium" style={{ background: form.rentType === val ? "#3E92B0" : "transparent", color: form.rentType === val ? "#0E1B21" : "#93A5AA" }}>{label}</button>)}
           </div>
         </Field>
-        <Field label={t.priceLabelSom}><input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="4200000" style={inputStyle} /></Field>
+        <Field label={form.listingMode === "shared" ? t.pricePerPersonLabel : t.priceLabelSom}>
+          <input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder={form.listingMode === "shared" ? "800000" : "4200000"} style={inputStyle} />
+        </Field>
       </div>
       <Field label={t.amenitiesLabel}>
         <div className="flex flex-wrap gap-2">{AMENITIES_LIST.map(a => <button key={a} type="button" onClick={() => toggleAmenity(a)} className="px-3 py-1.5 rounded-full text-[12.5px]" style={{ background: form.amenities.includes(a) ? "#D4783C" : "#16262E", color: form.amenities.includes(a) ? "#16262E" : "#93A5AA", border: "1px solid #2A424C" }}>{a}</button>)}</div>
@@ -1034,6 +1198,79 @@ async function compressImage(file, maxSize = 1600, quality = 0.82) {
         <span className="text-[13px]" style={{ color: "#C8D4D6" }}>{t.ownerConfirm1}<b>{t.ownerConfirmBold}</b>{t.ownerConfirm2}<Link to="/qoidalar" target="_blank" style={{ color: "#3E92B0" }} onClick={e => e.stopPropagation()}>{t.ruleLinkText}</Link>{t.ownerConfirm3}</span>
       </label>
       <button disabled={!valid} onClick={submit} className="w-full py-3.5 rounded-xl font-medium text-[15px]" style={{ background: valid ? "#3E92B0" : "#2A424C", color: valid ? "#0E1B21" : "#65787E" }}>{submitting ? t.submitting : t.submitBtn}</button>
+    </div>
+  );
+}
+
+// Xonalar ro'yxatidan jami bo'sh o'rinlarni hisoblaydi
+function countFreeSpots(roomsConfig) {
+  return (roomsConfig || []).reduce(
+    (sum, r) => sum + Math.max(0, (Number(r.capacity) || 0) - (Number(r.occupied) || 0)),
+    0
+  );
+}
+
+// Uy egasi xonalarni va ulardagi band/bo'sh o'rinlarni kiritadigan bo'lim
+function RoomsEditor({ rooms, setRooms, t }) {
+  const update = (i, field, value) => {
+    const v = Math.max(0, Number(value) || 0);
+    setRooms(rooms.map((r, idx) => {
+      if (idx !== i) return r;
+      const next = { ...r, [field]: v };
+      // Band o'rin jami o'rindan ko'p bo'lib ketmasin
+      if (next.occupied > next.capacity) next.occupied = next.capacity;
+      return next;
+    }));
+  };
+
+  const totalFree = countFreeSpots(rooms);
+
+  return (
+    <div className="space-y-2">
+      {rooms.map((r, i) => {
+        const free = Math.max(0, (r.capacity || 0) - (r.occupied || 0));
+        return (
+          <div key={i} className="p-2.5 rounded-xl" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[12.5px] font-medium" style={{ color: "#F2EDE4" }}>{t.roomWord} {i + 1}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[11.5px] px-2 py-0.5 rounded-full"
+                  style={{ background: free > 0 ? "#3E92B0" : "#2A424C", color: free > 0 ? "#0E1B21" : "#93A5AA" }}>
+                  {free} {t.freeShort}
+                </span>
+                {rooms.length > 1 && (
+                  <button type="button" onClick={() => setRooms(rooms.filter((_, idx) => idx !== i))}>
+                    <Trash2 size={13} color="#D4783C" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <div className="text-[10.5px] mb-1" style={{ color: "#93A5AA" }}>{t.capacityLabel}</div>
+                <input type="number" min={1} value={r.capacity} onChange={e => update(i, "capacity", e.target.value)}
+                  style={{ ...inputStyle, padding: "7px 10px", fontSize: 13 }} />
+              </div>
+              <div>
+                <div className="text-[10.5px] mb-1" style={{ color: "#93A5AA" }}>{t.occupiedLabel}</div>
+                <input type="number" min={0} value={r.occupied} onChange={e => update(i, "occupied", e.target.value)}
+                  style={{ ...inputStyle, padding: "7px 10px", fontSize: 13 }} />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      <div className="flex items-center justify-between pt-1">
+        <button type="button" onClick={() => setRooms([...rooms, { capacity: 4, occupied: 0 }])}
+          className="px-3 py-1.5 rounded-full text-[12px] font-medium flex items-center gap-1.5"
+          style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}>
+          <Plus size={12} /> {t.addRoomBtn}
+        </button>
+        <span className="text-[12.5px] font-medium" style={{ color: "#E8B94A" }}>
+          {t.freeSpotsTotal}: {totalFree}
+        </span>
+      </div>
     </div>
   );
 }
@@ -1218,6 +1455,9 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
     rentType: listing.rentType || "Oylik",
     desc: listing.desc || "",
     amenities: listing.amenities || [],
+    listingMode: listing.listingMode || "whole",
+    genderPref: listing.genderPref || "aralash",
+    roomsConfig: (listing.roomsConfig && listing.roomsConfig.length) ? listing.roomsConfig : [{ capacity: 4, occupied: 0 }],
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -1296,10 +1536,14 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
       rent_type: form.rentType,
       description: form.desc,
       amenities: form.amenities,
+      listing_mode: form.listingMode,
+      gender_pref: form.listingMode === "shared" ? form.genderPref : null,
+      rooms_config: form.listingMode === "shared" ? form.roomsConfig : [],
+      free_spots: form.listingMode === "shared" ? countFreeSpots(form.roomsConfig) : 0,
     }).eq("id", listing.id);
     setSaving(false);
     if (err) { setError(err.message); return; }
-    onSaved({ ...listing, ...form, price: Number(form.price), rooms: Number(form.rooms), area: Number(form.area), images: existingImages });
+    onSaved({ ...listing, ...form, price: Number(form.price), rooms: Number(form.rooms), area: Number(form.area), images: existingImages, freeSpots: form.listingMode === "shared" ? countFreeSpots(form.roomsConfig) : 0 });
     onClose();
   };
 
@@ -1329,10 +1573,41 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
                 ))}
               </div>
             </Field>
-            <Field label={t.priceLabelSom}>
+            <Field label={form.listingMode === "shared" ? t.pricePerPersonLabel : t.priceLabelSom}>
               <input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} style={inputStyle} />
             </Field>
           </div>
+
+          <Field label={t.modeLabel}>
+            <div className="grid grid-cols-2 gap-2">
+              {[["whole", t.modeWhole], ["shared", t.modeShared]].map(([val, label]) => (
+                <button key={val} type="button" onClick={() => setForm(f => ({ ...f, listingMode: val }))}
+                  className="py-2 rounded-lg text-[12.5px] font-medium"
+                  style={{ background: form.listingMode === val ? "#3E92B0" : "#16262E", color: form.listingMode === val ? "#0E1B21" : "#93A5AA", border: "1px solid #2A424C" }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          {form.listingMode === "shared" && (
+            <>
+              <Field label={t.roomsConfigLabel}>
+                <RoomsEditor rooms={form.roomsConfig} setRooms={(rc) => setForm(f => ({ ...f, roomsConfig: rc }))} t={t} />
+              </Field>
+              <Field label={t.genderLabel}>
+                <div className="grid grid-cols-3 gap-2">
+                  {[["erkak", t.genderMale], ["ayol", t.genderFemale], ["aralash", t.genderMixed]].map(([val, label]) => (
+                    <button key={val} type="button" onClick={() => setForm(f => ({ ...f, genderPref: val }))}
+                      className="py-2 rounded-lg text-[12.5px] font-medium"
+                      style={{ background: form.genderPref === val ? "#D4783C" : "#16262E", color: form.genderPref === val ? "#16262E" : "#93A5AA", border: "1px solid #2A424C" }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+            </>
+          )}
 
           <div className="grid grid-cols-3 gap-3">
             <Field label={t.roomsHeader}><input type="number" min={1} value={form.rooms} onChange={e => setForm(f => ({ ...f, rooms: e.target.value }))} style={inputStyle} /></Field>
@@ -1847,7 +2122,7 @@ function MapPreviewCard({ item, onOpen, onClose, isFav, onToggleFav, t }) {
         <div className="flex-1 min-w-0 p-3 flex flex-col justify-between">
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <PriceTag price={item.price} rentType={item.rentType} />
+              <PriceTag price={item.price} rentType={item.rentType} perPerson={item.listingMode === "shared"} perPersonLabel={t.perPerson} />
               <button onClick={onClose} className="shrink-0 -mt-0.5 -mr-0.5 p-1"><X size={16} color="#93A5AA" /></button>
             </div>
             <div className="font-serif text-[14.5px] leading-snug mt-1 truncate" style={{ color: "#F2EDE4" }}>{item.title}</div>
@@ -1962,7 +2237,7 @@ export default function Uy247App() {
   const [listings, setListings] = useState([]);
   const [loadingListings, setLoadingListings] = useState(true);
   const [userId, setUserId] = useState(null);
-  const [filters, setFilters] = useState({ city: CITIES[0], rentType: "Barchasi", propertyType: "Barchasi", sortBy: "new", min: "", max: "", rooms: "Barchasi" });
+  const [filters, setFilters] = useState({ city: CITIES[0], rentType: "Barchasi", propertyType: "Barchasi", sortBy: "new", min: "", max: "", rooms: "Barchasi", listingMode: "Barchasi", minFreeSpots: "Barchasi", gender: "Barchasi" });
   const [selected, setSelected] = useState(null);
   const [favs, setFavs] = useState(new Set());
   const [verified, setVerified] = useState(false);
@@ -2070,6 +2345,10 @@ export default function Uy247App() {
       boosted: !!row.boosted && (!row.boost_until || new Date(row.boost_until) > new Date()),
       boostUntil: row.boost_until || null,
       mine: row.owner_id === myId, images: imgs, thumbs, hue: hash,
+      listingMode: row.listing_mode || "whole",
+      genderPref: row.gender_pref || null,
+      roomsConfig: Array.isArray(row.rooms_config) ? row.rooms_config : [],
+      freeSpots: row.free_spots || 0,
       ownerPhone: null, ownerId: row.owner_id, propertyType: row.property_type || "kvartira",
       lat: row.lat ? Number(row.lat) : null, lng: row.lng ? Number(row.lng) : null,
       isOccupied: !!row.is_occupied,
@@ -2290,6 +2569,12 @@ export default function Uy247App() {
     if (filters.min && l.price < Number(filters.min)) return false;
     if (filters.max && l.price > Number(filters.max)) return false;
     if (query && !l.title.toLowerCase().includes(query.toLowerCase()) && !l.district.toLowerCase().includes(query.toLowerCase())) return false;
+    // Ijara shakli (butun uy / o'rin)
+    if (filters.listingMode !== "Barchasi" && (l.listingMode || "whole") !== filters.listingMode) return false;
+    // Bo'sh o'rinlar soni
+    if (filters.minFreeSpots !== "Barchasi" && (l.freeSpots || 0) < Number(filters.minFreeSpots)) return false;
+    // Kim yashaydi
+    if (filters.gender !== "Barchasi" && l.genderPref !== filters.gender) return false;
     return true;
   }).sort((a, b) => {
     if (a.boosted !== b.boosted) return b.boosted ? 1 : -1; // Top e'lonlar doim birinchi
@@ -2335,6 +2620,29 @@ export default function Uy247App() {
   const deleteSavedSearch = async (id) => {
     setSavedSearches(prev => prev.filter(s => s.id !== id));
     await supabase.from("saved_searches").delete().eq("id", id);
+  };
+
+  // Uy egasi uchun tezkor yangilash: bitta bosish bilan o'rin bo'shadi / band bo'ldi
+  const adjustSpot = async (listing, delta) => {
+    const rooms = (listing.roomsConfig || []).map(r => ({ ...r }));
+    if (!rooms.length) return;
+
+    if (delta > 0) {
+      // O'rin bo'shadi — bandi bor birinchi xonadan bittasini bo'shatamiz
+      const idx = rooms.findIndex(r => (r.occupied || 0) > 0);
+      if (idx === -1) return;
+      rooms[idx].occupied = rooms[idx].occupied - 1;
+    } else {
+      // O'rin band bo'ldi — bo'sh joyi bor birinchi xonaga qo'shamiz
+      const idx = rooms.findIndex(r => (r.occupied || 0) < (r.capacity || 0));
+      if (idx === -1) return;
+      rooms[idx].occupied = (rooms[idx].occupied || 0) + 1;
+    }
+
+    const free = countFreeSpots(rooms);
+    setListings(ls => ls.map(l => l.id === listing.id ? { ...l, roomsConfig: rooms, freeSpots: free } : l));
+    const { error } = await supabase.from("listings").update({ rooms_config: rooms, free_spots: free }).eq("id", listing.id);
+    if (error) console.error("O'rinni yangilashda xato:", error.message);
   };
 
   const toggleOccupied = async (id, current) => {
@@ -2504,6 +2812,24 @@ export default function Uy247App() {
                           <div className="mt-2 p-2.5 rounded-lg" style={{ background: "#3A2429", border: "1px solid #6B3A42" }}>
                             <div className="text-[11px] font-medium mb-0.5" style={{ color: "#F2C2C2" }}>{t.blockedReason}</div>
                             <div className="text-[11.5px]" style={{ color: "#E8A8A8" }}>{l.blockReason || t.noReasonGiven}</div>
+                          </div>
+                        )}
+                        {l.listingMode === "shared" && (
+                          <div className="mt-2 p-2.5 rounded-xl" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[11.5px]" style={{ color: "#93A5AA" }}>{t.freeSpotsTotal}</span>
+                              <span className="text-[15px] font-semibold font-mono" style={{ color: l.freeSpots > 0 ? "#8FD19E" : "#93A5AA" }}>{l.freeSpots}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button onClick={() => adjustSpot(l, -1)} className="py-1.5 rounded-lg text-[11.5px] font-medium"
+                                style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}>
+                                − {t.spotTakenBtn}
+                              </button>
+                              <button onClick={() => adjustSpot(l, +1)} className="py-1.5 rounded-lg text-[11.5px] font-medium"
+                                style={{ background: "#3E92B0", color: "#0E1B21" }}>
+                                + {t.spotFreedBtn}
+                              </button>
+                            </div>
                           </div>
                         )}
                         <button onClick={() => toggleOccupied(l.id, l.isOccupied)}

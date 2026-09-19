@@ -50,12 +50,23 @@ async function postToTelegram(listing) {
 
   const url = `${process.env.SITE_URL || "https://uy247.uz"}/elon/${listing.id}`;
   const rentLabel = listing.rent_type === "Kunlik" ? "kuniga" : "oyiga";
-  const caption =
-    `🏠 <b>${escapeHtml(listing.title)}</b>\n` +
-    `📍 ${escapeHtml(listing.district || "")}, ${escapeHtml(listing.city)}\n` +
-    `🛏 ${listing.rooms} xona · ${listing.area} m²\n` +
-    `💰 ${Number(listing.price).toLocaleString("uz-UZ")} so'm / ${rentLabel}\n\n` +
-    `🔗 ${url}`;
+  const isShared = listing.listing_mode === "shared";
+  const genderLabel = listing.gender_pref === "erkak" ? "Erkaklar"
+    : listing.gender_pref === "ayol" ? "Ayollar"
+    : listing.gender_pref === "aralash" ? "Aralash" : "";
+
+  const caption = isShared
+    ? `🛏 <b>${escapeHtml(listing.title)}</b>\n` +
+      `📍 ${escapeHtml(listing.district || "")}, ${escapeHtml(listing.city)}\n` +
+      `✅ <b>${listing.free_spots || 0} o'rin bo'sh</b>${genderLabel ? ` · ${genderLabel}` : ""}\n` +
+      `📐 ${listing.area} m² · ${listing.rooms} xonali\n` +
+      `💰 ${Number(listing.price).toLocaleString("uz-UZ")} so'm / ${rentLabel} (1 kishi)\n\n` +
+      `🔗 ${url}`
+    : `🏠 <b>${escapeHtml(listing.title)}</b>\n` +
+      `📍 ${escapeHtml(listing.district || "")}, ${escapeHtml(listing.city)}\n` +
+      `🛏 ${listing.rooms} xona · ${listing.area} m²\n` +
+      `💰 ${Number(listing.price).toLocaleString("uz-UZ")} so'm / ${rentLabel}\n\n` +
+      `🔗 ${url}`;
 
   try {
     const endpoint = listing.imageUrl ? "sendPhoto" : "sendMessage";
