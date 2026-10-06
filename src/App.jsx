@@ -72,7 +72,7 @@ const STR = {
     roomCapacityShort: "kishilik xona",
     spotFreedBtn: "O'rin bo'shadi", spotTakenBtn: "O'rin band bo'ldi",
     filterFreeSpots: "Bo'sh o'rinlar", anyMode: "Barchasi",
-    roomsBreakdown: "Xonalar holati", occupiedShort: "band", freeShort: "bo'sh", youPrefix: "Siz: ", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
+    roomsBreakdown: "Xonalar holati", occupiedShort: "band", freeShort: "bo'sh", youPrefix: "Siz: ", boostRequestSent: "So'rov qabul qilindi. To'lov tasdiqlangach e'loningiz Top bo'ladi.", boostRequestError: "Xatolik yuz berdi, qayta urinib ko'ring.", accountBlockedTitle: "Akkauntingiz bloklangan", accountBlockedBody: "Platforma qoidalari buzilgani sababli e'lon joylash va xabar yozish cheklangan. Xato deb hisoblasangiz: info@uy247.uz", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
     months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
     weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
     bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
@@ -150,7 +150,7 @@ const STR = {
     roomCapacityShort: "-местная комната",
     spotFreedBtn: "Место освободилось", spotTakenBtn: "Место занято",
     filterFreeSpots: "Свободные места", anyMode: "Все",
-    roomsBreakdown: "Состояние комнат", occupiedShort: "занято", freeShort: "свободно", youPrefix: "Вы: ", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
+    roomsBreakdown: "Состояние комнат", occupiedShort: "занято", freeShort: "свободно", youPrefix: "Вы: ", boostRequestSent: "Запрос принят. После подтверждения оплаты объявление станет Top.", boostRequestError: "Произошла ошибка, попробуйте снова.", accountBlockedTitle: "Ваш аккаунт заблокирован", accountBlockedBody: "Из-за нарушения правил размещение объявлений и сообщения ограничены. Если это ошибка: info@uy247.uz", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
     months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
     weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
     bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
@@ -228,7 +228,7 @@ const STR = {
     roomCapacityShort: "-person room",
     spotFreedBtn: "Spot freed up", spotTakenBtn: "Spot taken",
     filterFreeSpots: "Free spots", anyMode: "All",
-    roomsBreakdown: "Room status", occupiedShort: "taken", freeShort: "free", youPrefix: "You: ", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
+    roomsBreakdown: "Room status", occupiedShort: "taken", freeShort: "free", youPrefix: "You: ", boostRequestSent: "Request received. Your listing becomes Top once payment is confirmed.", boostRequestError: "Something went wrong, please try again.", accountBlockedTitle: "Your account is blocked", accountBlockedBody: "Due to a rules violation, posting and messaging are restricted. If you think this is a mistake: info@uy247.uz", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
     months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
     weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
     bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
@@ -701,8 +701,8 @@ function BoostModal({ onClose, onBoost, onUseCredit, boostCredits, t = STR.uz })
         </div>
         <div className="text-[12px] mb-2" style={{ color: "#93A5AA" }}>{t.payMethod}</div>
         <div className="grid grid-cols-2 gap-2.5">
-          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price)} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Payme {t.payVia}</button>
-          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price)} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Click {t.payVia}</button>
+          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price, "payme")} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Payme {t.payVia}</button>
+          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price, "click")} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Click {t.payVia}</button>
         </div>
       </div>
     </div>
@@ -937,23 +937,6 @@ function ChatsListView({ chats, onOpen, t, unreadByChat = {} }) {
   );
 }
 
-function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullNameSaved }) {
-  const [nameParts] = useState(() => {
-    const parts = (initialFullName || "").trim().split(/\s+/);
-    return { ism: parts[0] || "", familiya: parts.slice(1).join(" ") || "" };
-  });
-  const [form, setForm] = useState({ ism: nameParts.ism, familiya: nameParts.familiya, title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false, lat: null, lng: null,
-    listingMode: "whole", genderPref: "aralash", roomsConfig: [{ capacity: 4, occupied: 0 }] });
-  const [images, setImages] = useState([]); // { file, url, name }
-  const [done, setDone] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const fileInputRef = useRef(null);
-
-  const toggleAmenity = (a) => setForm(f => ({ ...f, amenities: f.amenities.includes(a) ? f.amenities.filter(x => x !== a) : [...f.amenities, a] }));
-
-// Rasmni yuklashdan oldin kichraytiradi (telefon rasmlari 5-10 MB bo'ladi — bu juda katta).
-// Eni/bo'yi 1600px dan oshmaydi, sifat 82% — ko'z bilan farq sezilmaydi, hajm ~10 barobar kamayadi.
 // Har bir rasmdan IKKITA nusxa tayyorlaydi:
 //  - katta (1600px) — e'lon sahifasi va to'liq ekran uchun
 //  - kichik (400px) — ro'yxat kartochkalari va xarita uchun (~15 barobar kam trafik)
@@ -993,6 +976,24 @@ async function compressImage(file, maxSize = 1600, quality = 0.82) {
     return file; // eski brauzerlarda ishlamasa — asl fayl bilan davom etamiz
   }
 }
+
+function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullNameSaved }) {
+  const [nameParts] = useState(() => {
+    const parts = (initialFullName || "").trim().split(/\s+/);
+    return { ism: parts[0] || "", familiya: parts.slice(1).join(" ") || "" };
+  });
+  const [form, setForm] = useState({ ism: nameParts.ism, familiya: nameParts.familiya, title: "", propertyType: "kvartira", city: CITIES[0], district: DISTRICTS["Toshkent shahri"][0], rooms: 1, area: "", floor: "", rentType: "Oylik", price: "", amenities: [], desc: "", ownerConfirm: false, lat: null, lng: null,
+    listingMode: "whole", genderPref: "aralash", roomsConfig: [{ capacity: 4, occupied: 0 }] });
+  const [images, setImages] = useState([]); // { file, url, name }
+  const [done, setDone] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const fileInputRef = useRef(null);
+
+  const toggleAmenity = (a) => setForm(f => ({ ...f, amenities: f.amenities.includes(a) ? f.amenities.filter(x => x !== a) : [...f.amenities, a] }));
+
+// Rasmni yuklashdan oldin kichraytiradi (telefon rasmlari 5-10 MB bo'ladi — bu juda katta).
+// Eni/bo'yi 1600px dan oshmaydi, sifat 82% — ko'z bilan farq sezilmaydi, hajm ~10 barobar kamayadi.
 
 
   const [compressing, setCompressing] = useState(false);
@@ -2268,6 +2269,15 @@ export default function Uy247App() {
   const [ownerStats, setOwnerStats] = useState({});
   const [savedSearches, setSavedSearches] = useState([]);
   const [bookingEditorId, setBookingEditorId] = useState(null);
+  // Qisqa xabar (toast) — bir necha soniyadan keyin o'zi yo'qoladi
+  const [notice, setNotice] = useState("");
+  useEffect(() => {
+    if (!notice) return;
+    const tm = setTimeout(() => setNotice(""), 4000);
+    return () => clearTimeout(tm);
+  }, [notice]);
+  // Admin bu foydalanuvchini bloklagan bo'lsa
+  const [accountBlocked, setAccountBlocked] = useState(false);
   // Ro'yxatni bo'lib-bo'lib ko'rsatamiz (bir vaqtda yuzlab kartochka chizilsa telefon sekinlashadi)
   const PAGE_SIZE = 24;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -2473,8 +2483,13 @@ export default function Uy247App() {
       if (myId) {
         // Profil qatori bo'lmasa yaratamiz (listings.owner_id shu jadvalga bog'langan)
         await supabase.from("profiles").upsert({ id: myId }, { onConflict: "id", ignoreDuplicates: true });
-        const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits, full_name").eq("id", myId).maybeSingle();
-        if (profRow) setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0, fullName: profRow.full_name || "" });
+        const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits, full_name, is_blocked").eq("id", myId).maybeSingle();
+        if (profRow) {
+          setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0, fullName: profRow.full_name || "" });
+          setAccountBlocked(!!profRow.is_blocked);
+        }
+        // Oxirgi faollik vaqti — admin panelda "oxirgi kirgan" sifatida ko'rinadi
+        supabase.from("profiles").update({ last_seen_at: new Date().toISOString() }).eq("id", myId).then(() => {});
         // Agar bu foydalanuvchi avval telefonini tasdiqlagan bo'lsa — eslab qolamiz
         if (session.user.phone && session.user.phone_confirmed_at) {
           setVerified(true);
@@ -2657,27 +2672,25 @@ export default function Uy247App() {
     if (error) console.error("Shikoyat yuborishda xato:", error.message);
   };
 
-  const handleBoost = async (pkgId, price) => {
+  // Pullik Top: so'rov "kutilmoqda" holatida yoziladi.
+  // To'lov tasdiqlangach (hozircha admin, keyinchalik Payme/Click avtomatik) e'lon Top bo'ladi.
+  const handleBoost = async (pkgId, price, provider = "payme") => {
     const days = pkgId === "30d" ? 30 : 7;
-    const boostUntil = new Date(Date.now() + days * 86400000).toISOString();
-    const { error } = await supabase.from("listings").update({ boosted: true, boost_until: boostUntil }).eq("id", boostTarget);
-    if (error) { console.error("Top qilishda xato:", error.message); setBoostTarget(null); return; }
-    await supabase.from("boosts").insert({ listing_id: boostTarget, amount: price, provider: "payme", status: "paid", days });
-    setListings(ls => ls.map(l => l.id === boostTarget ? { ...l, boosted: true } : l));
-    setRevenue(r => r + price);
+    const { error } = await supabase.from("boosts").insert({ listing_id: boostTarget, amount: price, provider, status: "pending", days });
     setBoostTarget(null);
+    if (error) { console.error("Top so'rovida xato:", error.message); setNotice(t.boostRequestError); return; }
+    setNotice(t.boostRequestSent);
   };
 
   const handleUseCredit = async () => {
     if (profile.boostCredits < 1) return;
-    const boostUntil = new Date(Date.now() + 7 * 86400000).toISOString();
-    const { error } = await supabase.from("listings").update({ boosted: true, boost_until: boostUntil }).eq("id", boostTarget);
-    if (error) { console.error("Kredit bilan Top qilishda xato:", error.message); return; }
-    await supabase.from("profiles").update({ boost_credits: profile.boostCredits - 1 }).eq("id", userId);
-    await supabase.from("boosts").insert({ listing_id: boostTarget, amount: 0, provider: "credit", status: "paid", days: 7 });
-    setListings(ls => ls.map(l => l.id === boostTarget ? { ...l, boosted: true } : l));
-    setProfile(p => ({ ...p, boostCredits: p.boostCredits - 1 }));
+    const target = boostTarget;
     setBoostTarget(null);
+    const { data: ok, error } = await supabase.rpc("use_boost_credit", { p_listing_id: target });
+    if (error || !ok) { console.error("Kredit bilan Top qilishda xato:", error?.message); setNotice(t.boostRequestError); return; }
+    const boostUntil = new Date(Date.now() + 7 * 86400000).toISOString();
+    setListings(ls => ls.map(l => l.id === target ? { ...l, boosted: true, boostUntil } : l));
+    setProfile(p => ({ ...p, boostCredits: p.boostCredits - 1 }));
   };
 
   if (activeChat && chats[activeChat]) {
@@ -2762,7 +2775,13 @@ export default function Uy247App() {
 
           {tab === "chats" && <ChatsListView chats={chats} onOpen={(c) => { setActiveChat(c.listingId); markChatSeen(c.listingId); }} t={t} unreadByChat={unreadByChat} />}
 
-          {tab === "post" && <PostForm userId={userId} onPublish={() => { fetchListings(userId); setTab("profile"); }} t={t} initialFullName={profile.fullName} onFullNameSaved={(name) => setProfile(p => ({ ...p, fullName: name }))} />}
+          {tab === "post" && (accountBlocked ? (<div className="p-4 pb-28">
+              <div className="rounded-2xl p-5 text-center" style={{ background: "#3A2429", border: "1px solid #6B3A42" }}>
+                <Ban size={28} color="#F2C2C2" className="mx-auto mb-3" />
+                <h2 className="font-serif text-lg mb-2" style={{ color: "#F2EDE4" }}>{t.accountBlockedTitle}</h2>
+                <p className="text-[13px] leading-relaxed" style={{ color: "#E8A8A8" }}>{t.accountBlockedBody}</p>
+              </div>
+            </div>) : <PostForm userId={userId} onPublish={() => { fetchListings(userId); setTab("profile"); }} t={t} initialFullName={profile.fullName} onFullNameSaved={(name) => setProfile(p => ({ ...p, fullName: name }))} />)}
 
           {tab === "profile" && (
             <div className="px-4 py-6 pb-28 space-y-4">
@@ -2902,8 +2921,11 @@ export default function Uy247App() {
                 const { data: claimed } = await supabase.rpc("claim_referral", { p_ref_code: refCode });
                 if (claimed) console.log("Referal bonusi berildi");
               }
-              const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits, full_name").eq("id", newUserId).maybeSingle();
-              if (profRow) setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0, fullName: profRow.full_name || "" });
+              const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits, full_name, is_blocked").eq("id", newUserId).maybeSingle();
+              if (profRow) {
+                setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0, fullName: profRow.full_name || "" });
+                setAccountBlocked(!!profRow.is_blocked);
+              }
               setUserId(newUserId);
               setPhone(confirmedPhone);
               setVerified(true);
@@ -2938,7 +2960,14 @@ export default function Uy247App() {
       )}
 
       {!selected && (
-        <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2.5" style={{ background: "#1A2B33", borderTop: "1px solid #22343B", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)" }}>
+        {notice && (
+        <div className="fixed left-4 right-4 z-50 px-4 py-3 rounded-xl text-[13px] text-center shadow-2xl"
+          style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 84px)", background: "#1E333C", color: "#F2EDE4", border: "1px solid #3E92B0" }}>
+          {notice}
+        </div>
+      )}
+
+      <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2.5" style={{ background: "#1A2B33", borderTop: "1px solid #22343B", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)" }}>
           {[{ id: "browse", icon: Search, label: t.navSearch }, { id: "chats", icon: MessageCircle, label: t.navChats }, { id: "post", icon: Plus, label: t.navPost }, { id: "favs", icon: Heart, label: t.navFavs }, { id: "profile", icon: User, label: t.navProfile }].map(x => (
             <button key={x.id} onClick={() => switchTab(x.id)} className="flex flex-col items-center gap-1 px-3 py-1">
               <div className="relative">
