@@ -1,6 +1,46 @@
 // /api/send-sms-hook.js
 // Bu funksiyani Supabase "Send SMS Hook" chaqiradi (Authentication -> Hooks).
 // Vazifasi: Supabase generatsiya qilgan OTP kodni Eskiz.uz orqali haqiqiy SMS qilib yuborish.
+//
+// XAVFSIZLIK: har bir so'rov Supabase imzosi bilan tekshiriladi.
+// Imzo to'g'ri bo'lmasa — SMS YUBORILMAYDI. Aks holda har kim bu manzil orqali
+// istalgan raqamga, sizning brendingiz nomidan va sizning pulingizga SMS yubora olardi.
+// Sozlash: Supabase -> Authentication -> Hooks -> Send SMS hook ochilganda ko'rsatiladigan
+// maxfiy kalitni (v1,whsec_... ko'rinishida) Vercel'da SEND_SMS_HOOK_SECRET ga qo'ying.
+
+import crypto from "crypto";
+
+// So'rov tanasini o'zgarishsiz (xom holda) o'qiymiz — imzo aynan shu baytlar ustida hisoblanadi
+async function readRawBody(req) {
+  const chunks = [];
+  for await (const chunk of req) chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+  return Buffer.concat(chunks).toString("utf8");
+}
+
+// "Standard Webhooks" imzosini tekshiradi (Supabase hook'lari shu standartdan foydalanadi)
+function verifySignature(rawBody, headers) {
+  const secretEnv = process.env.SEND_SMS_HOOK_SECRET;
+  if (!secretEnv) return false; // kalit sozlanmagan bo'lsa — hech narsa yubormaymiz
+
+  const id = headers["webhook-id"];
+  const ts = headers["webhook-timestamp"];
+  const sigHeader = headers["webhook-signature"];
+  if (!id || !ts || !sigHeader) return false;
+
+  // Eski so'rovni qayta yuborish hujumidan himoya: 5 daqiqadan eski bo'lmasin
+  if (Math.abs(Math.floor(Date.now() / 1000) - Number(ts)) > 300) return false;
+
+  const key = Buffer.from(secretEnv.replace(/^v1,/, "").replace(/^whsec_/, ""), "base64");
+  const expected = crypto.createHmac("sha256", key).update(`${id}.${ts}.${rawBody}`).digest("base64");
+  const expectedBuf = Buffer.from(expected);
+
+  return String(sigHeader).split(" ").some(part => {
+    const sig = part.split(",")[1];
+    if (!sig) return false;
+    const sigBuf = Buffer.from(sig);
+    return sigBuf.length === expectedBuf.length && crypto.timingSafeEqual(sigBuf, expectedBuf);
+  });
+}
 
 let cachedToken = null;
 let cachedTokenAt = 0;
@@ -33,13 +73,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Supabase yuboradigan payload: { user: {...phone...}, sms: { otp: "123456" } }
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-    const phone = body?.user?.phone;
-    const otp = body?.sms?.otp;
+    const rawBody = await readRawBody(req);
+    if (!verifySignature(rawBody, req.headers)) {
+      console.error("send-sms-hook: imzo noto'g'ri yoki SEND_SMS_HOOK_SECRET sozlanmagan — SMS yuborilmadi");
+      return res.status(401).json({ message: "Imzo noto'g'ri" });
+    }
 
-    if (!phone || !otp) {
-      return res.status(400).json({ message: "phone yoki otp topilmadi" });
+    // Supabase yuboradigan payload: { user: {...phone...}, sms: { otp: "123456" } }
+    const body = JSON.parse(rawBody || "{}");
+    const phone = String(body?.user?.phone || "");
+    const otp = String(body?.sms?.otp || "");
+
+    // Qo'shimcha himoya: faqat O'zbekiston raqami va faqat raqamlardan iborat kod
+    if (!/^\+?998\d{9}$/.test(phone) || !/^\d{4,8}$/.test(otp)) {
+      return res.status(400).json({ message: "phone yoki otp formati noto'g'ri" });
     }
 
     const token = await getEskizToken();

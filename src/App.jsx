@@ -72,7 +72,7 @@ const STR = {
     roomCapacityShort: "kishilik xona",
     spotFreedBtn: "O'rin bo'shadi", spotTakenBtn: "O'rin band bo'ldi",
     filterFreeSpots: "Bo'sh o'rinlar", anyMode: "Barchasi",
-    roomsBreakdown: "Xonalar holati", occupiedShort: "band", freeShort: "bo'sh", youPrefix: "Siz: ", boostRequestSent: "So'rov qabul qilindi. To'lov tasdiqlangach e'loningiz Top bo'ladi.", boostRequestError: "Xatolik yuz berdi, qayta urinib ko'ring.", accountBlockedTitle: "Akkauntingiz bloklangan", accountBlockedBody: "Platforma qoidalari buzilgani sababli e'lon joylash va xabar yozish cheklangan. Xato deb hisoblasangiz: info@uy247.uz", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
+    roomsBreakdown: "Xonalar holati", occupiedShort: "band", freeShort: "bo'sh", youPrefix: "Siz: ", boostRequestSent: "So'rov qabul qilindi. To'lov tasdiqlangach e'loningiz Top bo'ladi.", boostRequestError: "Xatolik yuz berdi, qayta urinib ko'ring.", accountBlockedTitle: "Akkauntingiz bloklangan", revealPhoneBtn: "Raqamni ko'rsatish", phoneLimitReached: "Bugungi limit tugadi — ertaga yana ko'ra olasiz. Chat orqali yozishingiz mumkin.", phoneUnavailable: "Egasi raqam qoldirmagan — chat orqali yozing.", resubmittedForReview: "O'zgarishlar saqlandi. Sarlavha, tavsif yoki rasm o'zgargani uchun e'lon qayta tekshiruvga yuborildi.", accountBlockedBody: "Platforma qoidalari buzilgani sababli e'lon joylash va xabar yozish cheklangan. Xato deb hisoblasangiz: info@uy247.uz", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
     months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
     weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
     bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
@@ -150,7 +150,7 @@ const STR = {
     roomCapacityShort: "-местная комната",
     spotFreedBtn: "Место освободилось", spotTakenBtn: "Место занято",
     filterFreeSpots: "Свободные места", anyMode: "Все",
-    roomsBreakdown: "Состояние комнат", occupiedShort: "занято", freeShort: "свободно", youPrefix: "Вы: ", boostRequestSent: "Запрос принят. После подтверждения оплаты объявление станет Top.", boostRequestError: "Произошла ошибка, попробуйте снова.", accountBlockedTitle: "Ваш аккаунт заблокирован", accountBlockedBody: "Из-за нарушения правил размещение объявлений и сообщения ограничены. Если это ошибка: info@uy247.uz", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
+    roomsBreakdown: "Состояние комнат", occupiedShort: "занято", freeShort: "свободно", youPrefix: "Вы: ", boostRequestSent: "Запрос принят. После подтверждения оплаты объявление станет Top.", boostRequestError: "Произошла ошибка, попробуйте снова.", accountBlockedTitle: "Ваш аккаунт заблокирован", revealPhoneBtn: "Показать номер", phoneLimitReached: "Лимит на сегодня исчерпан — завтра снова сможете. Можно написать в чат.", phoneUnavailable: "Владелец не оставил номер — напишите в чат.", resubmittedForReview: "Изменения сохранены. Объявление отправлено на повторную проверку, так как изменились заголовок, описание или фото.", accountBlockedBody: "Из-за нарушения правил размещение объявлений и сообщения ограничены. Если это ошибка: info@uy247.uz", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
     months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
     weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
     bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
@@ -228,7 +228,7 @@ const STR = {
     roomCapacityShort: "-person room",
     spotFreedBtn: "Spot freed up", spotTakenBtn: "Spot taken",
     filterFreeSpots: "Free spots", anyMode: "All",
-    roomsBreakdown: "Room status", occupiedShort: "taken", freeShort: "free", youPrefix: "You: ", boostRequestSent: "Request received. Your listing becomes Top once payment is confirmed.", boostRequestError: "Something went wrong, please try again.", accountBlockedTitle: "Your account is blocked", accountBlockedBody: "Due to a rules violation, posting and messaging are restricted. If you think this is a mistake: info@uy247.uz", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
+    roomsBreakdown: "Room status", occupiedShort: "taken", freeShort: "free", youPrefix: "You: ", boostRequestSent: "Request received. Your listing becomes Top once payment is confirmed.", boostRequestError: "Something went wrong, please try again.", accountBlockedTitle: "Your account is blocked", revealPhoneBtn: "Show number", phoneLimitReached: "Daily limit reached — you can view more tomorrow. You can still message via chat.", phoneUnavailable: "The owner didn't leave a number — please use the chat.", resubmittedForReview: "Changes saved. The listing was sent for re-review because the title, description or photos changed.", accountBlockedBody: "Due to a rules violation, posting and messaging are restricted. If you think this is a mistake: info@uy247.uz", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
     months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
     weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
     bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
@@ -709,7 +709,7 @@ function BoostModal({ onClose, onBoost, onUseCredit, boostCredits, t = STR.uz })
   );
 }
 
-function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFav, onReport, onOpenChat, t, similar, favs, onOpenSimilar }) {
+function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFav, onReport, onOpenChat, onRevealPhone, t, similar, favs, onOpenSimilar }) {
   const [showReport, setShowReport] = useState(false);
   const [reported, setReported] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -827,6 +827,12 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
             <button onClick={() => onOpenChat(item)} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-[15px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>
               <MessageCircle size={17} /> {t.chatCta}
             </button>
+            {!item.ownerPhone && !item.mine && onRevealPhone && (
+              <button onClick={() => onRevealPhone(item)} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-[13px]"
+                style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}>
+                <Phone size={14} /> {t.revealPhoneBtn}
+              </button>
+            )}
             {item.ownerPhone && (
               <div className="grid grid-cols-2 gap-2.5">
                 <a href={`tel:${item.ownerPhone}`} className="flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-[13px]" style={{ background: "#1E333C", color: "#F2EDE4", border: "1px solid #2A424C" }}><Phone size={14} /> {t.callBtn}</a>
@@ -1544,7 +1550,17 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
     }).eq("id", listing.id);
     setSaving(false);
     if (err) { setError(err.message); return; }
-    onSaved({ ...listing, ...form, price: Number(form.price), rooms: Number(form.rooms), area: Number(form.area), images: existingImages, freeSpots: form.listingMode === "shared" ? countFreeSpots(form.roomsConfig) : 0 });
+    // Tasdiqlangan e'lonning sarlavhasi, tavsifi yoki rasmi o'zgarsa — server uni qayta tekshiruvga yuboradi
+    const resubmitted = listing.status === "approved" &&
+      (form.title !== listing.title || form.desc !== (listing.desc || "") || newImages.length > 0);
+    onSaved({
+      ...listing, ...form,
+      price: Number(form.price), rooms: Number(form.rooms), area: Number(form.area),
+      images: existingImages,
+      freeSpots: form.listingMode === "shared" ? countFreeSpots(form.roomsConfig) : 0,
+      status: resubmitted ? "pending" : listing.status,
+      resubmitted,
+    });
     onClose();
   };
 
@@ -2322,16 +2338,23 @@ export default function Uy247App() {
     setSelected(item);
     navigate(`/elon/${item.id}`);
     incrementView(item);
-    fetchOwnerPhone(item);
   };
 
   // Egasining raqamini e'lon ochilganda birma-bir olib kelamiz
+  // Egasining raqami — faqat "Raqamni ko'rsatish" bosilganda so'raladi.
+  // Server: faqat telefoni tasdiqlanganlarga, kuniga 40 ta e'longacha (raqam yig'ishdan himoya).
   const fetchOwnerPhone = async (item) => {
     if (!item || item.mine || item.ownerPhone) return;
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user?.phone_confirmed_at) return; // faqat raqami tasdiqlanganlarga
     const { data, error } = await supabase.rpc("get_owner_phone", { p_listing_id: item.id });
-    if (error || !data) return;
+    if (error) {
+      const m = error.message || "";
+      if (m.includes("DAILY_LIMIT")) setNotice(t.phoneLimitReached);
+      else if (m.includes("NOT_VERIFIED")) setShowVerify(true);
+      else if (m.includes("BLOCKED")) setNotice(t.accountBlockedTitle);
+      else setNotice(t.boostRequestError);
+      return;
+    }
+    if (!data) { setNotice(t.phoneUnavailable); return; }
     const phone = data.startsWith("+") ? data : "+" + data;
     setSelected(prev => prev && prev.id === item.id ? { ...prev, ownerPhone: phone } : prev);
     setListings(ls => ls.map(l => l.id === item.id ? { ...l, ownerPhone: phone } : l));
@@ -2451,14 +2474,13 @@ export default function Uy247App() {
     const mapped = mapRow(data, myId);
     setSelected(mapped);
     incrementView(mapped);
-    fetchOwnerPhone(mapped);
   };
 
   // URL'da /elon/:id bo'lsa va hali ochilmagan bo'lsa — bazadan yuklaydi (havola orqali kirilganda ishlaydi)
   useEffect(() => {
     if (routeListingId && (!selected || selected.id !== routeListingId)) {
       const fromList = listings.find(l => l.id === routeListingId);
-      if (fromList) { setSelected(fromList); incrementView(fromList); fetchOwnerPhone(fromList); }
+      if (fromList) { setSelected(fromList); incrementView(fromList); }
       else if (userId !== null || listings.length > 0) fetchOneListing(routeListingId, userId);
     }
     if (!routeListingId && selected) setSelected(null);
@@ -2718,7 +2740,7 @@ export default function Uy247App() {
       <MosaicStrip className="h-1.5" />
 
       {selected ? (
-        <DetailView item={selected} onBack={closeListing} verified={verified} onRequestVerify={() => setShowVerify(true)} isFav={favs.has(selected.id)} onToggleFav={toggleFav} onReport={handleReport} onOpenChat={openChat} t={t} similar={similarListings} favs={favs} onOpenSimilar={openListing} />
+        <DetailView item={selected} onBack={closeListing} verified={verified} onRequestVerify={() => setShowVerify(true)} isFav={favs.has(selected.id)} onToggleFav={toggleFav} onReport={handleReport} onOpenChat={openChat} onRevealPhone={fetchOwnerPhone} t={t} similar={similarListings} favs={favs} onOpenSimilar={openListing} />
       ) : (
         <>
           <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center justify-between" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
@@ -2945,7 +2967,11 @@ export default function Uy247App() {
         <EditListingModal
           listing={editingListing}
           onClose={() => setEditingListing(null)}
-          onSaved={(updated) => setListings(ls => ls.map(x => x.id === updated.id ? { ...x, ...updated } : x))}
+          onSaved={(updated) => {
+            const { resubmitted, ...rest } = updated;
+            setListings(ls => ls.map(x => x.id === rest.id ? { ...x, ...rest } : x));
+            if (resubmitted) setNotice(t.resubmittedForReview);
+          }}
           t={t}
         />
       )}

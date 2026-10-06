@@ -95,20 +95,76 @@ function escapeHtml(s) {
   return String(s || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 }
 
+// Faqat shu manzillardan kelgan brauzer so'rovlariga ruxsat (admin panel).
+// Qo'shimcha manzil kerak bo'lsa — Vercel'da ADMIN_ORIGINS="https://a.uz,https://b.uz"
+const ALLOWED_ORIGINS = [
+  "https://uy247-admin.vercel.app",
+  ...(process.env.ADMIN_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean),
+];
+
+// JWT ichidagi ma'lumotni o'qish (imzo getUser() orqali alohida tekshiriladi)
+function jwtPayload(token) {
+  try {
+    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(Buffer.from(part, "base64").toString("utf8"));
+  } catch (_) { return {}; }
+}
+
 export default async function handler(req, res) {
-  // CORS: uy247-admin.vercel.app (boshqa domen) shu funksiyaga so'rov yubora olishi uchun
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   if (req.method === "OPTIONS") return res.status(200).end();
 
   if (req.method !== "POST") return res.status(405).json({ message: "Faqat POST" });
   try {
-    const { listing } = req.body; // { id, title, city, district, rooms, area, price, rent_type, property_type, imageUrl }
-    if (!listing?.id) return res.status(400).json({ message: "listing topilmadi" });
+    // ---- 1) KIM CHAQIRYAPTI: faqat 2FA bilan kirgan admin ----
+    const authHeader = req.headers.authorization || "";
+    const jwt = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (!jwt) return res.status(401).json({ message: "Avtorizatsiya kerak" });
+
+    const { data: userData, error: userErr } = await admin.auth.getUser(jwt); // imzo shu yerda tekshiriladi
+    if (userErr || !userData?.user) return res.status(401).json({ message: "Sessiya yaroqsiz" });
+    if (jwtPayload(jwt).aal !== "aal2") return res.status(403).json({ message: "2FA talab qilinadi" });
+
+    const { data: prof } = await admin.from("profiles").select("is_admin").eq("id", userData.user.id).maybeSingle();
+    if (!prof?.is_admin) return res.status(403).json({ message: "Ruxsat yo'q" });
+
+    // ---- 2) E'LONNI BAZADAN O'QIYMIZ — tashqaridan kelgan matnga ishonmaymiz ----
+    const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
+    const listingId = body.listing_id;
+    if (!listingId) return res.status(400).json({ message: "listing_id topilmadi" });
+
+    const { data: row, error: rowErr } = await admin
+      .from("listings")
+      .select("*, listing_images(url, position)")
+      .eq("id", listingId)
+      .maybeSingle();
+    if (rowErr || !row) return res.status(404).json({ message: "E'lon topilmadi" });
+    if (row.status !== "approved") return res.status(400).json({ message: "E'lon tasdiqlanmagan" });
+
+    // Bir e'lon kanalga ikki marta chiqmasin
+    if (row.telegram_posted_at) {
+      return res.status(200).json({ notified: 0, telegram: { ok: true, skipped: true } });
+    }
+
+    const firstImage = [...(row.listing_images || [])].sort((a, b) => (a.position || 0) - (b.position || 0))[0]?.url || null;
+    const listing = {
+      id: row.id, title: row.title, city: row.city, district: row.district,
+      rooms: row.rooms, area: row.area, price: row.price, rent_type: row.rent_type,
+      property_type: row.property_type, imageUrl: firstImage,
+      listing_mode: row.listing_mode, free_spots: row.free_spots, gender_pref: row.gender_pref,
+    };
 
     // 1) Telegram
     const telegramResult = await postToTelegram(listing);
+    if (telegramResult?.ok) {
+      await admin.from("listings").update({ telegram_posted_at: new Date().toISOString() }).eq("id", row.id);
+    }
 
     // 2) Mos saqlangan qidiruvlarni topib, egalariga SMS yuborish (bu qismdagi xato Telegram natijasini yashirmasin)
     let notifiedCount = 0;
