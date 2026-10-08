@@ -1,3 +1,5 @@
+import { detectLang } from "../lib/lang";
+
 // Statik sahifalar (Qoidalar, Biz haqimizda) uchun tarjimalar
 export const PAGE_STR = {
   uz: {
@@ -38,7 +40,7 @@ export const PAGE_STR = {
     t2Title: "2. Условия размещения объявлений",
     t2Body: "Размещая объявление, пользователь подтверждает право собственности или полномочия сдавать жильё в аренду. Ложные, вводящие в заблуждение или посреднические объявления могут быть удалены администратором без предупреждения, а аккаунт заблокирован.",
     t3Title: "3. Платежи",
-    t3Body: "Услуга «Top объявление» — платное продвижение объявления выше в результатах поиска. Оплата производится через Payme или Click. По истечении оплаченного срока объявление показывается в обычном порядке. После оказания услуги средства не возвращаются.",
+    t3Body: "Услуга «Топ-объявление» — платное поднятие объявления выше в результатах поиска. Оплата производится через Payme или Click. По истечении оплаченного срока объявление показывается в обычном порядке. После оказания услуги средства не возвращаются.",
     t4Title: "4. Данные пользователей",
     t4Body: "Номер телефона хранится только для идентификации и связи. Платформа не продаёт номера пользователей третьим лицам.",
     t5Title: "5. Ответственность",
@@ -48,11 +50,11 @@ export const PAGE_STR = {
     aboutTitle: "О нас",
     aboutIntro: "Uy24/7 — платформа, которая делает аренду жилья в Узбекистане простой и надёжной. Без риелторов — напрямую от владельца.",
     a1Title: "Проблема",
-    a1Body: "Человек, ищущий жильё, часто видит одно и то же объявление у десятков риелторов, цена накручивается, а добраться до настоящего владельца сложно.",
+    a1Body: "Тот, кто ищет жильё, часто видит одно и то же объявление у десятков риелторов: цена накручивается, а до настоящего владельца не добраться.",
     a2Title: "Решение",
     a2Body: "У нас объявления размещают только владельцы. Каждое объявление проверяется администратором, номер телефона подтверждается, работает система жалоб.",
     a3Title: "Как это работает",
-    a3Body: "Выберите жильё на карте или в списке, свяжитесь с владельцем через внутренний чат. Ваш номер не раскрывается. Договорились — встречаетесь напрямую, без всяких комиссий.",
+    a3Body: "Выберите жильё на карте или в списке и напишите владельцу во внутреннем чате — ваш номер останется скрытым. Договорились — общаетесь с владельцем напрямую, без комиссий.",
     a4Title: "Связаться с нами",
     a4Body: "По вопросам, предложениям и сотрудничеству:",
   },
@@ -79,17 +81,14 @@ export const PAGE_STR = {
     a2Title: "The solution",
     a2Body: "Here only owners post listings. Every listing is reviewed by an admin, phone numbers are verified, and a reporting system is in place.",
     a3Title: "How it works",
-    a3Body: "Pick a home from the map or the list, and contact the owner through the in-app chat. Your number stays private. Once you agree — you meet directly, with no commission.",
+    a3Body: "Pick a home on the map or in the list and message the owner through the in-app chat — your number stays private. Once you agree, you deal with the owner directly, with no commission.",
     a4Title: "Get in touch",
     a4Body: "For questions, suggestions and partnerships:",
   },
 };
 
-// Tanlangan tilni o'qish (asosiy ilova bilan bir xil manba)
+// Tanlangan tilni o'qish (asosiy ilova bilan bir xil manba va bir xil aniqlash tartibi)
 export function getPageLang() {
-  try {
-    const saved = localStorage.getItem("uy247_lang");
-    if (saved && PAGE_STR[saved]) return saved;
-  } catch (_) {}
-  return "uz";
+  const l = detectLang();
+  return PAGE_STR[l] ? l : "uz";
 }

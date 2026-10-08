@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { PAGE_STR, getPageLang } from "./pageStrings";
@@ -15,6 +15,7 @@ export default function TermsPage() {
     else navigate("/");
   };
   const t = PAGE_STR[lang] || PAGE_STR.uz;
+  useEffect(() => { try { document.documentElement.lang = lang; } catch (_) {} }, [lang]);
 
   const switchLang = (l) => {
     setLang(l);
@@ -23,9 +24,9 @@ export default function TermsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "#16262E", fontFamily: "Inter, sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap'); .font-serif{font-family:'Fraunces',serif;}`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Lora:wght@600;700&family=Inter:wght@400;500;600&display=swap'); .font-serif{font-family:'Fraunces','Lora',Georgia,serif;}`}</style>
       <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
-        <button onClick={goBack} aria-label="Orqaga"><ArrowLeft size={19} color="#F2EDE4" /></button>
+        <button onClick={goBack} aria-label={t.back}><ArrowLeft size={19} color="#F2EDE4" /></button>
         <h1 className="font-serif text-lg flex-1" style={{ color: "#F2EDE4" }}>{t.termsTitle}</h1>
         <div className="flex rounded-full p-0.5" style={box}>
           {["uz", "ru", "en"].map(l => (

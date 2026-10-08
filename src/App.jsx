@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { supabase } from "./lib/supabaseClient";
 import { loadYmaps, YANDEX_MAPS_API_KEY } from "./lib/yandexMaps";
+import { detectLang } from "./lib/lang";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -29,244 +30,745 @@ L.Icon.Default.mergeOptions({ iconRetinaUrl: markerIcon2x, iconUrl: markerIcon, 
 --------------------------------------------------------- */
 
 const CITIES = ["Toshkent shahri", "Samarqand", "Buxoro", "Farg'ona", "Andijon", "Namangan"];
-const DISTRICTS = { "Toshkent shahri": ["Yunusobod", "Chilonzor", "Mirzo Ulug'bek", "Mirobod", "Yakkasaroy", "Shayxontohur"] };
+const DISTRICTS = { "Toshkent shahri": ["Yunusobod", "Chilonzor", "Mirzo Ulug'bek", "Mirobod", "Yakkasaroy", "Shayxontohur", "Olmazor", "Uchtepa", "Yashnobod", "Sergeli", "Bektemir", "Yangihayot"] };
 const AMENITIES_LIST = ["Wi-Fi", "Konditsioner", "Mashina turargohi", "Lift", "Muzlatgich", "Kir yuvish mashinasi"];
 
 
 const STR = {
   uz: {
-    navSearch: "Qidirish", navFavs: "Sevimli", navPost: "E'lon berish", navProfile: "Profil",
-    settings: "Sozlamalar", security: "Xavfsizlik", language: "Til", notifications: "Bildirishnomalar",
-    myListings: "Mening e'lonlarim", adminPanel: "Admin panel", logout: "Chiqish",
-    save: "Saqlash", cancel: "Bekor qilish", approve: "Tasdiqlash", reject: "Rad etish",
-    block: "Bloklash", delete: "O'chirish", boost: "Top qilish", views: "ko'rishlar",
-    stats: "Statistika", listingsTab: "E'lonlar", reportsTab: "Shikoyatlar",
-    pending: "Kutilmoqda", approved: "Faol", blocked: "Bloklangan",
-    guest: "Mehmon", unverified: "Tasdiqlanmagan", verified: "Tasdiqlangan",
-    navChats: "Xabarlar", chatWith: "Egasi bilan chat", writeMessage: "Xabar yozing...",
+    _lang: "uz",
+    navSearch: "Qidirish",
+    navFavs: "Sevimli",
+    navPost: "E'lon berish",
+    navProfile: "Profil",
+    settings: "Sozlamalar",
+    security: "Xavfsizlik",
+    language: "Til",
+    notifications: "Bildirishnomalar",
+    myListings: "Mening e'lonlarim",
+    logout: "Chiqish",
+    cancel: "Bekor qilish",
+    delete: "O'chirish",
+    boost: "Top qilish",
+    pending: "Kutilmoqda",
+    approved: "Faol",
+    blocked: "Bloklangan",
+    guest: "Mehmon",
+    unverified: "Tasdiqlanmagan",
+    verified: "Tasdiqlangan",
+    navChats: "Xabarlar",
+    writeMessage: "Xabar yozing...",
     noChats: "Hozircha xabarlar yo'q. Yoqqan e'longa kirib, chat orqali yozing.",
-    chatCta: "Chat orqali yozish", chatHint: "Raqamingiz oshkor qilinmaydi",
-    sortNew: "Yangi qo'shilgan", sortCheap: "Eng arzoni", sortPopular: "Eng ommabop",
-    moreFilters: "Ko'proq", priceRange: "Narx oralig'i (so'm)", from: "dan", to: "gacha",
-    roomsCount: "Xonalar soni", all: "Barchasi", daily: "Kunlik", monthly: "Oylik",
-    resultsFound: "ta e'lon topildi", saveSearch: "Qidiruvni saqlash",
-    roomsWord: "xona", verifiedOwner: "Tasdiqlangan egasi", noResults: "Bu filtrlar bo'yicha e'lon topilmadi. Filtrni o'zgartirib ko'ring.",
-    roomsHeader: "Xonalar", areaHeader: "Maydon", floorHeader: "Qavat", descTitle: "Tavsif",
-    amenitiesTitle: "Qulayliklar", addressTitle: "Manzil", viewedTimes: "marta ko'rilgan",
-    contactOwner: "Egasi bilan bog'lanish", callBtn: "Qo'ng'iroq", smsBtn: "SMS",
-    linkCopied: "Havola nusxalandi", similarListings: "Shunga o'xshash e'lonlar",
-    occupiedDays: "Band kunlar", occupiedLegend: "Band", freeLegend: "Bo'sh",
-    titleLabel: "E'lon sarlavhasi", propertyTypeLabel: "Uy turi", cityLabel: "Shahar", districtLabel: "Tuman",
-    floorLabel: "Qavat", areaLabelM2: "Maydon (m²)", rentTypeLabel: "Ijara turi", priceLabelSom: "Narx (so'm)",
-    amenitiesLabel: "Qulayliklar", descLabel: "Tavsif", addressMapLabel: "Aniq manzil (xaritada belgilang)",
-    photosLabel: "Rasmlar", ownersOnlyNotice: "Bu platformada faqat uy egalari e'lon joylashi mumkin. Rieltor yoki vositachi ekanligi aniqlansa, e'lon o'chiriladi va akkaunt bloklanadi.",
-    submitBtn: "E'lonni joylash", submitting: "Yuklanmoqda...", successTitle: "E'lon yuborildi!",
+    chatCta: "Chat orqali yozish",
+    chatHint: "Raqamingiz oshkor qilinmaydi",
+    sortNew: "Yangi qo'shilgan",
+    sortCheap: "Eng arzoni",
+    sortPopular: "Eng ommabop",
+    priceRange: "Narx oralig'i (so'm)",
+    from: "dan",
+    to: "gacha",
+    roomsCount: "Xonalar soni",
+    all: "Barchasi",
+    daily: "Kunlik",
+    monthly: "Oylik",
+    saveSearch: "Qidiruvni saqlash",
+    verifiedOwner: "Tasdiqlangan egasi",
+    noResults: "Bu filtrlar bo'yicha e'lon topilmadi. Filtrni o'zgartirib ko'ring.",
+    roomsHeader: "Xonalar",
+    areaHeader: "Maydon",
+    floorHeader: "Qavat",
+    descTitle: "Tavsif",
+    amenitiesTitle: "Qulayliklar",
+    addressTitle: "Manzil",
+    contactOwner: "Egasi bilan bog'lanish",
+    callBtn: "Qo'ng'iroq",
+    smsBtn: "SMS",
+    linkCopied: "Havola nusxalandi",
+    similarListings: "Shunga o'xshash e'lonlar",
+    occupiedDays: "Band kunlar",
+    occupiedLegend: "Band",
+    freeLegend: "Bo'sh",
+    titleLabel: "E'lon sarlavhasi",
+    propertyTypeLabel: "Uy turi",
+    cityLabel: "Shahar",
+    districtLabel: "Tuman",
+    floorLabel: "Qavat",
+    areaLabelM2: "Maydon (m²)",
+    rentTypeLabel: "Ijara turi",
+    priceLabelSom: "Narx (so'm)",
+    amenitiesLabel: "Qulayliklar",
+    descLabel: "Tavsif",
+    addressMapLabel: "Aniq manzil (xaritada belgilang)",
+    ownersOnlyNotice: "Bu platformada faqat uy egalari e'lon joylashi mumkin. Rieltor yoki vositachi ekanligi aniqlansa, e'lon o'chiriladi va akkaunt bloklanadi.",
+    submitBtn: "E'lonni joylash",
+    submitting: "Yuklanmoqda...",
+    successTitle: "E'lon yuborildi!",
     successBody: "E'loningiz admin tomonidan tekshirilmoqda (odatda 1 soat ichida). Tasdiqlangach qidiruvda ko'rinadi.",
-    typeKvartira: "Kvartira", typeHovli: "Hovli / xususiy uy", typeOfis: "Ofis / tijorat",
-    termsLink: "Foydalanish qoidalari", aboutLink: "Biz haqimizda", detailBtn: "Batafsil",
-    modeLabel: "Ijara shakli", modeWhole: "Butun uy", modeShared: "O'rin (sherik bilan)",
-    roomsConfigLabel: "Xonalar va o'rinlar", roomWord: "Xona", capacityLabel: "jami o'rin", occupiedLabel: "band",
-    addRoomBtn: "Xona qo'shish", freeSpotsTotal: "Jami bo'sh o'rin",
-    freeSpots: "o'rin bo'sh", noFreeSpots: "Bo'sh o'rin yo'q",
-    perPerson: "1 kishi uchun", pricePerPersonLabel: "Narx — 1 kishi uchun (so'm)",
-    genderLabel: "Kim yashaydi", genderMale: "Erkaklar", genderFemale: "Ayollar", genderMixed: "Aralash",
-    roomCapacityShort: "kishilik xona",
-    spotFreedBtn: "O'rin bo'shadi", spotTakenBtn: "O'rin band bo'ldi",
-    filterFreeSpots: "Bo'sh o'rinlar", anyMode: "Barchasi",
-    roomsBreakdown: "Xonalar holati", occupiedShort: "band", freeShort: "bo'sh", youPrefix: "Siz: ", resultsShort: "{n} ta e'lon", dailyShort: "Kunlik", monthlyShort: "Oylik", modeWholeShort: "Butun uy", modeSharedShort: "Sherik bilan", filterTitle: "Filtr", clearFilters: "Tozalash", showResults: "{n} ta e'lonni ko'rsatish", showResultsNone: "Mos e'lon topilmadi", sortLabel: "Saralash", viewList: "Ro'yxat", viewMap: "Xarita", closeLabel: "Yopish", searchSaved: "Qidiruv saqlandi", boostRequestSent: "So'rov qabul qilindi. To'lov tasdiqlangach e'loningiz Top bo'ladi.", boostRequestError: "Xatolik yuz berdi, qayta urinib ko'ring.", accountBlockedTitle: "Akkauntingiz bloklangan", revealPhoneBtn: "Raqamni ko'rsatish", phoneLimitReached: "Bugungi limit tugadi — ertaga yana ko'ra olasiz. Chat orqali yozishingiz mumkin.", phoneUnavailable: "Egasi raqam qoldirmagan — chat orqali yozing.", resubmittedForReview: "O'zgarishlar saqlandi. Sarlavha, tavsif yoki rasm o'zgargani uchun e'lon qayta tekshiruvga yuborildi.", accountBlockedBody: "Platforma qoidalari buzilgani sababli e'lon joylash va xabar yozish cheklangan. Xato deb hisoblasangiz: info@uy247.uz", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
-    months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
-    weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
-    bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
-    saveBtn: "Saqlash", savingBtn: "Saqlanmoqda...",
-    geoUnsupported: "Bu qurilma joylashuvni aniqlay olmaydi", geoDenied: "Joylashuvga ruxsat berilmadi",
-    editListing: "Tahrirlash", deleteListing: "O'chirish",
-    editTitle: "E'lonni tahrirlash", deleteConfirmTitle: "E'lonni o'chirish",
+    typeKvartira: "Kvartira",
+    typeHovli: "Hovli / xususiy uy",
+    typeOfis: "Ofis / do'kon",
+    termsLink: "Foydalanish qoidalari",
+    aboutLink: "Biz haqimizda",
+    detailBtn: "Batafsil",
+    modeLabel: "Ijara shakli",
+    modeWhole: "Butun uy",
+    modeShared: "O'rin (sherik bilan)",
+    roomsConfigLabel: "Xonalar va o'rinlar",
+    roomWord: "Xona",
+    capacityLabel: "Jami o'rin",
+    occupiedLabel: "Band",
+    addRoomBtn: "Xona qo'shish",
+    freeSpotsTotal: "Jami bo'sh o'rin",
+    noFreeSpots: "Bo'sh o'rin yo'q",
+    perPerson: "1 kishi uchun",
+    pricePerPersonLabel: "Narx — 1 kishi uchun (so'm)",
+    genderLabel: "Kim yashaydi",
+    genderMale: "Erkaklar",
+    genderFemale: "Ayollar",
+    genderMixed: "Aralash",
+    spotFreedBtn: "O'rin bo'shadi",
+    spotTakenBtn: "O'rin band bo'ldi",
+    filterFreeSpots: "Bo'sh o'rinlar",
+    anyMode: "Barchasi",
+    roomsBreakdown: "Xonalar holati",
+    youPrefix: "Siz: ",
+    dailyShort: "Kunlik",
+    monthlyShort: "Oylik",
+    modeWholeShort: "Butun uy",
+    modeSharedShort: "Sherik bilan",
+    filterTitle: "Filtr",
+    clearFilters: "Tozalash",
+    showResultsNone: "Mos e'lon topilmadi",
+    sortLabel: "Saralash",
+    viewList: "Ro'yxat",
+    viewMap: "Xarita",
+    closeLabel: "Yopish",
+    searchSaved: "Qidiruv saqlandi",
+    boostRequestSent: "So'rov qabul qilindi. To'lov tasdiqlangach e'loningiz Top bo'ladi.",
+    boostRequestError: "Xatolik yuz berdi, qayta urinib ko'ring.",
+    accountBlockedTitle: "Akkauntingiz bloklangan",
+    revealPhoneBtn: "Raqamni ko'rsatish",
+    phoneLimitReached: "Bugungi limit tugadi — ertaga yana ko'ra olasiz. Chat orqali yozishingiz mumkin.",
+    phoneUnavailable: "Egasi raqam qoldirmagan — chat orqali yozing.",
+    resubmittedForReview: "O'zgarishlar saqlandi. Sarlavha, tavsif yoki rasm o'zgargani uchun e'lon qayta tekshiruvga yuborildi.",
+    accountBlockedBody: "Platforma qoidalari buzilgani sababli e'lon joylash va xabar yozish cheklangan. Xato deb hisoblasangiz: info@uy247.uz",
+    preparingPhotos: "Tayyorlanmoqda...",
+    loadMore: "Yana ko'rsatish",
+    yesterday: "Kecha",
+    mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
+    months: ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"],
+    weekdays: ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"],
+    bookingEditTitle: "Band kunlarni belgilash",
+    bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
+    saveBtn: "Saqlash",
+    savingBtn: "Saqlanmoqda...",
+    geoUnsupported: "Bu qurilma joylashuvni aniqlay olmaydi",
+    geoDenied: "Joylashuvga ruxsat berilmadi. Brauzer sozlamalarida ruxsat bering.",
+    editListing: "Tahrirlash",
+    deleteListing: "O'chirish",
+    editTitle: "E'lonni tahrirlash",
+    deleteConfirmTitle: "E'lonni o'chirish",
     deleteConfirmBody: "Bu e'lon butunlay o'chiriladi. Bu amalni qaytarib bo'lmaydi.",
-    cancelBtn: "Bekor qilish", confirmDeleteBtn: "Ha, o'chirish",
-    blockedReason: "Bloklanish sababi", noReasonGiven: "Sabab ko'rsatilmagan",
-    boostTitle: "Top e'lon qilish", boostDays7: "7 kun", boostDays30: "30 kun",
-    boostDesc7: "Qidiruv natijalarida yuqorida chiqadi", boostDesc30: "Eng ko'p tanlanadigan variant",
-    boostFreeCredit: "Bepul kredit bilan (7 kun)", boostLeft: "ta qoldi",
-    payMethod: "To'lov usuli", payVia: "orqali",
-    reportTitle: "Shubhali deb belgilash", reportSubmit: "Yuborish", reportFooter: "Shikoyat admin tomonidan 24 soat ichida ko'rib chiqiladi.",
-    titlePlaceholder: "Masalan: Yunusobodda yorug' 2 xonali", mapMarkedHint: "Belgilandi — o'zgartirish uchun xaritaga bosing",
-    ismLabel: "Ism", ismPlaceholder: "Ismingiz", familiyaLabel: "Familiya", familiyaPlaceholder: "Familiyangiz",
+    cancelBtn: "Bekor qilish",
+    confirmDeleteBtn: "Ha, o'chirish",
+    blockedReason: "Bloklanish sababi",
+    noReasonGiven: "Sabab ko'rsatilmagan",
+    boostTitle: "Top e'lon qilish",
+    boostDays7: "7 kun",
+    boostDays30: "30 kun",
+    boostDesc7: "Qidiruv natijalarida yuqorida chiqadi",
+    boostDesc30: "Eng ko'p tanlanadigan variant",
+    boostFreeCredit: "Bepul kredit bilan (7 kun)",
+    payMethod: "To'lov usuli",
+    reportTitle: "Shubhali deb belgilash",
+    reportSubmit: "Yuborish",
+    reportFooter: "Shikoyat admin tomonidan 24 soat ichida ko'rib chiqiladi.",
+    titlePlaceholder: "Masalan: Yunusobodda yorug' 2 xonali",
+    ismLabel: "Ism",
+    ismPlaceholder: "Ismingiz",
+    familiyaLabel: "Familiya",
+    familiyaPlaceholder: "Familiyangiz",
     nameHint: "Faqat tasdiqlash uchun, e'londa ochiq ko'rsatilmaydi.",
-    mapUnmarkedHint: "Xaritaga bosib yoki markerni sudrab, uyingiz joylashuvini belgilang",
-    photosCountPrefix: "Rasmlar (kamida 3 ta) — ", photosCountSuffix: " ta qo'shildi", addPhotoBtn: "Qo'shish",
-    photosHint: "Telefon galereyasidan yoki kameradan tanlashingiz mumkin", descPlaceholder: "Uyingiz haqida qisqacha yozing...",
-    ownerConfirm1: "Men ushbu ko'chmas mulk egasiman (yoki egasining rasmiy vakiliman), ", ownerConfirmBold: "rieltor emasman",
-    ownerConfirm2: " va ", ruleLinkText: "platforma qoidalariga", ownerConfirm3: " roziman.",
-    sessionNotFoundError: "Seans topilmadi, sahifani yangilab qayta urinib ko'ring.", genericError: "Xatolik yuz berdi, qayta urinib ko'ring.",
+    addPhotoBtn: "Qo'shish",
+    photosHint: "Telefon galereyasidan yoki kameradan tanlashingiz mumkin",
+    descPlaceholder: "Uyingiz haqida qisqacha yozing: ta'mir, mebel, texnika...",
+    ownerConfirm1: "Men ushbu ko'chmas mulk egasiman (yoki egasining rasmiy vakiliman), ",
+    ownerConfirmBold: "rieltor emasman",
+    ownerConfirm2: " va ",
+    ruleLinkText: "platforma qoidalariga",
+    ownerConfirm3: " roziman.",
+    sessionNotFoundError: "Seans topilmadi, sahifani yangilab qayta urinib ko'ring.",
+    genericError: "Xatolik yuz berdi, qayta urinib ko'ring.",
     successBody2: "Holatini \"Profil → Mening e'lonlarim\"da kuzatib boring.",
-    verifyPhoneBtn: "Raqamni tasdiqlash", noListingsYet: "Hali e'lon joylamagansiz.", occupiedBadge: "Band",
-    topActiveLabel: "TOP faol", favCountSuffix: "sevimliga qo'shgan", chatCountSuffix: "kishi yozgan",
-    markFreeBtn: "Bo'sh deb belgilash (qidiruvda qayta ko'rinadi)", markOccupiedBtn: "Band deb belgilash (vaqtincha yashirish)",
-    markBookingBtn: "Band kunlarni belgilash", referralTitle: "Do'stingizni taklif qiling",
+    verifyPhoneBtn: "Raqamni tasdiqlash",
+    noListingsYet: "Hali e'lon joylamagansiz.",
+    occupiedBadge: "Band",
+    topActiveLabel: "TOP faol",
+    markFreeBtn: "Bo'sh deb belgilash (qidiruvda qayta ko'rinadi)",
+    markOccupiedBtn: "Band deb belgilash (vaqtincha yashirish)",
+    markBookingBtn: "Band kunlarni belgilash",
+    referralTitle: "Do'stingizni taklif qiling",
     referralSubtitle: "Har bir taklif qilingan do'stingiz ro'yxatdan o'tsa — ikkalangizga ham bepul \"Top e'lon\" krediti beriladi.",
-    copyBtn: "Nusxalash", currentCreditsLabel: "Joriy bonus kredit:", ta: "ta", savedSearchesTitle: "Saqlangan qidiruvlar",
-    loadingText: "Yuklanmoqda...", emptyFavs: "Sevimlilar bo'sh. Yoqqan e'lonlarni yurak belgisi bilan saqlang.",
-    verifyTitle1: "Raqamni tasdiqlash", verifyTitle2: "SMS kodni kiriting",
-    verifyIntro: "Egasi telefon raqamini ko'rish uchun raqamingizni tasdiqlang. Bu — soxta so'rovlardan himoya qiladi.",
-    sendCodeBtn: "Kod yuborish", sendingCode: "Yuborilmoqda...", codeSentTo: "raqamiga yuborilgan 6 xonali kodni kiriting.",
-    confirmBtn: "Tasdiqlash", checkingCode: "Tekshirilmoqda...",
-    sendCodeError: "Kod yuborishda xatolik. Raqamni tekshirib qayta urinib ko'ring.", codeInvalidError: "Kod noto'g'ri yoki muddati o'tgan.",
+    copyBtn: "Nusxalash",
+    currentCreditsLabel: "Joriy bonus kredit:",
+    ta: "ta",
+    savedSearchesTitle: "Saqlangan qidiruvlar",
+    loadingText: "Yuklanmoqda...",
+    emptyFavs: "Sevimlilar bo'sh. Yoqqan e'lonlarni yurak belgisi bilan saqlang.",
+    verifyTitle1: "Raqamni tasdiqlash",
+    verifyTitle2: "SMS kodni kiriting",
+    verifyIntro: "Egasi bilan bog'lanish uchun raqamingizni tasdiqlang. Bu soxta so'rovlardan himoya qiladi.",
+    sendCodeBtn: "Kod yuborish",
+    sendingCode: "Yuborilmoqda...",
+    confirmBtn: "Tasdiqlash",
+    checkingCode: "Tekshirilmoqda...",
+    sendCodeError: "Kod yuborishda xatolik. Raqamni tekshirib qayta urinib ko'ring.",
+    codeInvalidError: "Kod noto'g'ri yoki muddati o'tgan.",
+    appTitle: "Uy24/7 — rieltorsiz uy-joy ijarasi",
+    currency: "so'm",
+    perDay: "kun",
+    perMonth: "oy",
+    sqm: "m²",
+    mln: "mln",
+    thousand: "ming",
+    resultsN: "{n} ta e'lon",
+    showResultsN: "{n} ta e'lonni ko'rsatish",
+    viewsN: "{n} marta ko'rilgan",
+    daysLeftN: "{n} kun qoldi",
+    favCountN: "{n} kishi sevimliga qo'shgan",
+    chatCountN: "{n} kishi yozgan",
+    freeSpotsN: "{n} o'rin bo'sh",
+    freeN: "{n} bo'sh",
+    roomsN: "{n} xona",
+    roomCapacityN: "{n} kishilik",
+    boostLeftN: "{n} ta qoldi",
+    photosCountN: "Rasmlar (kamida 3 ta) — {n} ta qo'shildi",
+    codeSentToN: "{phone} raqamiga yuborilgan 6 xonali kodni kiriting.",
+    payWith: "{p} orqali",
+    priceFromP: "{p} dan",
+    priceToP: "{p} gacha",
+    searchPlaceholder: "Qidirish...",
+    chatSafetyNote: "Suhbat Uy24/7 ichida, telefon raqamlar oshkor qilinmaydi",
+    listingFallback: "E'lon",
+    smsTemplate: "Assalomu alaykum! Uy24/7 saytida \"{title}\" e'loningizga qiziqdim.",
+    reportRealtor: "Bu rieltor/vositachi",
+    reportWrongPrice: "Narx noto'g'ri ko'rsatilgan",
+    reportScam: "Firibgarlik shubhasi",
+    reportUnavailable: "E'lon o'chirilgan/band",
+    phoneStatusLabel: "Telefon holati",
+    twoFactorLabel: "Ikki bosqichli tasdiqlash (2FA)",
+    loginAlertsLabel: "Har bir kirishda ogohlantirish",
+    activeSessionNote: "Faol seans: shu qurilma — hozir onlayn",
+    smsNotifLabel: "SMS orqali xabar",
+    pushNotifLabel: "Push bildirishnoma",
+    promoNotifLabel: "Yangi \"Top\" takliflar",
+    dangerZone: "Xavfli hudud",
+    deleteProfileBtn: "Profilni o'chirish",
+    deleteProfileConfirm: "Aniq o'chirmoqchimisiz? Barcha e'lonlar va ma'lumotlar yo'qoladi.",
+    legalSection: "Huquqiy",
+    dailyLimitError: "Bugungi limit tugadi — ertaga qayta urinib ko'ring.",
+    notVerifiedError: "Avval telefon raqamingizni tasdiqlang.",
+    rlsLimitError: "Amalni bajarib bo'lmadi: kunlik limit tugagan yoki akkauntingiz cheklangan.",
+    networkError: "Internet aloqasi yo'q. Ulanishni tekshirib, qayta urinib ko'ring.",
+    fileTooLargeError: "Rasm hajmi juda katta (ko'pi bilan 10 MB).",
+    codeTooSoonError: "Yangi kod so'rashdan oldin biroz kuting.",
+    phoneInvalidError: "Raqam noto'g'ri. Namuna: +998901234567",
+    photosUpdateError: "Rasmlarni yangilab bo'lmadi. Qayta urinib ko'ring.",
+    backLabel: "Orqaga",
+    shareLabel: "Ulashish",
+    favLabel: "Sevimlilarga qo'shish",
+    sendLabel: "Yuborish",
+    myLocationLabel: "Mening joylashuvim",
   },
   ru: {
-    navSearch: "Поиск", navFavs: "Избранное", navPost: "Разместить", navProfile: "Профиль",
-    settings: "Настройки", security: "Безопасность", language: "Язык", notifications: "Уведомления",
-    myListings: "Мои объявления", adminPanel: "Админ-панель", logout: "Выйти",
-    save: "Сохранить", cancel: "Отмена", approve: "Одобрить", reject: "Отклонить",
-    block: "Заблокировать", delete: "Удалить", boost: "Продвинуть", views: "просмотров",
-    stats: "Статистика", listingsTab: "Объявления", reportsTab: "Жалобы",
-    pending: "На проверке", approved: "Активно", blocked: "Заблокировано",
-    guest: "Гость", unverified: "Не подтверждён", verified: "Подтверждён",
-    navChats: "Сообщения", chatWith: "Чат с владельцем", writeMessage: "Напишите сообщение...",
-    noChats: "Пока нет сообщений. Откройте объявление и напишите через чат.",
-    chatCta: "Написать в чате", chatHint: "Ваш номер не показывается",
-    sortNew: "Недавно добавленные", sortCheap: "Сначала дешевле", sortPopular: "Популярные",
-    moreFilters: "Ещё", priceRange: "Диапазон цены (сум)", from: "от", to: "до",
-    roomsCount: "Количество комнат", all: "Все", daily: "Посуточно", monthly: "Помесячно",
-    resultsFound: "объявлений найдено", saveSearch: "Сохранить поиск",
-    roomsWord: "комн.", verifiedOwner: "Подтверждённый владелец", noResults: "По этим фильтрам ничего не найдено. Попробуйте изменить фильтр.",
-    roomsHeader: "Комнаты", areaHeader: "Площадь", floorHeader: "Этаж", descTitle: "Описание",
-    amenitiesTitle: "Удобства", addressTitle: "Адрес", viewedTimes: "просмотров",
-    contactOwner: "Связаться с владельцем", callBtn: "Позвонить", smsBtn: "SMS",
-    linkCopied: "Ссылка скопирована", similarListings: "Похожие объявления",
-    occupiedDays: "Занятые дни", occupiedLegend: "Занято", freeLegend: "Свободно",
-    titleLabel: "Заголовок объявления", propertyTypeLabel: "Тип жилья", cityLabel: "Город", districtLabel: "Район",
-    floorLabel: "Этаж", areaLabelM2: "Площадь (м²)", rentTypeLabel: "Тип аренды", priceLabelSom: "Цена (сум)",
-    amenitiesLabel: "Удобства", descLabel: "Описание", addressMapLabel: "Точный адрес (отметьте на карте)",
-    photosLabel: "Фотографии", ownersOnlyNotice: "На этой платформе объявления могут размещать только владельцы жилья. Если выяснится, что вы риелтор или посредник, объявление будет удалено, а аккаунт заблокирован.",
-    submitBtn: "Разместить объявление", submitting: "Загрузка...", successTitle: "Объявление отправлено!",
-    successBody: "Ваше объявление проверяется администратором (обычно в течение часа). После одобрения оно появится в поиске.",
-    typeKvartira: "Квартира", typeHovli: "Дом / частный дом", typeOfis: "Офис / коммерция",
-    termsLink: "Правила пользования", aboutLink: "О нас", detailBtn: "Подробнее",
-    modeLabel: "Форма аренды", modeWhole: "Вся квартира", modeShared: "Койко-место (с соседями)",
-    roomsConfigLabel: "Комнаты и места", roomWord: "Комната", capacityLabel: "всего мест", occupiedLabel: "занято",
-    addRoomBtn: "Добавить комнату", freeSpotsTotal: "Всего свободных мест",
-    freeSpots: "мест свободно", noFreeSpots: "Свободных мест нет",
-    perPerson: "за 1 человека", pricePerPersonLabel: "Цена — за 1 человека (сум)",
-    genderLabel: "Кто живёт", genderMale: "Мужчины", genderFemale: "Женщины", genderMixed: "Смешанно",
-    roomCapacityShort: "-местная комната",
-    spotFreedBtn: "Место освободилось", spotTakenBtn: "Место занято",
-    filterFreeSpots: "Свободные места", anyMode: "Все",
-    roomsBreakdown: "Состояние комнат", occupiedShort: "занято", freeShort: "свободно", youPrefix: "Вы: ", resultsShort: "Найдено: {n}", dailyShort: "Сутки", monthlyShort: "Месяц", modeWholeShort: "Целиком", modeSharedShort: "С соседями", filterTitle: "Фильтры", clearFilters: "Сбросить", showResults: "Показать объявления ({n})", showResultsNone: "Ничего не найдено", sortLabel: "Сортировка", viewList: "Список", viewMap: "Карта", closeLabel: "Закрыть", searchSaved: "Поиск сохранён", boostRequestSent: "Запрос принят. После подтверждения оплаты объявление станет Top.", boostRequestError: "Произошла ошибка, попробуйте снова.", accountBlockedTitle: "Ваш аккаунт заблокирован", revealPhoneBtn: "Показать номер", phoneLimitReached: "Лимит на сегодня исчерпан — завтра снова сможете. Можно написать в чат.", phoneUnavailable: "Владелец не оставил номер — напишите в чат.", resubmittedForReview: "Изменения сохранены. Объявление отправлено на повторную проверку, так как изменились заголовок, описание или фото.", accountBlockedBody: "Из-за нарушения правил размещение объявлений и сообщения ограничены. Если это ошибка: info@uy247.uz", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
-    months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
-    weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
-    bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
-    saveBtn: "Сохранить", savingBtn: "Сохранение...",
-    geoUnsupported: "Это устройство не может определить местоположение", geoDenied: "Доступ к местоположению запрещён",
-    editListing: "Редактировать", deleteListing: "Удалить",
-    editTitle: "Редактировать объявление", deleteConfirmTitle: "Удалить объявление",
-    deleteConfirmBody: "Объявление будет удалено полностью. Это действие нельзя отменить.",
-    cancelBtn: "Отмена", confirmDeleteBtn: "Да, удалить",
-    blockedReason: "Причина блокировки", noReasonGiven: "Причина не указана",
-    boostTitle: "Продвинуть объявление", boostDays7: "7 дней", boostDays30: "30 дней",
-    boostDesc7: "Показывается выше в результатах поиска", boostDesc30: "Самый популярный вариант",
-    boostFreeCredit: "Бесплатным кредитом (7 дней)", boostLeft: "осталось",
-    payMethod: "Способ оплаты", payVia: "через",
-    reportTitle: "Пожаловаться", reportSubmit: "Отправить", reportFooter: "Жалоба будет рассмотрена администратором в течение 24 часов.",
-    titlePlaceholder: "Например: Светлая 2-комнатная в Юнусабаде", mapMarkedHint: "Отмечено — нажмите на карту, чтобы изменить",
-    ismLabel: "Имя", ismPlaceholder: "Ваше имя", familiyaLabel: "Фамилия", familiyaPlaceholder: "Ваша фамилия",
-    nameHint: "Только для подтверждения, в объявлении не показывается.",
-    mapUnmarkedHint: "Нажмите на карту или перетащите метку, чтобы отметить местоположение",
-    photosCountPrefix: "Фото (минимум 3) — добавлено ", photosCountSuffix: "", addPhotoBtn: "Добавить",
-    photosHint: "Можно выбрать из галереи телефона или снять камерой", descPlaceholder: "Кратко опишите жильё...",
-    ownerConfirm1: "Я являюсь владельцем этой недвижимости (или официальным представителем владельца), ", ownerConfirmBold: "не риелтор",
-    ownerConfirm2: " и согласен с ", ruleLinkText: "правилами платформы", ownerConfirm3: ".",
-    sessionNotFoundError: "Сессия не найдена, обновите страницу и попробуйте снова.", genericError: "Произошла ошибка, попробуйте снова.",
-    successBody2: "Следите за статусом в разделе «Профиль → Мои объявления».",
-    verifyPhoneBtn: "Подтвердить номер", noListingsYet: "Вы ещё не разместили объявлений.", occupiedBadge: "Занято",
-    topActiveLabel: "TOP активен", favCountSuffix: "добавили в избранное", chatCountSuffix: "написали",
-    markFreeBtn: "Отметить свободным (снова появится в поиске)", markOccupiedBtn: "Отметить занятым (временно скрыть)",
-    markBookingBtn: "Отметить занятые дни", referralTitle: "Пригласите друга",
-    referralSubtitle: "Если приглашённый друг зарегистрируется — вам обоим начислится бесплатный кредит «Top объявление».",
-    copyBtn: "Копировать", currentCreditsLabel: "Текущий бонусный кредит:", ta: "", savedSearchesTitle: "Сохранённые поиски",
-    loadingText: "Загрузка...", emptyFavs: "Список избранного пуст. Сохраняйте понравившиеся объявления значком сердца.",
-    verifyTitle1: "Подтверждение номера", verifyTitle2: "Введите SMS-код",
-    verifyIntro: "Подтвердите номер, чтобы увидеть телефон владельца. Это защищает от ложных обращений.",
-    sendCodeBtn: "Отправить код", sendingCode: "Отправка...", codeSentTo: "Введите 6-значный код, отправленный на номер",
-    confirmBtn: "Подтвердить", checkingCode: "Проверка...",
-    sendCodeError: "Ошибка при отправке кода. Проверьте номер и попробуйте снова.", codeInvalidError: "Неверный код или срок его действия истёк.",
+    _lang: "ru",
+    navSearch: "Поиск",
+    navFavs: "Избранное",
+    navPost: "Разместить",
+    navProfile: "Профиль",
+    settings: "Настройки",
+    security: "Безопасность",
+    language: "Язык",
+    notifications: "Уведомления",
+    myListings: "Мои объявления",
+    logout: "Выйти",
+    cancel: "Отмена",
+    delete: "Удалить",
+    boost: "Поднять в Топ",
+    pending: "На проверке",
+    approved: "Активно",
+    blocked: "Заблокировано",
+    guest: "Гость",
+    unverified: "Не подтверждён",
+    verified: "Подтверждён",
+    navChats: "Сообщения",
+    writeMessage: "Сообщение…",
+    noChats: "Сообщений пока нет. Откройте понравившееся объявление и напишите владельцу в чат.",
+    chatCta: "Написать владельцу",
+    chatHint: "Ваш номер скрыт",
+    sortNew: "Сначала новые",
+    sortCheap: "Сначала дешевле",
+    sortPopular: "Сначала популярные",
+    priceRange: "Цена, сум",
+    from: "от",
+    to: "до",
+    roomsCount: "Количество комнат",
+    all: "Все",
+    daily: "Посуточно",
+    monthly: "Помесячно",
+    saveSearch: "Сохранить поиск",
+    verifiedOwner: "Проверенный владелец",
+    noResults: "По этим фильтрам ничего не найдено. Попробуйте изменить фильтры.",
+    roomsHeader: "Комнаты",
+    areaHeader: "Площадь",
+    floorHeader: "Этаж",
+    descTitle: "Описание",
+    amenitiesTitle: "Удобства",
+    addressTitle: "Расположение",
+    contactOwner: "Связаться с владельцем",
+    callBtn: "Позвонить",
+    smsBtn: "SMS",
+    linkCopied: "Ссылка скопирована",
+    similarListings: "Похожие объявления",
+    occupiedDays: "Занятые даты",
+    occupiedLegend: "Занято",
+    freeLegend: "Свободно",
+    titleLabel: "Заголовок объявления",
+    propertyTypeLabel: "Тип жилья",
+    cityLabel: "Город",
+    districtLabel: "Район",
+    floorLabel: "Этаж",
+    areaLabelM2: "Площадь, м²",
+    rentTypeLabel: "Срок аренды",
+    priceLabelSom: "Цена, сум",
+    amenitiesLabel: "Удобства",
+    descLabel: "Описание",
+    addressMapLabel: "Точное расположение (отметьте на карте)",
+    ownersOnlyNotice: "Объявления здесь размещают только владельцы жилья. Если выяснится, что вы риелтор или посредник, объявление будет удалено, а аккаунт — заблокирован.",
+    submitBtn: "Разместить объявление",
+    submitting: "Публикуем…",
+    successTitle: "Объявление отправлено!",
+    successBody: "Объявление проверяет модератор (обычно в течение часа). После одобрения оно появится в поиске.",
+    typeKvartira: "Квартира",
+    typeHovli: "Частный дом",
+    typeOfis: "Офис / магазин",
+    termsLink: "Правила пользования",
+    aboutLink: "О нас",
+    detailBtn: "Подробнее",
+    modeLabel: "Формат аренды",
+    modeWhole: "Жильё целиком",
+    modeShared: "Койко-место (с соседями)",
+    roomsConfigLabel: "Комнаты и места",
+    roomWord: "Комната",
+    capacityLabel: "Всего мест",
+    occupiedLabel: "Занято",
+    addRoomBtn: "Добавить комнату",
+    freeSpotsTotal: "Свободных мест",
+    noFreeSpots: "Свободных мест нет",
+    perPerson: "за человека",
+    pricePerPersonLabel: "Цена за человека, сум",
+    genderLabel: "Кто живёт",
+    genderMale: "Мужчины",
+    genderFemale: "Женщины",
+    genderMixed: "Смешанно",
+    spotFreedBtn: "Место освободилось",
+    spotTakenBtn: "Место заняли",
+    filterFreeSpots: "Свободные места",
+    anyMode: "Все",
+    roomsBreakdown: "Заполненность комнат",
+    youPrefix: "Вы: ",
+    dailyShort: "Сутки",
+    monthlyShort: "Месяц",
+    modeWholeShort: "Целиком",
+    modeSharedShort: "С соседями",
+    filterTitle: "Фильтры",
+    clearFilters: "Сбросить",
+    showResultsNone: "Ничего не найдено",
+    sortLabel: "Сортировка",
+    viewList: "Список",
+    viewMap: "Карта",
+    closeLabel: "Закрыть",
+    searchSaved: "Поиск сохранён",
+    boostRequestSent: "Запрос принят. После подтверждения оплаты объявление поднимется в Топ.",
+    boostRequestError: "Что-то пошло не так. Попробуйте ещё раз.",
+    accountBlockedTitle: "Ваш аккаунт заблокирован",
+    revealPhoneBtn: "Показать номер",
+    phoneLimitReached: "На сегодня лимит просмотра номеров исчерпан. Завтра снова будет доступно, а пока можно написать в чат.",
+    phoneUnavailable: "Владелец не указал номер — напишите ему в чат.",
+    resubmittedForReview: "Изменения сохранены. Так как изменились заголовок, описание или фото, объявление отправлено на повторную проверку.",
+    accountBlockedBody: "Из-за нарушения правил платформы размещение объявлений и переписка ограничены. Если считаете это ошибкой, напишите нам: info@uy247.uz",
+    preparingPhotos: "Обработка…",
+    loadMore: "Показать ещё",
+    yesterday: "Вчера",
+    mapDragHint: "Передвигайте карту, чтобы метка оказалась точно на вашем доме. Для точности приблизьте.",
+    months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+    weekdays: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+    bookingEditTitle: "Отметьте занятые даты",
+    bookingEditHint: "Нажмите на дату, чтобы отметить её занятой или свободной.",
+    saveBtn: "Сохранить",
+    savingBtn: "Сохраняем…",
+    geoUnsupported: "Это устройство не может определить местоположение",
+    geoDenied: "Нет доступа к геолокации. Разрешите его в настройках браузера.",
+    editListing: "Изменить",
+    deleteListing: "Удалить",
+    editTitle: "Редактирование объявления",
+    deleteConfirmTitle: "Удалить объявление?",
+    deleteConfirmBody: "Объявление будет удалено безвозвратно. Это действие нельзя отменить.",
+    cancelBtn: "Отмена",
+    confirmDeleteBtn: "Да, удалить",
+    blockedReason: "Причина блокировки",
+    noReasonGiven: "Причина не указана",
+    boostTitle: "Поднять в Топ",
+    boostDays7: "7 дней",
+    boostDays30: "30 дней",
+    boostDesc7: "Объявление показывается выше в поиске",
+    boostDesc30: "Чаще всего выбирают",
+    boostFreeCredit: "Бесплатно по бонусу (7 дней)",
+    payMethod: "Способ оплаты",
+    reportTitle: "Пожаловаться на объявление",
+    reportSubmit: "Отправить жалобу",
+    reportFooter: "Мы рассмотрим жалобу в течение 24 часов.",
+    titlePlaceholder: "Например: светлая 2-комнатная в Юнусабаде",
+    ismLabel: "Имя",
+    ismPlaceholder: "Ваше имя",
+    familiyaLabel: "Фамилия",
+    familiyaPlaceholder: "Ваша фамилия",
+    nameHint: "Нужно только для проверки, в объявлении не показывается.",
+    addPhotoBtn: "Добавить",
+    photosHint: "Выберите фото из галереи или сделайте снимок камерой",
+    descPlaceholder: "Кратко опишите жильё: ремонт, мебель, техника…",
+    ownerConfirm1: "Подтверждаю, что я владелец этого жилья (или официальный представитель владельца), ",
+    ownerConfirmBold: "не риелтор",
+    ownerConfirm2: ", и принимаю ",
+    ruleLinkText: "правила платформы",
+    ownerConfirm3: ".",
+    sessionNotFoundError: "Сессия не найдена. Обновите страницу и попробуйте снова.",
+    genericError: "Что-то пошло не так. Попробуйте ещё раз.",
+    successBody2: "Статус можно посмотреть в разделе «Профиль → Мои объявления».",
+    verifyPhoneBtn: "Подтвердить номер",
+    noListingsYet: "У вас пока нет объявлений.",
+    occupiedBadge: "Занято",
+    topActiveLabel: "В Топе",
+    markFreeBtn: "Снова свободно — показать в поиске",
+    markOccupiedBtn: "Сдано — временно скрыть",
+    markBookingBtn: "Отметить занятые даты",
+    referralTitle: "Пригласите друга",
+    referralSubtitle: "Когда друг зарегистрируется по вашей ссылке, вы оба получите бесплатное поднятие в Топ на 7 дней.",
+    copyBtn: "Копировать",
+    currentCreditsLabel: "Бесплатных поднятий:",
+    ta: "",
+    savedSearchesTitle: "Сохранённые поиски",
+    loadingText: "Загрузка…",
+    emptyFavs: "В избранном пока пусто. Нажмите ♥ на объявлении, чтобы сохранить его.",
+    verifyTitle1: "Подтверждение номера",
+    verifyTitle2: "Введите код из SMS",
+    verifyIntro: "Чтобы связаться с владельцем, подтвердите свой номер. Это защищает от фейковых обращений.",
+    sendCodeBtn: "Получить код",
+    sendingCode: "Отправляем…",
+    confirmBtn: "Подтвердить",
+    checkingCode: "Проверяем…",
+    sendCodeError: "Не удалось отправить код. Проверьте номер и попробуйте снова.",
+    codeInvalidError: "Код неверный или устарел.",
+    appTitle: "Uy24/7 — аренда жилья без риелторов",
+    currency: "сум",
+    perDay: "сутки",
+    perMonth: "мес.",
+    sqm: "м²",
+    mln: " млн",
+    thousand: " тыс.",
+    resultsN: { one: "{n} объявление", few: "{n} объявления", many: "{n} объявлений", other: "{n} объявления" },
+    showResultsN: { one: "Показать {n} объявление", few: "Показать {n} объявления", many: "Показать {n} объявлений", other: "Показать {n} объявления" },
+    viewsN: { one: "{n} просмотр", few: "{n} просмотра", many: "{n} просмотров", other: "{n} просмотра" },
+    daysLeftN: { one: "остался {n} день", few: "осталось {n} дня", many: "осталось {n} дней", other: "осталось {n} дня" },
+    favCountN: "В избранном: {n}",
+    chatCountN: "Написали: {n}",
+    freeSpotsN: { one: "{n} место свободно", few: "{n} места свободно", many: "{n} мест свободно", other: "{n} места свободно" },
+    freeN: "свободно: {n}",
+    roomsN: "{n} комн.",
+    roomCapacityN: "{n}-местная",
+    boostLeftN: "осталось: {n}",
+    photosCountN: "Фото (минимум 3) — добавлено {n}",
+    codeSentToN: "Введите 6-значный код, отправленный на номер {phone}.",
+    payWith: "Через {p}",
+    priceFromP: "от {p}",
+    priceToP: "до {p}",
+    searchPlaceholder: "Поиск…",
+    chatSafetyNote: "Переписка идёт внутри Uy24/7 — номера телефонов скрыты",
+    listingFallback: "Объявление",
+    smsTemplate: "Здравствуйте! Меня заинтересовало ваше объявление «{title}» на Uy24/7.",
+    reportRealtor: "Это риелтор / посредник",
+    reportWrongPrice: "Неверно указана цена",
+    reportScam: "Подозрение на мошенничество",
+    reportUnavailable: "Уже сдано или неактуально",
+    phoneStatusLabel: "Статус номера",
+    twoFactorLabel: "Двухфакторная аутентификация (2FA)",
+    loginAlertsLabel: "Уведомлять о каждом входе",
+    activeSessionNote: "Активный сеанс: это устройство — сейчас онлайн",
+    smsNotifLabel: "SMS-уведомления",
+    pushNotifLabel: "Push-уведомления",
+    promoNotifLabel: "Новые предложения «Топ»",
+    dangerZone: "Опасная зона",
+    deleteProfileBtn: "Удалить профиль",
+    deleteProfileConfirm: "Точно удалить? Все объявления и данные будут потеряны.",
+    legalSection: "Правовая информация",
+    dailyLimitError: "Лимит на сегодня исчерпан — попробуйте завтра.",
+    notVerifiedError: "Сначала подтвердите номер телефона.",
+    rlsLimitError: "Не удалось выполнить действие: исчерпан дневной лимит или аккаунт ограничен.",
+    networkError: "Нет соединения с интернетом. Проверьте подключение и попробуйте снова.",
+    fileTooLargeError: "Фото слишком большое (не более 10 МБ).",
+    codeTooSoonError: "Подождите немного, прежде чем запросить новый код.",
+    phoneInvalidError: "Неверный номер. Пример: +998901234567",
+    photosUpdateError: "Не удалось обновить фото. Попробуйте ещё раз.",
+    backLabel: "Назад",
+    shareLabel: "Поделиться",
+    favLabel: "В избранное",
+    sendLabel: "Отправить",
+    myLocationLabel: "Моё местоположение",
   },
   en: {
-    navSearch: "Search", navFavs: "Favorites", navPost: "Post listing", navProfile: "Profile",
-    settings: "Settings", security: "Security", language: "Language", notifications: "Notifications",
-    myListings: "My listings", adminPanel: "Admin panel", logout: "Log out",
-    save: "Save", cancel: "Cancel", approve: "Approve", reject: "Reject",
-    block: "Block", delete: "Delete", boost: "Boost", views: "views",
-    stats: "Stats", listingsTab: "Listings", reportsTab: "Reports",
-    pending: "Pending", approved: "Active", blocked: "Blocked",
-    guest: "Guest", unverified: "Unverified", verified: "Verified",
-    navChats: "Messages", chatWith: "Chat with owner", writeMessage: "Write a message...",
-    noChats: "No messages yet. Open a listing and start a chat.",
-    chatCta: "Message via chat", chatHint: "Your number stays hidden",
-    sortNew: "Newest first", sortCheap: "Cheapest first", sortPopular: "Most popular",
-    moreFilters: "More", priceRange: "Price range (so'm)", from: "from", to: "to",
-    roomsCount: "Number of rooms", all: "All", daily: "Daily", monthly: "Monthly",
-    resultsFound: "listings found", saveSearch: "Save search",
-    roomsWord: "rooms", verifiedOwner: "Verified owner", noResults: "No listings match these filters. Try adjusting them.",
-    roomsHeader: "Rooms", areaHeader: "Area", floorHeader: "Floor", descTitle: "Description",
-    amenitiesTitle: "Amenities", addressTitle: "Address", viewedTimes: "views",
-    contactOwner: "Contact owner", callBtn: "Call", smsBtn: "SMS",
-    linkCopied: "Link copied", similarListings: "Similar listings",
-    occupiedDays: "Occupied days", occupiedLegend: "Occupied", freeLegend: "Free",
-    titleLabel: "Listing title", propertyTypeLabel: "Property type", cityLabel: "City", districtLabel: "District",
-    floorLabel: "Floor", areaLabelM2: "Area (m²)", rentTypeLabel: "Rent type", priceLabelSom: "Price (so'm)",
-    amenitiesLabel: "Amenities", descLabel: "Description", addressMapLabel: "Exact address (mark on map)",
-    photosLabel: "Photos", ownersOnlyNotice: "Only property owners may post listings on this platform. If you're found to be a realtor or intermediary, the listing will be removed and the account blocked.",
-    submitBtn: "Publish listing", submitting: "Uploading...", successTitle: "Listing submitted!",
-    successBody: "Your listing is being reviewed by an admin (usually within an hour). It will appear in search once approved.",
-    typeKvartira: "Apartment", typeHovli: "House / private home", typeOfis: "Office / commercial",
-    termsLink: "Terms of Use", aboutLink: "About us", detailBtn: "Details",
-    modeLabel: "Rental type", modeWhole: "Whole apartment", modeShared: "A spot (shared)",
-    roomsConfigLabel: "Rooms and spots", roomWord: "Room", capacityLabel: "total spots", occupiedLabel: "taken",
-    addRoomBtn: "Add room", freeSpotsTotal: "Total free spots",
-    freeSpots: "spots free", noFreeSpots: "No free spots",
-    perPerson: "per person", pricePerPersonLabel: "Price — per person (so'm)",
-    genderLabel: "Who lives here", genderMale: "Men", genderFemale: "Women", genderMixed: "Mixed",
-    roomCapacityShort: "-person room",
-    spotFreedBtn: "Spot freed up", spotTakenBtn: "Spot taken",
-    filterFreeSpots: "Free spots", anyMode: "All",
-    roomsBreakdown: "Room status", occupiedShort: "taken", freeShort: "free", youPrefix: "You: ", resultsShort: "Found: {n}", dailyShort: "Daily", monthlyShort: "Monthly", modeWholeShort: "Whole home", modeSharedShort: "Shared", filterTitle: "Filters", clearFilters: "Reset", showResults: "Show listings ({n})", showResultsNone: "No matching listings", sortLabel: "Sort by", viewList: "List", viewMap: "Map", closeLabel: "Close", searchSaved: "Search saved", boostRequestSent: "Request received. Your listing becomes Top once payment is confirmed.", boostRequestError: "Something went wrong, please try again.", accountBlockedTitle: "Your account is blocked", revealPhoneBtn: "Show number", phoneLimitReached: "Daily limit reached — you can view more tomorrow. You can still message via chat.", phoneUnavailable: "The owner didn't leave a number — please use the chat.", resubmittedForReview: "Changes saved. The listing was sent for re-review because the title, description or photos changed.", accountBlockedBody: "Due to a rules violation, posting and messaging are restricted. If you think this is a mistake: info@uy247.uz", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
-    months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
-    weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-    bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
-    saveBtn: "Save", savingBtn: "Saving...",
-    geoUnsupported: "This device can't determine your location", geoDenied: "Location access denied",
-    editListing: "Edit", deleteListing: "Delete",
-    editTitle: "Edit listing", deleteConfirmTitle: "Delete listing",
-    deleteConfirmBody: "This listing will be permanently deleted. This action cannot be undone.",
-    cancelBtn: "Cancel", confirmDeleteBtn: "Yes, delete",
-    blockedReason: "Reason for blocking", noReasonGiven: "No reason given",
-    boostTitle: "Boost listing", boostDays7: "7 days", boostDays30: "30 days",
-    boostDesc7: "Shown higher in search results", boostDesc30: "Most popular option",
-    boostFreeCredit: "Use free credit (7 days)", boostLeft: "left",
-    payMethod: "Payment method", payVia: "via",
-    reportTitle: "Report as suspicious", reportSubmit: "Submit", reportFooter: "The report will be reviewed by an admin within 24 hours.",
-    titlePlaceholder: "e.g. Bright 2-room in Yunusabad", mapMarkedHint: "Marked — tap the map to change",
-    ismLabel: "First name", ismPlaceholder: "Your first name", familiyaLabel: "Last name", familiyaPlaceholder: "Your last name",
-    nameHint: "For verification only, not shown publicly on the listing.",
-    mapUnmarkedHint: "Tap the map or drag the marker to mark your home's location",
-    photosCountPrefix: "Photos (at least 3) — ", photosCountSuffix: " added", addPhotoBtn: "Add",
-    photosHint: "You can choose from your phone gallery or take a photo", descPlaceholder: "Write a short description of your place...",
-    ownerConfirm1: "I am the owner of this property (or an official representative of the owner), ", ownerConfirmBold: "not a realtor",
-    ownerConfirm2: " and I agree to the ", ruleLinkText: "platform rules", ownerConfirm3: ".",
-    sessionNotFoundError: "Session not found, refresh the page and try again.", genericError: "Something went wrong, please try again.",
-    successBody2: "Track its status under \"Profile → My listings\".",
-    verifyPhoneBtn: "Verify phone number", noListingsYet: "You haven't posted any listings yet.", occupiedBadge: "Occupied",
-    topActiveLabel: "TOP active", favCountSuffix: "favorited", chatCountSuffix: "messaged",
-    markFreeBtn: "Mark as free (reappears in search)", markOccupiedBtn: "Mark as occupied (temporarily hide)",
-    markBookingBtn: "Mark occupied days", referralTitle: "Invite a friend",
-    referralSubtitle: "If a friend you invite registers, you'll both get a free \"Boost\" credit.",
-    copyBtn: "Copy", currentCreditsLabel: "Current bonus credits:", ta: "", savedSearchesTitle: "Saved searches",
-    loadingText: "Loading...", emptyFavs: "No favorites yet. Save listings you like with the heart icon.",
-    verifyTitle1: "Verify phone number", verifyTitle2: "Enter SMS code",
-    verifyIntro: "Verify your number to see the owner's phone. This protects against fake inquiries.",
-    sendCodeBtn: "Send code", sendingCode: "Sending...", codeSentTo: "Enter the 6-digit code sent to",
-    confirmBtn: "Confirm", checkingCode: "Checking...",
-    sendCodeError: "Error sending code. Check the number and try again.", codeInvalidError: "Incorrect code or it has expired.",
+    _lang: "en",
+    navSearch: "Search",
+    navFavs: "Saved",
+    navPost: "Post",
+    navProfile: "Profile",
+    settings: "Settings",
+    security: "Security",
+    language: "Language",
+    notifications: "Notifications",
+    myListings: "My listings",
+    logout: "Log out",
+    cancel: "Cancel",
+    delete: "Delete",
+    boost: "Boost",
+    pending: "Under review",
+    approved: "Active",
+    blocked: "Blocked",
+    guest: "Guest",
+    unverified: "Not verified",
+    verified: "Verified",
+    navChats: "Messages",
+    writeMessage: "Type a message…",
+    noChats: "No messages yet. Open a listing you like and message the owner.",
+    chatCta: "Message the owner",
+    chatHint: "Your number stays private",
+    sortNew: "Newest first",
+    sortCheap: "Lowest price first",
+    sortPopular: "Most popular",
+    priceRange: "Price, UZS",
+    from: "Min",
+    to: "Max",
+    roomsCount: "Number of rooms",
+    all: "All",
+    daily: "Daily",
+    monthly: "Monthly",
+    saveSearch: "Save search",
+    verifiedOwner: "Verified owner",
+    noResults: "No listings match these filters. Try changing them.",
+    roomsHeader: "Rooms",
+    areaHeader: "Area",
+    floorHeader: "Floor",
+    descTitle: "Description",
+    amenitiesTitle: "Amenities",
+    addressTitle: "Location",
+    contactOwner: "Contact the owner",
+    callBtn: "Call",
+    smsBtn: "SMS",
+    linkCopied: "Link copied",
+    similarListings: "Similar listings",
+    occupiedDays: "Booked dates",
+    occupiedLegend: "Booked",
+    freeLegend: "Available",
+    titleLabel: "Listing title",
+    propertyTypeLabel: "Property type",
+    cityLabel: "City",
+    districtLabel: "District",
+    floorLabel: "Floor",
+    areaLabelM2: "Area, m²",
+    rentTypeLabel: "Rental period",
+    priceLabelSom: "Price, UZS",
+    amenitiesLabel: "Amenities",
+    descLabel: "Description",
+    addressMapLabel: "Exact location (mark it on the map)",
+    ownersOnlyNotice: "Only property owners can post listings here. If you turn out to be a realtor or agent, the listing will be removed and your account blocked.",
+    submitBtn: "Publish listing",
+    submitting: "Publishing…",
+    successTitle: "Listing submitted!",
+    successBody: "Our team is reviewing your listing (usually within an hour). It will appear in search once approved.",
+    typeKvartira: "Apartment",
+    typeHovli: "House",
+    typeOfis: "Office / shop",
+    termsLink: "Terms of use",
+    aboutLink: "About us",
+    detailBtn: "Details",
+    modeLabel: "Type of place",
+    modeWhole: "Entire place",
+    modeShared: "Shared (per person)",
+    roomsConfigLabel: "Rooms and beds",
+    roomWord: "Room",
+    capacityLabel: "Total beds",
+    occupiedLabel: "Taken",
+    addRoomBtn: "Add room",
+    freeSpotsTotal: "Free beds",
+    noFreeSpots: "No free beds",
+    perPerson: "per person",
+    pricePerPersonLabel: "Price per person, UZS",
+    genderLabel: "Who lives here",
+    genderMale: "Men",
+    genderFemale: "Women",
+    genderMixed: "Mixed",
+    spotFreedBtn: "A bed freed up",
+    spotTakenBtn: "A bed was taken",
+    filterFreeSpots: "Free beds",
+    anyMode: "Any",
+    roomsBreakdown: "Occupancy",
+    youPrefix: "You: ",
+    dailyShort: "Daily",
+    monthlyShort: "Monthly",
+    modeWholeShort: "Entire place",
+    modeSharedShort: "Shared",
+    filterTitle: "Filters",
+    clearFilters: "Reset",
+    showResultsNone: "No matching listings",
+    sortLabel: "Sort by",
+    viewList: "List",
+    viewMap: "Map",
+    closeLabel: "Close",
+    searchSaved: "Search saved",
+    boostRequestSent: "Request received. Your listing will be boosted once the payment is confirmed.",
+    boostRequestError: "Something went wrong. Please try again.",
+    accountBlockedTitle: "Your account is blocked",
+    revealPhoneBtn: "Show phone number",
+    phoneLimitReached: "You've reached today's limit for viewing phone numbers. Try again tomorrow, or message the owner in the chat.",
+    phoneUnavailable: "The owner hasn't added a phone number — please use the chat.",
+    resubmittedForReview: "Changes saved. Because the title, description or photos changed, the listing has been sent for review again.",
+    accountBlockedBody: "Because the platform rules were violated, posting and messaging are restricted. If you think this is a mistake, write to us: info@uy247.uz",
+    preparingPhotos: "Processing…",
+    loadMore: "Show more",
+    yesterday: "Yesterday",
+    mapDragHint: "Move the map until the pin sits right on your home. Zoom in for accuracy.",
+    months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    bookingEditTitle: "Mark booked dates",
+    bookingEditHint: "Tap a date to mark it as booked or available.",
+    saveBtn: "Save",
+    savingBtn: "Saving…",
+    geoUnsupported: "This device can't determine your location",
+    geoDenied: "Location access is blocked. Allow it in your browser settings.",
+    editListing: "Edit",
+    deleteListing: "Delete",
+    editTitle: "Edit listing",
+    deleteConfirmTitle: "Delete this listing?",
+    deleteConfirmBody: "The listing will be permanently deleted. This can't be undone.",
+    cancelBtn: "Cancel",
+    confirmDeleteBtn: "Yes, delete",
+    blockedReason: "Reason for blocking",
+    noReasonGiven: "No reason given",
+    boostTitle: "Boost your listing",
+    boostDays7: "7 days",
+    boostDays30: "30 days",
+    boostDesc7: "Your listing shows near the top of search",
+    boostDesc30: "Most popular choice",
+    boostFreeCredit: "Use a free boost (7 days)",
+    payMethod: "Payment method",
+    reportTitle: "Report this listing",
+    reportSubmit: "Send report",
+    reportFooter: "We'll review the report within 24 hours.",
+    titlePlaceholder: "e.g. Bright 2-room flat in Yunusabad",
+    ismLabel: "First name",
+    ismPlaceholder: "Your first name",
+    familiyaLabel: "Last name",
+    familiyaPlaceholder: "Your last name",
+    nameHint: "Used only for verification — never shown on your listing.",
+    addPhotoBtn: "Add",
+    photosHint: "Choose from your gallery or take a photo",
+    descPlaceholder: "Describe your place briefly: renovation, furniture, appliances…",
+    ownerConfirm1: "I confirm that I own this property (or officially represent the owner), ",
+    ownerConfirmBold: "I'm not a realtor",
+    ownerConfirm2: ", and I accept the ",
+    ruleLinkText: "platform rules",
+    ownerConfirm3: ".",
+    sessionNotFoundError: "Your session wasn't found. Refresh the page and try again.",
+    genericError: "Something went wrong. Please try again.",
+    successBody2: "You can track its status in Profile → My listings.",
+    verifyPhoneBtn: "Verify phone number",
+    noListingsYet: "You haven't posted any listings yet.",
+    occupiedBadge: "Occupied",
+    topActiveLabel: "Boosted",
+    markFreeBtn: "Available again — show in search",
+    markOccupiedBtn: "Rented out — hide for now",
+    markBookingBtn: "Mark booked dates",
+    referralTitle: "Invite a friend",
+    referralSubtitle: "When a friend signs up with your link, you both get a free 7-day boost.",
+    copyBtn: "Copy",
+    currentCreditsLabel: "Free boosts:",
+    ta: "",
+    savedSearchesTitle: "Saved searches",
+    loadingText: "Loading…",
+    emptyFavs: "Nothing saved yet. Tap ♥ on a listing to save it.",
+    verifyTitle1: "Verify your number",
+    verifyTitle2: "Enter the SMS code",
+    verifyIntro: "To contact the owner, please verify your phone number. This protects everyone from fake inquiries.",
+    sendCodeBtn: "Send code",
+    sendingCode: "Sending…",
+    confirmBtn: "Confirm",
+    checkingCode: "Checking…",
+    sendCodeError: "We couldn't send the code. Check the number and try again.",
+    codeInvalidError: "The code is incorrect or has expired.",
+    appTitle: "Uy24/7 — rent directly from owners",
+    currency: "UZS",
+    perDay: "night",
+    perMonth: "month",
+    sqm: "m²",
+    mln: "M",
+    thousand: "K",
+    resultsN: { one: "{n} listing", other: "{n} listings" },
+    showResultsN: { one: "Show {n} listing", other: "Show {n} listings" },
+    viewsN: { one: "{n} view", other: "{n} views" },
+    daysLeftN: { one: "{n} day left", other: "{n} days left" },
+    favCountN: { one: "{n} save", other: "{n} saves" },
+    chatCountN: { one: "{n} person messaged", other: "{n} people messaged" },
+    freeSpotsN: { one: "{n} bed free", other: "{n} beds free" },
+    freeN: "{n} free",
+    roomsN: { one: "{n} room", other: "{n} rooms" },
+    roomCapacityN: { one: "{n} bed", other: "{n} beds" },
+    boostLeftN: "{n} left",
+    photosCountN: "Photos (at least 3) — {n} added",
+    codeSentToN: "Enter the 6-digit code we sent to {phone}.",
+    payWith: "Pay with {p}",
+    priceFromP: "from {p}",
+    priceToP: "up to {p}",
+    searchPlaceholder: "Search…",
+    chatSafetyNote: "This chat stays inside Uy24/7 — phone numbers stay private",
+    listingFallback: "Listing",
+    smsTemplate: "Hello! I'm interested in your listing \"{title}\" on Uy24/7.",
+    reportRealtor: "This is a realtor / agent",
+    reportWrongPrice: "The price is wrong",
+    reportScam: "Looks like a scam",
+    reportUnavailable: "No longer available",
+    phoneStatusLabel: "Phone status",
+    twoFactorLabel: "Two-factor authentication (2FA)",
+    loginAlertsLabel: "Alert me on every sign-in",
+    activeSessionNote: "Active session: this device — online now",
+    smsNotifLabel: "SMS notifications",
+    pushNotifLabel: "Push notifications",
+    promoNotifLabel: "New boost offers",
+    dangerZone: "Danger zone",
+    deleteProfileBtn: "Delete profile",
+    deleteProfileConfirm: "Are you sure? All your listings and data will be lost.",
+    legalSection: "Legal",
+    dailyLimitError: "You've reached today's limit — please try again tomorrow.",
+    notVerifiedError: "Please verify your phone number first.",
+    rlsLimitError: "Couldn't complete this: the daily limit is reached or your account is restricted.",
+    networkError: "No internet connection. Check your connection and try again.",
+    fileTooLargeError: "The photo is too large (10 MB max).",
+    codeTooSoonError: "Please wait a moment before requesting a new code.",
+    phoneInvalidError: "Invalid number. Example: +998901234567",
+    photosUpdateError: "Couldn't update the photos. Please try again.",
+    backLabel: "Back",
+    shareLabel: "Share",
+    favLabel: "Save",
+    sendLabel: "Send",
+    myLocationLabel: "My location",
   },
 };
 
@@ -288,16 +790,19 @@ const getSortOptions = (t) => [
 ];
 
 // Chat xabari vaqti: bugun bo'lsa faqat soat, kecha bo'lsa "Kecha", eskisi bo'lsa sana
-const msgTime = (iso, yesterdayLabel = "Kecha") => {
+const msgTime = (iso, t = STR.uz) => {
   try {
     const d = new Date(iso);
     const now = new Date();
-    const hhmm = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const yesterdayLabel = t.yesterday;
+    const pad = (x) => String(x).padStart(2, "0");
+    // Vaqt va sana qo'lda: 14:05, 08.10 (uz/ru) yoki 08/10 (en) — brauzer tilidan qat'i nazar bir xil
+    const hhmm = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
     const sameDay = d.toDateString() === now.toDateString();
     if (sameDay) return hhmm;
     const yest = new Date(now); yest.setDate(now.getDate() - 1);
     if (d.toDateString() === yest.toDateString()) return yesterdayLabel + " " + hhmm;
-    return d.toLocaleDateString([], { day: "2-digit", month: "2-digit" }) + " " + hhmm;
+    return `${pad(d.getDate())}${t._lang === "en" ? "/" : "."}${pad(d.getMonth() + 1)} ${hhmm}`;
   } catch (_) { return ""; }
 };
 
@@ -307,7 +812,65 @@ const daysLeft = (until) => {
   return Math.max(0, Math.ceil(diff / 86400000));
 };
 
-const fmt = (n) => new Intl.NumberFormat("uz-UZ").format(n);
+// Raqam tanlangan til uslubida: 4 200 000 (uz/ru) yoki 4,200,000 (en).
+// Qo'lda formatlaymiz: ba'zi brauzerlarda o'zbekcha raqam formati yo'q va ular "4,200,000" chiqarib qo'yadi.
+const fmt = (n, t) => {
+  const num = Number(n) || 0;
+  const en = t?._lang === "en";
+  const [int, dec] = String(Math.abs(num)).split(".");
+  return (num < 0 ? "-" : "") + int.replace(/\B(?=(\d{3})+(?!\d))/g, en ? "," : "\u00A0") + (dec ? (en ? "." : ",") + dec : "");
+};
+
+// Ko'plik shakllari: ruscha "1 объявление / 2 объявления / 5 объявлений", inglizcha "1 listing / 2 listings"
+const PLURAL_RULES = {};
+const pluralCat = (lang, n) => {
+  try { return (PLURAL_RULES[lang] = PLURAL_RULES[lang] || new Intl.PluralRules(lang)).select(n); }
+  catch (_) { return n === 1 ? "one" : "other"; }
+};
+// tn(t, "resultsN", 5) -> "5 ta e'lon" / "5 объявлений" / "5 listings"
+function tn(t, key, n) {
+  const v = t[key];
+  const s = v == null ? "{n}" : typeof v === "string" ? v : (v[pluralCat(t._lang, n)] ?? v.other ?? v.one);
+  return s.replace("{n}", typeof n === "number" ? fmt(n, t) : String(n));
+}
+// tf(t, "payWith", { p: "Payme" }) -> "Payme orqali" / "Через Payme" / "Pay with Payme"
+const tf = (t, key, vars = {}) => Object.entries(vars).reduce((acc, [k, x]) => acc.replace(`{${k}}`, x), t[key] || "");
+
+// Shahar, tuman va qulayliklar bazada o'zbekcha saqlanadi — ekranda tanlangan tilda ko'rsatiladi
+const PLACE_NAMES = {
+  ru: {
+    "Toshkent shahri": "Ташкент", "Samarqand": "Самарканд", "Buxoro": "Бухара", "Farg'ona": "Фергана", "Andijon": "Андижан", "Namangan": "Наманган",
+    "Yunusobod": "Юнусабад", "Chilonzor": "Чиланзар", "Mirzo Ulug'bek": "Мирзо-Улугбек", "Mirobod": "Мирабад", "Yakkasaroy": "Яккасарай",
+    "Shayxontohur": "Шайхантахур", "Olmazor": "Алмазар", "Uchtepa": "Учтепа", "Yashnobod": "Яшнабад", "Sergeli": "Сергели",
+    "Bektemir": "Бектемир", "Yangihayot": "Янгихаёт", "Markaz": "Центр",
+  },
+  en: {
+    "Toshkent shahri": "Tashkent", "Samarqand": "Samarkand", "Buxoro": "Bukhara", "Farg'ona": "Fergana", "Andijon": "Andijan", "Namangan": "Namangan",
+    "Yunusobod": "Yunusabad", "Chilonzor": "Chilanzar", "Mirzo Ulug'bek": "Mirzo Ulugbek", "Mirobod": "Mirabad", "Yakkasaroy": "Yakkasaray",
+    "Shayxontohur": "Shaykhantahur", "Olmazor": "Almazar", "Uchtepa": "Uchtepa", "Yashnobod": "Yashnabad", "Sergeli": "Sergeli",
+    "Bektemir": "Bektemir", "Yangihayot": "Yangihayot", "Markaz": "City centre",
+  },
+};
+const placeLabel = (name, t) => (name && PLACE_NAMES[t?._lang]?.[name]) || name || "";
+// Qidiruvda tuman nomi uch tilda ham topiladi: "Yunusobod", "Юнусабад", "Yunusabad"
+const placeSearchText = (name) => [name, PLACE_NAMES.ru[name], PLACE_NAMES.en[name]].filter(Boolean).join(" ").toLowerCase();
+const AMENITY_NAMES = {
+  ru: { "Konditsioner": "Кондиционер", "Mashina turargohi": "Парковка", "Lift": "Лифт", "Muzlatgich": "Холодильник", "Kir yuvish mashinasi": "Стиральная машина" },
+  en: { "Konditsioner": "Air conditioning", "Mashina turargohi": "Parking", "Lift": "Lift", "Muzlatgich": "Fridge", "Kir yuvish mashinasi": "Washing machine" },
+};
+const amenityLabel = (a, t) => AMENITY_NAMES[t?._lang]?.[a] || a;
+
+// Server xatolarini (ko'pincha inglizcha, texnik) foydalanuvchiga tushunarli matnga aylantiradi
+function friendlyError(err, t, fallbackKey = "genericError") {
+  const m = String(err?.message || err || "");
+  if (m.includes("DAILY_LIMIT")) return t.dailyLimitError;
+  if (m.includes("NOT_VERIFIED")) return t.notVerifiedError;
+  if (m.includes("BLOCKED")) return t.accountBlockedTitle;
+  if (err?.code === "42501" || /row-level security/i.test(m)) return t.rlsLimitError;
+  if (/maximum allowed size|payload too large|too large/i.test(m)) return t.fileTooLargeError;
+  if (/failed to fetch|network|load failed/i.test(m)) return t.networkError;
+  return t[fallbackKey] || t.genericError;
+}
 const box = { background: "#1E333C", border: "1px solid #2A424C" };
 const inputStyle = { width: "100%", padding: "10px 12px", borderRadius: "10px", fontSize: "14px", background: "#16262E", color: "#F2EDE4", border: "1px solid #2A424C", outline: "none" };
 
@@ -321,15 +884,15 @@ function MosaicStrip({ className = "" }) {
   );
 }
 
-function PriceTag({ price, rentType, perPerson = false, perPersonLabel = "" }) {
+function PriceTag({ price, rentType, perPerson = false, t = STR.uz }) {
   return (
     <div className="inline-flex flex-col items-start">
       <div className="relative inline-flex items-baseline gap-1 pl-3 pr-4 py-1.5" style={{ background: "#E8B94A", clipPath: "polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%)" }}>
-        <span className="font-mono font-semibold text-[15px]" style={{ color: "#16262E" }}>{fmt(price)}</span>
-        <span className="text-[11px] font-medium" style={{ color: "#4A3812" }}>so'm/{rentType === "Kunlik" ? "kun" : "oy"}</span>
+        <span className="font-mono font-semibold text-[15px]" style={{ color: "#16262E" }}>{fmt(price, t)}</span>
+        <span className="text-[11px] font-medium" style={{ color: "#4A3812" }}>{t.currency}/{rentType === "Kunlik" ? t.perDay : t.perMonth}</span>
       </div>
-      {perPerson && perPersonLabel && (
-        <span className="text-[10.5px] mt-0.5 pl-3" style={{ color: "#93A5AA" }}>{perPersonLabel}</span>
+      {perPerson && (
+        <span className="text-[10.5px] mt-0.5 pl-3" style={{ color: "#93A5AA" }}>{t.perPerson}</span>
       )}
     </div>
   );
@@ -436,36 +999,36 @@ function ListingCard({ item, onOpen, isFav, onToggleFav, t = STR.uz }) {
             <ShieldCheck size={13} /> {t.verifiedOwner}
           </div>
         )}
-        <button onClick={(e) => { e.stopPropagation(); onToggleFav(item.id); }} className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.75)" }}>
+        <button onClick={(e) => { e.stopPropagation(); onToggleFav(item.id); }} aria-label={t.favLabel} aria-pressed={!!isFav} className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.75)" }}>
           <Heart size={16} fill={isFav ? "#D4783C" : "none"} color={isFav ? "#D4783C" : "#F2EDE4"} />
         </button>
       </div>
       <div className="p-3.5 space-y-2">
         <div className="flex items-center justify-between">
-          <PriceTag price={item.price} rentType={item.rentType} perPerson={item.listingMode === "shared"} perPersonLabel={t.perPerson} />
+          <PriceTag price={item.price} rentType={item.rentType} perPerson={item.listingMode === "shared"} t={t} />
           <span className="flex items-center gap-1 text-[11px]" style={{ color: "#65787E" }}>
             {React.createElement(typeIcon(item.propertyType), { size: 13 })} {typeLabel(item.propertyType, t)}
           </span>
         </div>
         <h3 className="font-serif text-[16px] leading-snug" style={{ color: "#F2EDE4" }}>{item.title}</h3>
-        <div className="flex items-center gap-1 text-[13px]" style={{ color: "#93A5AA" }}><MapPin size={13} /> {item.district}, {item.city}</div>
+        <div className="flex items-center gap-1 text-[13px]" style={{ color: "#93A5AA" }}><MapPin size={13} /> {placeLabel(item.district, t)}, {placeLabel(item.city, t)}</div>
         {item.listingMode === "shared" ? (
           <div className="flex items-center gap-2 flex-wrap text-[12.5px] pt-1">
             <span className="px-2 py-0.5 rounded-full font-medium"
               style={{ background: item.freeSpots > 0 ? "#3E92B0" : "#2A424C", color: item.freeSpots > 0 ? "#0E1B21" : "#93A5AA" }}>
-              {item.freeSpots > 0 ? `${item.freeSpots} ${t.freeSpots}` : t.noFreeSpots}
+              {item.freeSpots > 0 ? tn(t, "freeSpotsN", item.freeSpots) : t.noFreeSpots}
             </span>
             {item.genderPref && (
               <span style={{ color: "#93A5AA" }}>
                 {item.genderPref === "erkak" ? t.genderMale : item.genderPref === "ayol" ? t.genderFemale : t.genderMixed}
               </span>
             )}
-            <span className="flex items-center gap-1" style={{ color: "#93A5AA" }}><Maximize2 size={13} /> {item.area} m²</span>
+            <span className="flex items-center gap-1" style={{ color: "#93A5AA" }}><Maximize2 size={13} /> {item.area} {t.sqm}</span>
           </div>
         ) : (
           <div className="flex items-center gap-3 text-[13px] pt-1" style={{ color: "#93A5AA" }}>
-            <span className="flex items-center gap-1"><BedDouble size={14} /> {item.rooms} {t.roomsWord}</span>
-            <span className="flex items-center gap-1"><Maximize2 size={14} /> {item.area} m²</span>
+            <span className="flex items-center gap-1"><BedDouble size={14} /> {tn(t, "roomsN", item.rooms)}</span>
+            <span className="flex items-center gap-1"><Maximize2 size={14} /> {item.area} {t.sqm}</span>
           </div>
         )}
       </div>
@@ -558,10 +1121,10 @@ function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, 
           <div className="min-w-0 flex items-center gap-1 text-[12px]" style={{ color: "#93A5AA" }}>
             <button onClick={() => setOpen(true)} className="min-w-0 flex items-center gap-1 font-medium" style={{ color: "#F2EDE4" }}>
               <MapPin size={12} className="shrink-0" color="#3E92B0" />
-              <span className="truncate">{filters.city}</span>
+              <span className="truncate">{placeLabel(filters.city, t)}</span>
               <ChevronDown size={12} className="shrink-0" color="#93A5AA" />
             </button>
-            <span className="shrink-0 whitespace-nowrap">· {t.resultsShort.replace("{n}", resultsCount)}</span>
+            <span className="shrink-0 whitespace-nowrap">· {tn(t, "resultsN", resultsCount)}</span>
           </div>
           <div className="shrink-0 flex rounded-full p-0.5" style={box}>
             <button onClick={() => setViewMode("list")} aria-label={t.viewList} title={t.viewList} aria-pressed={viewMode === "list"}
@@ -595,7 +1158,7 @@ function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, 
                 {sectionLabel(t.cityLabel)}
                 <div className="relative">
                   <select value={filters.city} onChange={(e) => setFilters(f => ({ ...f, city: e.target.value }))} style={{ ...inputStyle, paddingRight: 36 }}>
-                    {CITIES.map(c => <option key={c}>{c}</option>)}
+                    {CITIES.map(c => <option key={c} value={c}>{placeLabel(c, t)}</option>)}
                   </select>
                   <ChevronDown size={16} color="#93A5AA" className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
@@ -676,7 +1239,7 @@ function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, 
                   style={{ background: "#16262E", color: "#F2EDE4", border: "1px solid #2A424C" }}>{t.clearFilters}</button>
                 <button onClick={() => setOpen(false)} className="flex-1 py-3 rounded-xl text-[14px] font-semibold"
                   style={{ background: "#3E92B0", color: "#0E1B21" }}>
-                  {resultsCount > 0 ? t.showResults.replace("{n}", resultsCount) : t.showResultsNone}
+                  {resultsCount > 0 ? tn(t, "showResultsN", resultsCount) : t.showResultsNone}
                 </button>
               </div>
               <button onClick={() => { setOpen(false); onSaveSearch(); }} className="w-full flex items-center justify-center gap-1.5 py-1.5 text-[12.5px] font-medium"
@@ -688,6 +1251,16 @@ function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, 
       )}
     </>
   );
+}
+
+// Supabase Auth xatolari inglizcha keladi — foydalanuvchiga tanlangan tilda tushuntiramiz
+function verifyErrorText(e, t, fallback) {
+  const m = String(e?.message || "");
+  if (e?.status === 429 || /security purposes|rate limit|too many/i.test(m)) return t.codeTooSoonError;
+  if (/expired|invalid.*(otp|token|code)|(otp|token).*(expired|invalid)/i.test(m)) return t.codeInvalidError;
+  if (/phone/i.test(m) && /invalid|format/i.test(m)) return t.phoneInvalidError;
+  if (/failed to fetch|network|load failed/i.test(m)) return t.networkError;
+  return fallback;
 }
 
 function VerifyModal({ onClose, onVerified, t = STR.uz }) {
@@ -720,7 +1293,7 @@ function VerifyModal({ onClose, onVerified, t = STR.uz }) {
       }
       throw linkErr;
     } catch (e) {
-      setError(e.message || t.sendCodeError);
+      setError(verifyErrorText(e, t, t.sendCodeError));
       setLoading(false);
     }
   };
@@ -733,7 +1306,7 @@ function VerifyModal({ onClose, onVerified, t = STR.uz }) {
       if (verErr) throw verErr;
       await onVerified(phone);
     } catch (e) {
-      setError(e.message || t.codeInvalidError);
+      setError(verifyErrorText(e, t, t.codeInvalidError));
     } finally {
       setLoading(false);
     }
@@ -744,19 +1317,19 @@ function VerifyModal({ onClose, onVerified, t = STR.uz }) {
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{step === 1 ? t.verifyTitle1 : t.verifyTitle2}</h3>
-          <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
+          <button onClick={onClose} aria-label={t.closeLabel}><X size={20} color="#93A5AA" /></button>
         </div>
         {error && <p className="text-[12.5px] mb-3" style={{ color: "#D4783C" }}>{error}</p>}
         {step === 1 ? (
           <>
             <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>{t.verifyIntro}</p>
-            <input placeholder="+998901234567" value={phoneInput} onChange={(e) => setPhoneInput(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none mb-3" style={inputStyle} />
+            <input type="tel" inputMode="tel" autoComplete="tel" placeholder="+998901234567" value={phoneInput} onChange={(e) => setPhoneInput(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none mb-3" style={inputStyle} />
             <button onClick={sendCode} disabled={phoneInput.length < 9 || loading} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (phoneInput.length < 9 || loading) ? "#2A424C" : "#3E92B0", color: "#0E1B21" }}>{loading ? t.sendingCode : t.sendCodeBtn}</button>
           </>
         ) : (
           <>
-            <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>{t.codeSentTo} {normalizedPhone()}</p>
-            <input placeholder="000000" value={code} maxLength={6} onChange={(e) => setCode(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[20px] tracking-[8px] text-center outline-none mb-3 font-mono" style={inputStyle} />
+            <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>{tf(t, "codeSentToN", { phone: normalizedPhone() })}</p>
+            <input inputMode="numeric" autoComplete="one-time-code" placeholder="000000" value={code} maxLength={6} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} className="w-full px-3 py-2.5 rounded-lg text-[20px] tracking-[8px] text-center outline-none mb-3 font-mono" style={inputStyle} />
             <button onClick={confirmCode} disabled={code.length < 6 || loading} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (code.length < 6 || loading) ? "#2A424C" : "#D4783C", color: "#16262E" }}>{loading ? t.checkingCode : t.confirmBtn}</button>
           </>
         )}
@@ -766,20 +1339,26 @@ function VerifyModal({ onClose, onVerified, t = STR.uz }) {
 }
 
 function ReportModal({ onClose, onSubmit, t = STR.uz }) {
-  const reasons = ["Bu rieltor/vositachi", "Narx noto'g'ri ko'rsatilgan", "Firibgarlik shubhasi", "E'lon o'chirilgan/band"];
-  const [reason, setReason] = useState(reasons[0]);
+  // [bazaga yoziladigan qiymat (admin o'zbekcha ko'radi), ekrandagi matn]
+  const reasons = [
+    ["Bu rieltor/vositachi", t.reportRealtor],
+    ["Narx noto'g'ri ko'rsatilgan", t.reportWrongPrice],
+    ["Firibgarlik shubhasi", t.reportScam],
+    ["E'lon o'chirilgan/band", t.reportUnavailable],
+  ];
+  const [reason, setReason] = useState(reasons[0][0]);
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(10,17,20,0.7)" }}>
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}><Flag size={17} color="#D4783C" /> {t.reportTitle}</h3>
-          <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
+          <button onClick={onClose} aria-label={t.closeLabel}><X size={20} color="#93A5AA" /></button>
         </div>
         <div className="space-y-2 mb-4">
-          {reasons.map(r => (
-            <label key={r} className="flex items-center gap-2.5 p-2.5 rounded-lg cursor-pointer" style={{ background: reason === r ? "#26343A" : "transparent", border: "1px solid #2A424C" }}>
-              <input type="radio" checked={reason === r} onChange={() => setReason(r)} />
-              <span className="text-[13.5px]" style={{ color: "#F2EDE4" }}>{r}</span>
+          {reasons.map(([value, label]) => (
+            <label key={value} className="flex items-center gap-2.5 p-2.5 rounded-lg cursor-pointer" style={{ background: reason === value ? "#26343A" : "transparent", border: "1px solid #2A424C" }}>
+              <input type="radio" name="report-reason" checked={reason === value} onChange={() => setReason(value)} />
+              <span className="text-[13.5px]" style={{ color: "#F2EDE4" }}>{label}</span>
             </label>
           ))}
         </div>
@@ -801,12 +1380,12 @@ function BoostModal({ onClose, onBoost, onUseCredit, boostCredits, t = STR.uz })
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}><Sparkles size={17} color="#E8B94A" /> {t.boostTitle}</h3>
-          <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
+          <button onClick={onClose} aria-label={t.closeLabel}><X size={20} color="#93A5AA" /></button>
         </div>
         {boostCredits > 0 && (
           <button onClick={() => onUseCredit()} className="w-full flex items-center justify-between p-3.5 rounded-xl mb-3" style={{ background: "#26343A", border: "1.5px solid #E8B94A" }}>
             <span className="text-[13.5px] font-medium flex items-center gap-2" style={{ color: "#E8B94A" }}><Sparkles size={15} /> {t.boostFreeCredit}</span>
-            <span className="text-[12px]" style={{ color: "#93A5AA" }}>{boostCredits} {t.boostLeft}</span>
+            <span className="text-[12px]" style={{ color: "#93A5AA" }}>{tn(t, "boostLeftN", boostCredits)}</span>
           </button>
         )}
         <div className="space-y-2.5 mb-4">
@@ -816,14 +1395,14 @@ function BoostModal({ onClose, onBoost, onUseCredit, boostCredits, t = STR.uz })
                 <div className="text-[14px] font-medium" style={{ color: "#F2EDE4" }}>{p.label}</div>
                 <div className="text-[12px]" style={{ color: "#93A5AA" }}>{p.desc}</div>
               </div>
-              <div className="font-mono text-[14px] font-semibold" style={{ color: "#E8B94A" }}>{fmt(p.price)}</div>
+              <div className="font-mono text-[14px] font-semibold whitespace-nowrap" style={{ color: "#E8B94A" }}>{fmt(p.price, t)} <span className="text-[11px] font-medium" style={{ fontFamily: "Inter, sans-serif" }}>{t.currency}</span></div>
             </button>
           ))}
         </div>
         <div className="text-[12px] mb-2" style={{ color: "#93A5AA" }}>{t.payMethod}</div>
         <div className="grid grid-cols-2 gap-2.5">
-          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price, "payme")} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Payme {t.payVia}</button>
-          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price, "click")} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>Click {t.payVia}</button>
+          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price, "payme")} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{tf(t, "payWith", { p: "Payme" })}</button>
+          <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price, "click")} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{tf(t, "payWith", { p: "Click" })}</button>
         </div>
       </div>
     </div>
@@ -834,7 +1413,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
   const [showReport, setShowReport] = useState(false);
   const [reported, setReported] = useState(false);
   const [copied, setCopied] = useState(false);
-  const smsBody = encodeURIComponent(`Assalomu alaykum! Uy24/7 saytida "${item.title}" e'loningizga qiziqdim.`);
+  const smsBody = encodeURIComponent(tf(t, "smsTemplate", { title: item.title }));
 
   const share = async () => {
     const url = `${window.location.origin}/elon/${item.id}`;
@@ -851,33 +1430,33 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
     <div className="pb-32">
       <div className="relative">
         <Gallery images={item.images} hue={item.hue} zoomable />
-        <button onClick={onBack} className="absolute left-4 w-11 h-11 rounded-full flex items-center justify-center z-10" style={{ background: "rgba(22,38,46,0.85)", top: "calc(env(safe-area-inset-top, 0px) + 20px)" }}><ArrowLeft size={19} color="#F2EDE4" /></button>
+        <button onClick={onBack} aria-label={t.backLabel} className="absolute left-4 w-11 h-11 rounded-full flex items-center justify-center z-10" style={{ background: "rgba(22,38,46,0.85)", top: "calc(env(safe-area-inset-top, 0px) + 20px)" }}><ArrowLeft size={19} color="#F2EDE4" /></button>
         <div className="absolute right-4 flex gap-2 z-10" style={{ top: "calc(env(safe-area-inset-top, 0px) + 20px)" }}>
-          <button onClick={share} className="w-11 h-11 rounded-full flex items-center justify-center relative" style={{ background: "rgba(22,38,46,0.85)" }}>
+          <button onClick={share} aria-label={t.shareLabel} className="w-11 h-11 rounded-full flex items-center justify-center relative" style={{ background: "rgba(22,38,46,0.85)" }}>
             <Share2 size={17} color="#F2EDE4" />
             {copied && <span className="absolute top-12 right-0 whitespace-nowrap px-2 py-1 rounded-lg text-[11px]" style={{ background: "#E8B94A", color: "#16262E" }}>{t.linkCopied}</span>}
           </button>
-          <button onClick={() => setShowReport(true)} className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.85)" }}><Flag size={17} color="#F2EDE4" /></button>
-          <button onClick={() => onToggleFav(item.id)} className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.85)" }}><Heart size={18} fill={isFav ? "#D4783C" : "none"} color={isFav ? "#D4783C" : "#F2EDE4"} /></button>
+          <button onClick={() => setShowReport(true)} aria-label={t.reportTitle} className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.85)" }}><Flag size={17} color="#F2EDE4" /></button>
+          <button onClick={() => onToggleFav(item.id)} aria-label={t.favLabel} aria-pressed={!!isFav} className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(22,38,46,0.85)" }}><Heart size={18} fill={isFav ? "#D4783C" : "none"} color={isFav ? "#D4783C" : "#F2EDE4"} /></button>
         </div>
       </div>
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <PriceTag price={item.price} rentType={item.rentType} perPerson={item.listingMode === "shared"} perPersonLabel={t.perPerson} />
+          <PriceTag price={item.price} rentType={item.rentType} perPerson={item.listingMode === "shared"} t={t} />
           <span className="flex items-center gap-1 text-[12px]" style={{ color: "#65787E" }}>
             {React.createElement(typeIcon(item.propertyType), { size: 14 })} {typeLabel(item.propertyType, t)}
           </span>
         </div>
         <div>
           <h1 className="font-serif text-2xl" style={{ color: "#F2EDE4" }}>{item.title}</h1>
-          <div className="flex items-center gap-1 text-[14px] mt-1" style={{ color: "#93A5AA" }}><MapPin size={14} /> {item.district}, {item.city}</div>
+          <div className="flex items-center gap-1 text-[14px] mt-1" style={{ color: "#93A5AA" }}><MapPin size={14} /> {placeLabel(item.district, t)}, {placeLabel(item.city, t)}</div>
         </div>
         <div className="flex items-center gap-3 text-[12.5px]" style={{ color: "#93A5AA" }}>
-          <span className="flex items-center gap-1"><Eye size={13} /> {item.views} {t.viewedTimes}</span>
+          <span className="flex items-center gap-1"><Eye size={13} /> {tn(t, "viewsN", item.views)}</span>
           {item.verified && <span className="flex items-center gap-1.5 font-medium" style={{ color: "#E8B94A" }}><ShieldCheck size={14} /> {t.verifiedOwner}</span>}
         </div>
         <div className="grid grid-cols-3 gap-2">
-          {[[t.roomsHeader, `${item.rooms} ta`], [t.areaHeader, `${item.area} m²`], [t.floorHeader, item.floor]].map(([l, v]) => (
+          {[[t.roomsHeader, `${item.rooms}${t.ta ? " " + t.ta : ""}`], [t.areaHeader, `${item.area} ${t.sqm}`], [t.floorHeader, item.floor || "—"]].map(([l, v]) => (
             <div key={l} className="rounded-xl p-3 text-center" style={box}><div className="text-[11px]" style={{ color: "#93A5AA" }}>{l}</div><div className="text-[15px] font-medium mt-0.5" style={{ color: "#F2EDE4" }}>{v}</div></div>
           ))}
         </div>
@@ -891,7 +1470,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
               </span>
               <span className="px-2.5 py-1 rounded-full text-[12px] font-semibold"
                 style={{ background: item.freeSpots > 0 ? "#3E92B0" : "#2A424C", color: item.freeSpots > 0 ? "#0E1B21" : "#93A5AA" }}>
-                {item.freeSpots > 0 ? `${item.freeSpots} ${t.freeSpots}` : t.noFreeSpots}
+                {item.freeSpots > 0 ? tn(t, "freeSpotsN", item.freeSpots) : t.noFreeSpots}
               </span>
             </div>
 
@@ -901,10 +1480,10 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
                 return (
                   <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg" style={{ background: "#16262E" }}>
                     <span className="text-[12.5px]" style={{ color: "#C8D4D6" }}>
-                      {t.roomWord} {i + 1} · {r.capacity} {t.roomCapacityShort}
+                      {t.roomWord} {i + 1} · {tn(t, "roomCapacityN", r.capacity)}
                     </span>
                     <span className="text-[12px] font-medium" style={{ color: free > 0 ? "#8FD19E" : "#93A5AA" }}>
-                      {free > 0 ? `${free} ${t.freeShort}` : t.noFreeSpots}
+                      {free > 0 ? tn(t, "freeN", free) : t.noFreeSpots}
                     </span>
                   </div>
                 );
@@ -923,7 +1502,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
         <div><div className="text-[13px] font-medium mb-1.5" style={{ color: "#F2EDE4" }}>{t.descTitle}</div><p className="text-[14px] leading-relaxed" style={{ color: "#93A5AA" }}>{item.desc}</p></div>
         <div>
           <div className="text-[13px] font-medium mb-2" style={{ color: "#F2EDE4" }}>{t.amenitiesTitle}</div>
-          <div className="flex flex-wrap gap-2">{item.amenities.map(a => <span key={a} className="px-3 py-1.5 rounded-full text-[12px]" style={{ ...box, color: "#93A5AA" }}>{a}</span>)}</div>
+          <div className="flex flex-wrap gap-2">{item.amenities.map(a => <span key={a} className="px-3 py-1.5 rounded-full text-[12px]" style={{ ...box, color: "#93A5AA" }}>{amenityLabel(a, t)}</span>)}</div>
         </div>
         <MapStatic lat={item.lat} lng={item.lng} addressTitle={t.addressTitle} />
         {item.rentType === "Kunlik" && <BookingCalendarView listingId={item.id} t={t} />}
@@ -988,18 +1567,18 @@ function ChatThread({ chat, onBack, onSend, t }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#16262E" }}>
       <header className="sticky top-0 z-20 px-4 py-3 flex items-center gap-3" style={{ background: "#1A2B33", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}>
-        <button onClick={onBack}><ArrowLeft size={19} color="#F2EDE4" /></button>
+        <button onClick={onBack} aria-label={t.backLabel}><ArrowLeft size={19} color="#F2EDE4" /></button>
         <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: `hsl(${chat.hue} 45% 28%)` }}>
           <Building2 size={16} color="rgba(242,237,228,0.7)" />
         </div>
         <div className="min-w-0">
-          <div className="text-[14px] font-medium truncate" style={{ color: "#F2EDE4" }}>{chat.listingTitle}</div>
+          <div className="text-[14px] font-medium truncate" style={{ color: "#F2EDE4" }}>{chat.listingTitle || t.listingFallback}</div>
           <div className="text-[11px] flex items-center gap-1" style={{ color: "#93A5AA" }}><Lock size={10} /> {t.chatHint}</div>
         </div>
       </header>
 
       <div className="flex-1 px-4 py-4 space-y-3 overflow-y-auto pb-24">
-        <div className="text-center text-[11.5px] py-2" style={{ color: "#65787E" }}>Suhbat Uy24/7 ilovasi ichida, raqamlar oshkor qilinmaydi</div>
+        <div className="text-center text-[11.5px] py-2" style={{ color: "#65787E" }}>{t.chatSafetyNote}</div>
         {chat.messages.map(m => (
           <div key={m.id} className={`flex ${m.from === "me" ? "justify-end" : "justify-start"}`}>
             <div className="max-w-[75%] px-3.5 py-2.5 rounded-2xl text-[13.5px] leading-snug"
@@ -1009,7 +1588,7 @@ function ChatThread({ chat, onBack, onSend, t }) {
               <div>{m.text}</div>
               {m.createdAt && (
                 <div className="text-[10px] mt-1 text-right" style={{ color: m.from === "me" ? "rgba(14,27,33,0.55)" : "#65787E" }}>
-                  {msgTime(m.createdAt, t.yesterday)}
+                  {msgTime(m.createdAt, t)}
                 </div>
               )}
             </div>
@@ -1021,7 +1600,7 @@ function ChatThread({ chat, onBack, onSend, t }) {
       <div className="fixed bottom-0 left-0 right-0 p-3 flex items-center gap-2" style={{ background: "#1A2B33", borderTop: "1px solid #22343B", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)" }}>
         <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()}
           placeholder={t.writeMessage} className="flex-1 px-3.5 py-2.5 rounded-full text-[13.5px] outline-none" style={{ background: "#16262E", color: "#F2EDE4", border: "1px solid #2A424C" }} />
-        <button onClick={submit} className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#D4783C" }}>
+        <button onClick={submit} aria-label={t.sendLabel} className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#D4783C" }}>
           <Send size={16} color="#16262E" />
         </button>
       </div>
@@ -1046,7 +1625,7 @@ function ChatsListView({ chats, onOpen, t, unreadByChat = {} }) {
               <Building2 size={18} color="rgba(242,237,228,0.7)" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[13.5px] font-medium truncate" style={{ color: unreadByChat[c.listingId] ? "#F2EDE4" : "#F2EDE4" }}>{c.listingTitle}</div>
+              <div className="text-[13.5px] font-medium truncate" style={{ color: "#F2EDE4" }}>{c.listingTitle || t.listingFallback}</div>
               <div className="text-[12px] truncate" style={{ color: unreadByChat[c.listingId] ? "#C8D4D6" : "#93A5AA", fontWeight: unreadByChat[c.listingId] ? 500 : 400 }}>{last ? (last.from === "me" ? t.youPrefix : "") + last.text : ""}</div>
             </div>
             {unreadByChat[c.listingId] ? (
@@ -1198,7 +1777,7 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
       onPublish();
     } catch (e) {
       console.error(e);
-      setError(e.message || t.genericError);
+      setError(friendlyError(e, t));
     } finally {
       setSubmitting(false);
     }
@@ -1243,8 +1822,8 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
         </div>
       </Field>
       <div className="grid grid-cols-2 gap-3">
-        <Field label={t.cityLabel}><select value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} style={inputStyle}>{CITIES.map(c => <option key={c}>{c}</option>)}</select></Field>
-        <Field label={t.districtLabel}><select value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} style={inputStyle}>{(DISTRICTS[form.city] || ["Markaz"]).map(d => <option key={d}>{d}</option>)}</select></Field>
+        <Field label={t.cityLabel}><select value={form.city} onChange={e => { const city = e.target.value; setForm(f => ({ ...f, city, district: (DISTRICTS[city] || ["Markaz"])[0] })); }} style={inputStyle}>{CITIES.map(c => <option key={c} value={c}>{placeLabel(c, t)}</option>)}</select></Field>
+        <Field label={t.districtLabel}><select value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} style={inputStyle}>{(DISTRICTS[form.city] || ["Markaz"]).map(d => <option key={d} value={d}>{placeLabel(d, t)}</option>)}</select></Field>
       </div>
       <Field label={t.addressMapLabel}>
         <MapPicker lat={form.lat} lng={form.lng} onChange={(lat, lng) => setForm(f => ({ ...f, lat, lng }))} />
@@ -1252,7 +1831,7 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
       </Field>
       <div className="grid grid-cols-3 gap-3">
         <Field label={t.roomsHeader}><input type="number" min={1} value={form.rooms} onChange={e => setForm(f => ({ ...f, rooms: e.target.value }))} style={inputStyle} /></Field>
-        <Field label={t.areaLabelM2}><input type="number" value={form.area} onChange={e => setForm(f => ({ ...f, area: e.target.value }))} style={inputStyle} /></Field>
+        <Field label={t.areaLabelM2}><input type="number" inputMode="decimal" value={form.area} onChange={e => setForm(f => ({ ...f, area: e.target.value }))} style={inputStyle} /></Field>
         <Field label={t.floorLabel}><input placeholder="3/9" value={form.floor} onChange={e => setForm(f => ({ ...f, floor: e.target.value }))} style={inputStyle} /></Field>
       </div>
 
@@ -1295,14 +1874,14 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
           </div>
         </Field>
         <Field label={form.listingMode === "shared" ? t.pricePerPersonLabel : t.priceLabelSom}>
-          <input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder={form.listingMode === "shared" ? "800000" : "4200000"} style={inputStyle} />
+          <input type="number" inputMode="numeric" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder={form.listingMode === "shared" ? "800000" : "4200000"} style={inputStyle} />
         </Field>
       </div>
       <Field label={t.amenitiesLabel}>
-        <div className="flex flex-wrap gap-2">{AMENITIES_LIST.map(a => <button key={a} type="button" onClick={() => toggleAmenity(a)} className="px-3 py-1.5 rounded-full text-[12.5px]" style={{ background: form.amenities.includes(a) ? "#D4783C" : "#16262E", color: form.amenities.includes(a) ? "#16262E" : "#93A5AA", border: "1px solid #2A424C" }}>{a}</button>)}</div>
+        <div className="flex flex-wrap gap-2">{AMENITIES_LIST.map(a => <button key={a} type="button" onClick={() => toggleAmenity(a)} className="px-3 py-1.5 rounded-full text-[12.5px]" style={{ background: form.amenities.includes(a) ? "#D4783C" : "#16262E", color: form.amenities.includes(a) ? "#16262E" : "#93A5AA", border: "1px solid #2A424C" }}>{amenityLabel(a, t)}</button>)}</div>
       </Field>
       <Field label={t.descLabel}><textarea rows={3} value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} placeholder={t.descPlaceholder} style={{ ...inputStyle, resize: "none" }} /></Field>
-      <Field label={`${t.photosCountPrefix}${images.length}${t.photosCountSuffix}`}>
+      <Field label={tn(t, "photosCountN", images.length)}>
         <div className="flex gap-2 flex-wrap">
           {images.map((img, i) => (
             <div key={img.url} className="w-16 h-16 rounded-lg overflow-hidden relative">
@@ -1364,7 +1943,7 @@ function RoomsEditor({ rooms, setRooms, t }) {
               <div className="flex items-center gap-2">
                 <span className="text-[11.5px] px-2 py-0.5 rounded-full"
                   style={{ background: free > 0 ? "#3E92B0" : "#2A424C", color: free > 0 ? "#0E1B21" : "#93A5AA" }}>
-                  {free} {t.freeShort}
+                  {tn(t, "freeN", free)}
                 </span>
                 {rooms.length > 1 && (
                   <button type="button" onClick={() => setRooms(rooms.filter((_, idx) => idx !== i))}>
@@ -1409,7 +1988,7 @@ function Field({ label, children }) {
 
 function Toggle({ on, onClick }) {
   return (
-    <button onClick={onClick} className="w-11 h-6 rounded-full relative transition-colors shrink-0" style={{ background: on ? "#3E92B0" : "#2A424C" }}>
+    <button onClick={onClick} role="switch" aria-checked={!!on} className="w-11 h-6 rounded-full relative transition-colors shrink-0" style={{ background: on ? "#3E92B0" : "#2A424C" }}>
       <div className="w-4.5 h-4.5 rounded-full absolute top-[3px] transition-all" style={{ width: 18, height: 18, background: "#F2EDE4", left: on ? 22 : 3 }} />
     </button>
   );
@@ -1421,13 +2000,13 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
   return (
     <div className="pb-10">
       <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
-        <button onClick={onBack}><ArrowLeft size={19} color="#F2EDE4" /></button>
+        <button onClick={onBack} aria-label={t.backLabel}><ArrowLeft size={19} color="#F2EDE4" /></button>
         <h2 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{t.settings}</h2>
       </header>
       <div className="p-4 space-y-5">
         <Section icon={Globe} title={t.language}>
           <div className="flex gap-2">
-            {[["uz", "O'zbekcha"], ["ru", "Русский"], ["en", "English"]].map(([code, label]) => (
+            {LANG_OPTIONS.map(([code, label]) => (
               <button key={code} onClick={() => setLang(code)} className="flex-1 py-2.5 rounded-lg text-[13px] font-medium" style={{ background: lang === code ? "#3E92B0" : "#16262E", color: lang === code ? "#0E1B21" : "#93A5AA", border: "1px solid #2A424C" }}>{label}</button>
             ))}
           </div>
@@ -1435,29 +2014,29 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
 
         <Section icon={Lock} title={t.security}>
           <div className="space-y-3">
-            <Row label="Telefon holati">
+            <Row label={t.phoneStatusLabel}>
               <Badge color={verified ? "#16262E" : "#F2EDE4"} bg={verified ? "#E8B94A" : "#2A424C"}>{verified ? t.verified : t.unverified}</Badge>
             </Row>
-            <Row label="Ikki bosqichli tasdiqlash (2FA)"><Toggle on={security.twoFactor} onClick={() => setSecurity(s => ({ ...s, twoFactor: !s.twoFactor }))} /></Row>
-            <Row label="Har bir kirishda ogohlantirish"><Toggle on={security.loginAlerts} onClick={() => setSecurity(s => ({ ...s, loginAlerts: !s.loginAlerts }))} /></Row>
-            <div className="pt-1 text-[12px]" style={{ color: "#65787E" }}>Faol seans: shu qurilma — hozir onlayn</div>
+            <Row label={t.twoFactorLabel}><Toggle on={security.twoFactor} onClick={() => setSecurity(s => ({ ...s, twoFactor: !s.twoFactor }))} /></Row>
+            <Row label={t.loginAlertsLabel}><Toggle on={security.loginAlerts} onClick={() => setSecurity(s => ({ ...s, loginAlerts: !s.loginAlerts }))} /></Row>
+            <div className="pt-1 text-[12px]" style={{ color: "#65787E" }}>{t.activeSessionNote}</div>
           </div>
         </Section>
 
         <Section icon={Bell} title={t.notifications}>
           <div className="space-y-3">
-            <Row label="SMS orqali xabar"><Toggle on={security.smsNotif} onClick={() => setSecurity(s => ({ ...s, smsNotif: !s.smsNotif }))} /></Row>
-            <Row label="Push bildirishnoma"><Toggle on={security.pushNotif} onClick={() => setSecurity(s => ({ ...s, pushNotif: !s.pushNotif }))} /></Row>
-            <Row label="Yangi 'Top' takliflar"><Toggle on={security.promoNotif} onClick={() => setSecurity(s => ({ ...s, promoNotif: !s.promoNotif }))} /></Row>
+            <Row label={t.smsNotifLabel}><Toggle on={security.smsNotif} onClick={() => setSecurity(s => ({ ...s, smsNotif: !s.smsNotif }))} /></Row>
+            <Row label={t.pushNotifLabel}><Toggle on={security.pushNotif} onClick={() => setSecurity(s => ({ ...s, pushNotif: !s.pushNotif }))} /></Row>
+            <Row label={t.promoNotifLabel}><Toggle on={security.promoNotif} onClick={() => setSecurity(s => ({ ...s, promoNotif: !s.promoNotif }))} /></Row>
           </div>
         </Section>
 
-        <Section icon={ShieldAlert} title="Xavfli hudud">
+        <Section icon={ShieldAlert} title={t.dangerZone}>
           {!confirmDelete ? (
-            <button onClick={() => setConfirmDelete(true)} className="w-full py-2.5 rounded-lg text-[13.5px] font-medium" style={{ background: "transparent", color: "#D4783C", border: "1px solid #D4783C" }}>{t.delete} — {"Profilni o'chirish"}</button>
+            <button onClick={() => setConfirmDelete(true)} className="w-full py-2.5 rounded-lg text-[13.5px] font-medium" style={{ background: "transparent", color: "#D4783C", border: "1px solid #D4783C" }}>{t.deleteProfileBtn}</button>
           ) : (
             <div className="space-y-2">
-              <p className="text-[12.5px]" style={{ color: "#93A5AA" }}>Aniq o'chirmoqchimisiz? Barcha e'lonlar va ma'lumotlar yo'qoladi.</p>
+              <p className="text-[12.5px]" style={{ color: "#93A5AA" }}>{t.deleteProfileConfirm}</p>
               <div className="grid grid-cols-2 gap-2">
                 <button onClick={() => setConfirmDelete(false)} className="py-2 rounded-lg text-[13px]" style={{ background: "#2A424C", color: "#F2EDE4" }}>{t.cancel}</button>
                 <button onClick={onDeleteAccount} className="py-2 rounded-lg text-[13px] font-medium" style={{ background: "#D4783C", color: "#16262E" }}>{t.delete}</button>
@@ -1466,7 +2045,7 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
           )}
         </Section>
 
-        <Section icon={ClipboardList} title="Huquqiy">
+        <Section icon={ClipboardList} title={t.legalSection}>
           <div className="space-y-2">
             <Link to="/qoidalar" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>{t.termsLink}</span><ChevronRight size={15} color="#65787E" /></Link>
             <Link to="/biz-haqimizda" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>{t.aboutLink}</span><ChevronRight size={15} color="#65787E" /></Link>
@@ -1474,6 +2053,22 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
         </Section>
       </div>
     </div>
+  );
+}
+
+const LANG_OPTIONS = [["uz", "O'zbekcha"], ["ru", "Русский"], ["en", "English"]];
+
+// Sarlavhadagi kichik til tugmasi: ko'rinishi "🌐 RU", bosilganda telefonning o'z ro'yxati ochiladi
+function LangPicker({ lang, setLang, label }) {
+  return (
+    <label className="relative shrink-0 ml-2 h-9 px-2.5 rounded-full flex items-center gap-1 text-[12px] font-semibold cursor-pointer" style={{ ...box, color: "#F2EDE4" }}>
+      <Globe size={14} color="#93A5AA" />
+      <span aria-hidden="true">{lang.toUpperCase()}</span>
+      <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label={label}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+        {LANG_OPTIONS.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+      </select>
+    </label>
   );
 }
 
@@ -1499,7 +2094,8 @@ function MonthGrid({ viewDate, bookedSet, onToggle, t = STR.uz }) {
   const first = new Date(year, monthIndex, 1);
   const startWeekday = (first.getDay() + 6) % 7; // Dushanbadan boshlanadi
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const todayStr = toDateStr(now.getFullYear(), now.getMonth(), now.getDate());
   const cells = [...Array(startWeekday).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
 
   return (
@@ -1651,7 +2247,7 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
       }
     } catch (imgErr) {
       setSaving(false);
-      setError(imgErr.message || "Rasmlarni yangilashda xato");
+      setError(friendlyError(imgErr, t, "photosUpdateError"));
       return;
     }
 
@@ -1670,7 +2266,7 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
       free_spots: form.listingMode === "shared" ? countFreeSpots(form.roomsConfig) : 0,
     }).eq("id", listing.id);
     setSaving(false);
-    if (err) { setError(err.message); return; }
+    if (err) { setError(friendlyError(err, t)); return; }
     // Tasdiqlangan e'lonning sarlavhasi, tavsifi yoki rasmi o'zgarsa — server uni qayta tekshiruvga yuboradi
     const resubmitted = listing.status === "approved" &&
       (form.title !== listing.title || form.desc !== (listing.desc || "") || newImages.length > 0);
@@ -1692,7 +2288,7 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5 max-h-[85vh] overflow-y-auto" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{t.editTitle}</h3>
-          <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
+          <button onClick={onClose} aria-label={t.closeLabel}><X size={20} color="#93A5AA" /></button>
         </div>
 
         {error && <p className="text-[12.5px] mb-3" style={{ color: "#D4783C" }}>{error}</p>}
@@ -1712,7 +2308,7 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
               </div>
             </Field>
             <Field label={form.listingMode === "shared" ? t.pricePerPersonLabel : t.priceLabelSom}>
-              <input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} style={inputStyle} />
+              <input type="number" inputMode="numeric" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} style={inputStyle} />
             </Field>
           </div>
 
@@ -1757,7 +2353,7 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
             <div className="flex flex-wrap gap-2">
               {AMENITIES_LIST.map(a => (
                 <button key={a} type="button" onClick={() => toggleAmenity(a)} className="px-3 py-1.5 rounded-full text-[12px]"
-                  style={{ background: form.amenities.includes(a) ? "#D4783C" : "#16262E", color: form.amenities.includes(a) ? "#16262E" : "#93A5AA", border: "1px solid #2A424C" }}>{a}</button>
+                  style={{ background: form.amenities.includes(a) ? "#D4783C" : "#16262E", color: form.amenities.includes(a) ? "#16262E" : "#93A5AA", border: "1px solid #2A424C" }}>{amenityLabel(a, t)}</button>
               ))}
             </div>
           </Field>
@@ -1766,7 +2362,7 @@ function EditListingModal({ listing, onClose, onSaved, t = STR.uz }) {
             <textarea rows={3} value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} style={{ ...inputStyle, resize: "none" }} />
           </Field>
 
-          <Field label={`${t.photosCountPrefix}${totalImages}${t.photosCountSuffix}`}>
+          <Field label={tn(t, "photosCountN", totalImages)}>
             <div className="flex gap-2 flex-wrap">
               {existingImages.map((url, i) => (
                 <div key={url} className="w-16 h-16 rounded-lg overflow-hidden relative">
@@ -1820,7 +2416,7 @@ function DeleteConfirmModal({ listing, onClose, onDeleted, t = STR.uz }) {
     await supabase.from("listing_bookings").delete().eq("listing_id", listing.id);
     const { error: err } = await supabase.from("listings").delete().eq("id", listing.id);
     setDeleting(false);
-    if (err) { setError(err.message); return; }
+    if (err) { setError(friendlyError(err, t)); return; }
     onDeleted(listing.id);
     onClose();
   };
@@ -1830,7 +2426,7 @@ function DeleteConfirmModal({ listing, onClose, onDeleted, t = STR.uz }) {
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}><Trash2 size={17} color="#D4783C" /> {t.deleteConfirmTitle}</h3>
-          <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
+          <button onClick={onClose} aria-label={t.closeLabel}><X size={20} color="#93A5AA" /></button>
         </div>
         <p className="text-[13.5px] mb-1.5" style={{ color: "#F2EDE4" }}>{listing.title}</p>
         <p className="text-[12.5px] mb-4" style={{ color: "#93A5AA" }}>{t.deleteConfirmBody}</p>
@@ -1880,7 +2476,7 @@ function BookingEditorModal({ listingId, onClose, t = STR.uz }) {
       <div className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5" style={{ background: "#1E333C" }}>
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-serif text-lg" style={{ color: "#F2EDE4" }}>{t.bookingEditTitle}</h3>
-          <button onClick={onClose}><X size={20} color="#93A5AA" /></button>
+          <button onClick={onClose} aria-label={t.closeLabel}><X size={20} color="#93A5AA" /></button>
         </div>
         <p className="text-[12px] mb-3" style={{ color: "#93A5AA" }}>{t.bookingEditHint}</p>
         <MonthNav viewDate={viewDate} setViewDate={setViewDate} />
@@ -1901,13 +2497,14 @@ function dotIcon(color = "#D4783C") {
   });
 }
 
-// Narxni xaritada sig'adigan qisqa shaklga o'giradi: 4200000 -> "4.2mln"
-function shortPrice(price) {
+// Narxni xaritada sig'adigan qisqa shaklga o'giradi: 4200000 -> "4.2mln" / "4,2 млн" / "4.2M"
+function shortPrice(price, t = STR.uz) {
+  const dec = (x) => (t._lang === "ru" ? String(x).replace(".", ",") : String(x));
   if (price >= 1000000) {
     const m = price / 1000000;
-    return (Number.isInteger(m) ? m : m.toFixed(1)) + "mln";
+    return dec(Number.isInteger(m) ? m : m.toFixed(1)) + t.mln;
   }
-  if (price >= 1000) return Math.round(price / 1000) + "ming";
+  if (price >= 1000) return Math.round(price / 1000) + t.thousand;
   return String(price);
 }
 
@@ -1922,12 +2519,12 @@ function clusterIcon(count) {
   });
 }
 
-function priceIcon(price, boosted) {
+function priceIcon(price, boosted, t) {
   const bg = boosted ? "#D4783C" : "#E8B94A";
   return L.divIcon({
     className: "",
     html: `<div style="transform:translate(-50%,-100%);white-space:nowrap;display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:6px;margin:-6px;">
-      <div style="background:${bg};color:#16262E;font-weight:700;font-size:12px;padding:5px 11px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:1.5px solid #16262E;">${shortPrice(price)}</div>
+      <div style="background:${bg};color:#16262E;font-weight:700;font-size:12px;padding:5px 11px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:1.5px solid #16262E;">${shortPrice(price, t)}</div>
       <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${bg};margin-top:-1px;"></div>
     </div>`,
     iconSize: [0, 0],
@@ -1980,7 +2577,7 @@ function OsmMapPicker({ lat, lng, onChange }) {
   );
 }
 
-function OsmMapListView({ listings, onOpen, userLoc }) {
+function OsmMapListView({ listings, onOpen, userLoc, t }) {
   const ref = useRef(null);
   const mapObj = useRef(null);
   const layerRef = useRef(null);
@@ -2013,7 +2610,7 @@ function OsmMapListView({ listings, onOpen, userLoc }) {
     Object.values(buckets).forEach(items => {
       if (items.length === 1) {
         const l = items[0];
-        const marker = L.marker([l.lat, l.lng], { icon: priceIcon(l.price, l.boosted) });
+        const marker = L.marker([l.lat, l.lng], { icon: priceIcon(l.price, l.boosted, t) });
         marker.on("click", () => onOpen(l));
         marker.addTo(group);
       } else {
@@ -2031,7 +2628,7 @@ function OsmMapListView({ listings, onOpen, userLoc }) {
     group.addTo(mapObj.current);
     layerRef.current = group;
     return () => {};
-  }, [listings, zoomTick]);
+  }, [listings, zoomTick, t]);
 
   // Zoom o'zgarganda guruhlar qayta hisoblanadi
   useEffect(() => {
@@ -2154,7 +2751,7 @@ function YandexMapPicker({ lat, lng, onChange, onFail }) {
   );;
 }
 
-function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
+function YandexMapListView({ listings, onOpen, onFail, userLoc, t }) {
   const ref = useRef(null);
   const mapRef = useRef(null);
   const meMarkRef = useRef(null);
@@ -2177,7 +2774,7 @@ function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
       });
       const placemarks = withCoords.map(l => {
         const pm = new ymaps.Placemark([l.lat, l.lng],
-          { iconContent: shortPrice(l.price) },
+          { iconContent: shortPrice(l.price, t) },
           {
             preset: l.boosted ? "islands#orangeStretchyIcon" : "islands#darkOrangeStretchyIcon",
             hasBalloon: false,
@@ -2192,7 +2789,7 @@ function YandexMapListView({ listings, onOpen, onFail, userLoc }) {
       mapRef.current = map;
     }).catch(() => onFail());
     return () => { cancelled = true; if (mapRef.current) mapRef.current.destroy(); };
-  }, [listings]);
+  }, [listings, t]);
 
   // "Mening joylashuvim" bosilganda — xaritani o'sha joyga suradi va ko'k belgi qo'yadi
   useEffect(() => {
@@ -2260,22 +2857,22 @@ function MapPreviewCard({ item, onOpen, onClose, isFav, onToggleFav, t }) {
         <div className="flex-1 min-w-0 p-3 flex flex-col justify-between">
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <PriceTag price={item.price} rentType={item.rentType} perPerson={item.listingMode === "shared"} perPersonLabel={t.perPerson} />
-              <button onClick={onClose} className="shrink-0 -mt-0.5 -mr-0.5 p-1"><X size={16} color="#93A5AA" /></button>
+              <PriceTag price={item.price} rentType={item.rentType} perPerson={item.listingMode === "shared"} t={t} />
+              <button onClick={onClose} aria-label={t.closeLabel} className="shrink-0 -mt-0.5 -mr-0.5 p-1"><X size={16} color="#93A5AA" /></button>
             </div>
             <div className="font-serif text-[14.5px] leading-snug mt-1 truncate" style={{ color: "#F2EDE4" }}>{item.title}</div>
             <div className="flex items-center gap-1 text-[11.5px] mt-0.5 truncate" style={{ color: "#93A5AA" }}>
-              <MapPin size={11} className="shrink-0" /> <span className="truncate">{item.district}, {item.city}</span>
+              <MapPin size={11} className="shrink-0" /> <span className="truncate">{placeLabel(item.district, t)}, {placeLabel(item.city, t)}</span>
             </div>
           </div>
 
           <div className="flex items-center justify-between mt-1.5">
             <div className="flex items-center gap-2.5 text-[11.5px]" style={{ color: "#93A5AA" }}>
               <span className="flex items-center gap-1"><BedDouble size={12} /> {item.rooms}</span>
-              <span className="flex items-center gap-1"><Maximize2 size={12} /> {item.area} m²</span>
+              <span className="flex items-center gap-1"><Maximize2 size={12} /> {item.area} {t.sqm}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <button onClick={() => onToggleFav(item.id)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#16262E" }}>
+              <button onClick={() => onToggleFav(item.id)} aria-label={t.favLabel} aria-pressed={!!isFav} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#16262E" }}>
                 <Heart size={13} fill={isFav ? "#D4783C" : "none"} color={isFav ? "#D4783C" : "#93A5AA"} />
               </button>
               <button onClick={() => onOpen(item)} className="px-3 py-1.5 rounded-full text-[12px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>
@@ -2323,7 +2920,7 @@ function MapListView(props) {
         ? <OsmMapListView {...mapProps} />
         : <YandexMapListView {...mapProps} onFail={() => setUseOsm(true)} />}
 
-      <button onClick={findMe} disabled={locating}
+      <button onClick={findMe} disabled={locating} aria-label={t?.myLocationLabel}
         className="absolute right-3 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
         style={{ background: "#3E92B0", zIndex: 1000, bottom: preview ? "calc(env(safe-area-inset-bottom, 0px) + 160px)" : "calc(env(safe-area-inset-bottom, 0px) + 20px)", transition: "bottom 0.2s" }}>
         <LocateFixed size={20} color="#0E1B21" />
@@ -2349,6 +2946,19 @@ function MapListView(props) {
 function MapStatic(props) {
   const [useOsm, setUseOsm] = useState(!YANDEX_MAPS_API_KEY);
   return useOsm ? <OsmMapStatic {...props} /> : <YandexMapStatic {...props} onFail={() => setUseOsm(true)} />;
+}
+
+function describeSavedSearch(s, t) {
+  const parts = [placeLabel(s.city, t)];
+  if (s.rent_type === "Kunlik") parts.push(t.daily);
+  else if (s.rent_type === "Oylik") parts.push(t.monthly);
+  if (s.property_type && s.property_type !== "Barchasi") parts.push(typeLabel(s.property_type, t).split(" / ")[0]);
+  if (s.rooms && s.rooms !== "Barchasi") parts.push(s.rooms === "4+" ? tn(t, "roomsN", 4).replace(fmt(4, t), "4+") : tn(t, "roomsN", Number(s.rooms)));
+  const p = (v) => `${fmt(v, t)} ${t.currency}`;
+  if (s.min_price && s.max_price) parts.push(`${fmt(s.min_price, t)}–${p(s.max_price)}`);
+  else if (s.min_price) parts.push(tf(t, "priceFromP", { p: p(s.min_price) }));
+  else if (s.max_price) parts.push(tf(t, "priceToP", { p: p(s.max_price) }));
+  return parts.join(" · ");
 }
 
 const TAB_PATHS = { browse: "/", chats: "/xabarlar", post: "/elon-berish", favs: "/sevimli", profile: "/profil" };
@@ -2382,17 +2992,13 @@ export default function Uy247App() {
   const [showVerify, setShowVerify] = useState(false);
   const [phone, setPhone] = useState("");
   const [query, setQuery] = useState("");
-  const [lang, setLang] = useState(() => {
-    // Avval tanlangan tilni eslab qolamiz (statik sahifalar ham shundan o'qiydi)
-    try {
-      const saved = localStorage.getItem("uy247_lang");
-      if (saved && STR[saved]) return saved;
-    } catch (_) {}
-    return "uz";
-  });
+  // Til: avval tanlangani, bo'lmasa brauzer tilidan (rus brauzer — ruscha, chet ellik — inglizcha)
+  const [lang, setLang] = useState(() => { const l = detectLang(); return STR[l] ? l : "uz"; });
 
   useEffect(() => {
     try { localStorage.setItem("uy247_lang", lang); } catch (_) {}
+    // Brauzer "tarjima qilaymi?" deb so'ramasligi va ekran o'quvchilar to'g'ri talaffuz qilishi uchun
+    try { document.documentElement.lang = lang; document.title = STR[lang].appTitle; } catch (_) {}
   }, [lang]);
   const [showSettings, setShowSettings] = useState(false);
   const [reports, setReports] = useState([]);
@@ -2680,7 +3286,7 @@ export default function Uy247App() {
       let hash = 0;
       for (const ch of String(c.listing_id)) hash = (hash * 31 + ch.charCodeAt(0)) % 360;
       next[c.listing_id] = {
-        chatId: c.id, listingId: c.listing_id, listingTitle: c.listings?.title || "E'lon", hue: hash,
+        chatId: c.id, listingId: c.listing_id, listingTitle: c.listings?.title || "", hue: hash,
         messages: (c.messages || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
           .map(m => ({ id: m.id, from: m.sender_id === myId ? "me" : "owner", text: m.text, createdAt: m.created_at })),
       };
@@ -2696,7 +3302,7 @@ export default function Uy247App() {
       if (!existing) {
         const { data: created, error } = await supabase.from("chats")
           .insert({ listing_id: item.id, renter_id: userId, owner_id: item.ownerId }).select("id").single();
-        if (error) { console.error("Chat ochishda xato:", error.message); return; }
+        if (error) { console.error("Chat ochishda xato:", error.message); setNotice(friendlyError(error, t)); return; }
         existing = created;
       }
       setChats(prev => ({ ...prev, [item.id]: { chatId: existing.id, listingId: item.id, listingTitle: item.title, hue: item.hue, messages: [] } }));
@@ -2714,7 +3320,7 @@ export default function Uy247App() {
     const tempId = Date.now();
     setChats(prev => ({ ...prev, [listingId]: { ...prev[listingId], messages: [...prev[listingId].messages, { id: tempId, from: "me", text }] } }));
     const { error } = await supabase.from("messages").insert({ chat_id: thread.chatId, sender_id: userId, text });
-    if (error) console.error("Xabar yuborishda xato:", error.message);
+    if (error) { console.error("Xabar yuborishda xato:", error.message); setNotice(friendlyError(error, t)); }
   };
 
   const filtered = useMemo(() => listings.filter(l => {
@@ -2726,7 +3332,10 @@ export default function Uy247App() {
     if (filters.rooms !== "Barchasi") { if (filters.rooms === "4+" ? l.rooms < 4 : l.rooms !== filters.rooms) return false; }
     if (filters.min && l.price < Number(filters.min)) return false;
     if (filters.max && l.price > Number(filters.max)) return false;
-    if (query && !l.title.toLowerCase().includes(query.toLowerCase()) && !l.district.toLowerCase().includes(query.toLowerCase())) return false;
+    if (query) {
+      const q = query.trim().toLowerCase();
+      if (q && !String(l.title || "").toLowerCase().includes(q) && !placeSearchText(l.district).includes(q)) return false;
+    }
     // Ijara shakli (butun uy / o'rin)
     if (filters.listingMode !== "Barchasi" && (l.listingMode || "whole") !== filters.listingMode) return false;
     // Bo'sh o'rinlar soni va kim yashaydi — faqat "Sherik bilan" tanlanganda ishlaydi
@@ -2813,7 +3422,7 @@ export default function Uy247App() {
   const handleReport = async (item, reason) => {
     setReports(rs => [...rs, { id: Date.now(), listingId: item.id, listingTitle: item.title, reason }]);
     const { error } = await supabase.from("reports").insert({ listing_id: item.id, reporter_id: userId, reason });
-    if (error) console.error("Shikoyat yuborishda xato:", error.message);
+    if (error) { console.error("Shikoyat yuborishda xato:", error.message); setNotice(friendlyError(error, t)); }
   };
 
   // Pullik Top: so'rov "kutilmoqda" holatida yoziladi.
@@ -2875,10 +3484,13 @@ export default function Uy247App() {
             {tab === "browse" ? (
               <div className="flex items-center gap-2 flex-1 max-w-[180px] ml-3 px-3 py-2 rounded-full" style={box}>
                 <Search size={15} color="#93A5AA" />
-                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Qidirish..." className="bg-transparent outline-none text-[13px] w-full" style={{ color: "#F2EDE4" }} />
+                <input type="search" enterKeyHint="search" value={query} onChange={e => setQuery(e.target.value)} placeholder={t.searchPlaceholder} aria-label={t.searchPlaceholder} className="bg-transparent outline-none text-[13px] w-full min-w-0" style={{ color: "#F2EDE4" }} />
               </div>
             ) : <div />}
-            <button onClick={() => setShowSettings(true)} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 ml-2" style={box}><SettingsIcon size={16} color="#F2EDE4" /></button>
+            <div className="flex items-center shrink-0">
+              <LangPicker lang={lang} setLang={setLang} label={t.language} />
+              <button onClick={() => setShowSettings(true)} aria-label={t.settings} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 ml-2" style={box}><SettingsIcon size={16} color="#F2EDE4" /></button>
+            </div>
           </header>
           {tab === "browse" && (
             <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} onSaveSearch={saveCurrentSearch} viewMode={viewMode} setViewMode={setViewMode} t={t} />
@@ -2962,19 +3574,19 @@ export default function Uy247App() {
                           </div>
                         </div>
                         <div className="flex items-center justify-between mt-2">
-                          <span className="text-[11.5px] flex items-center gap-1" style={{ color: "#93A5AA" }}><Eye size={12} /> {l.views} {t.views}</span>
+                          <span className="text-[11.5px] flex items-center gap-1" style={{ color: "#93A5AA" }}><Eye size={12} /> {tn(t, "viewsN", l.views)}</span>
                           {l.boosted ? (
                             <span className="text-[11px] flex items-center gap-1 font-medium" style={{ color: "#E8B94A" }}>
                               <Sparkles size={12} /> {t.topActiveLabel}
-                              {l.boostUntil && <span style={{ color: "#93A5AA" }}>· {daysLeft(l.boostUntil)} {t.daysLeftSuffix}</span>}
+                              {l.boostUntil && <span style={{ color: "#93A5AA" }}>· {tn(t, "daysLeftN", daysLeft(l.boostUntil))}</span>}
                             </span>
                           ) : (
                             <button onClick={() => setBoostTarget(l.id)} className="text-[11.5px] flex items-center gap-1 px-2.5 py-1 rounded-full font-medium" style={{ background: "#D4783C", color: "#16262E" }}><Sparkles size={11} /> {t.boost}</button>
                           )}
                         </div>
                         <div className="flex items-center gap-3 mt-1.5">
-                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><Heart size={11} /> {ownerStats[l.id]?.favCount || 0} {t.favCountSuffix}</span>
-                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><MessageCircle size={11} /> {ownerStats[l.id]?.chatCount || 0} {t.chatCountSuffix}</span>
+                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><Heart size={11} /> {tn(t, "favCountN", ownerStats[l.id]?.favCount || 0)}</span>
+                          <span className="text-[11px] flex items-center gap-1" style={{ color: "#65787E" }}><MessageCircle size={11} /> {tn(t, "chatCountN", ownerStats[l.id]?.chatCount || 0)}</span>
                         </div>
                         {l.status === "blocked" && (
                           <div className="mt-2 p-2.5 rounded-lg" style={{ background: "#3A2429", border: "1px solid #6B3A42" }}>
@@ -3032,7 +3644,7 @@ export default function Uy247App() {
                     <span className="font-mono text-[13px]" style={{ color: "#E8B94A" }}>{window.location.origin}/?ref={profile.referralCode}</span>
                     <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/?ref=${profile.referralCode}`); }} className="shrink-0 ml-2 px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>{t.copyBtn}</button>
                   </div>
-                  <div className="text-[12.5px]" style={{ color: "#93A5AA" }}>{t.currentCreditsLabel} <b style={{ color: "#F2EDE4" }}>{profile.boostCredits} {t.ta}</b></div>
+                  <div className="text-[12.5px]" style={{ color: "#93A5AA" }}>{t.currentCreditsLabel} <b style={{ color: "#F2EDE4" }}>{profile.boostCredits}{t.ta ? " " + t.ta : ""}</b></div>
                 </div>
               )}
 
@@ -3043,7 +3655,7 @@ export default function Uy247App() {
                     {savedSearches.map(s => (
                       <div key={s.id} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: "#16262E", border: "1px solid #2A424C" }}>
                         <span className="text-[12.5px]" style={{ color: "#C8D4D6" }}>
-                          {s.city} · {s.rent_type} · {s.rooms} {t.roomsWord}{s.min_price || s.max_price ? ` · ${fmt(s.min_price || 0)}–${fmt(s.max_price || 0)}` : ""}
+                          {describeSavedSearch(s, t)}
                         </span>
                         <button onClick={() => deleteSavedSearch(s.id)}><Trash2 size={14} color="#D4783C" /></button>
                       </div>
@@ -3145,8 +3757,8 @@ export default function Uy247App() {
 function GlobalStyle() {
   return (
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
-      .font-serif { font-family: 'Fraunces', serif; }
+      @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Lora:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+      .font-serif { font-family: 'Fraunces', 'Lora', Georgia, serif; }
       .font-mono { font-family: 'IBM Plex Mono', monospace; }
       .no-scrollbar::-webkit-scrollbar { display: none; }
       select { -webkit-appearance: none; appearance: none; }
