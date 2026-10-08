@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Search, Heart, Plus, User, MapPin, Phone, X, Check,
@@ -7,7 +8,7 @@ import {
   ImagePlus, Trash2, Settings as SettingsIcon, Globe, Lock,
   Bell, LogOut, TrendingUp, Users, ClipboardList, AlertTriangle,
   Sparkles, Eye, CircleCheck, CircleX, ShieldAlert, MessageCircle, Send, Camera,
-  ArrowUpDown, Home, Building, Store, Share2, Ban, Map, List, CalendarDays, LocateFixed, Pencil
+  ArrowUpDown, Home, Building, Store, Share2, Ban, Map, List, CalendarDays, LocateFixed, Pencil, ChevronDown
 } from "lucide-react";
 import { supabase } from "./lib/supabaseClient";
 import { loadYmaps, YANDEX_MAPS_API_KEY } from "./lib/yandexMaps";
@@ -72,7 +73,7 @@ const STR = {
     roomCapacityShort: "kishilik xona",
     spotFreedBtn: "O'rin bo'shadi", spotTakenBtn: "O'rin band bo'ldi",
     filterFreeSpots: "Bo'sh o'rinlar", anyMode: "Barchasi",
-    roomsBreakdown: "Xonalar holati", occupiedShort: "band", freeShort: "bo'sh", youPrefix: "Siz: ", boostRequestSent: "So'rov qabul qilindi. To'lov tasdiqlangach e'loningiz Top bo'ladi.", boostRequestError: "Xatolik yuz berdi, qayta urinib ko'ring.", accountBlockedTitle: "Akkauntingiz bloklangan", revealPhoneBtn: "Raqamni ko'rsatish", phoneLimitReached: "Bugungi limit tugadi — ertaga yana ko'ra olasiz. Chat orqali yozishingiz mumkin.", phoneUnavailable: "Egasi raqam qoldirmagan — chat orqali yozing.", resubmittedForReview: "O'zgarishlar saqlandi. Sarlavha, tavsif yoki rasm o'zgargani uchun e'lon qayta tekshiruvga yuborildi.", accountBlockedBody: "Platforma qoidalari buzilgani sababli e'lon joylash va xabar yozish cheklangan. Xato deb hisoblasangiz: info@uy247.uz", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
+    roomsBreakdown: "Xonalar holati", occupiedShort: "band", freeShort: "bo'sh", youPrefix: "Siz: ", resultsShort: "{n} ta e'lon", dailyShort: "Kunlik", monthlyShort: "Oylik", modeWholeShort: "Butun uy", modeSharedShort: "Sherik bilan", filterTitle: "Filtr", clearFilters: "Tozalash", showResults: "{n} ta e'lonni ko'rsatish", showResultsNone: "Mos e'lon topilmadi", sortLabel: "Saralash", viewList: "Ro'yxat", viewMap: "Xarita", closeLabel: "Yopish", searchSaved: "Qidiruv saqlandi", boostRequestSent: "So'rov qabul qilindi. To'lov tasdiqlangach e'loningiz Top bo'ladi.", boostRequestError: "Xatolik yuz berdi, qayta urinib ko'ring.", accountBlockedTitle: "Akkauntingiz bloklangan", revealPhoneBtn: "Raqamni ko'rsatish", phoneLimitReached: "Bugungi limit tugadi — ertaga yana ko'ra olasiz. Chat orqali yozishingiz mumkin.", phoneUnavailable: "Egasi raqam qoldirmagan — chat orqali yozing.", resubmittedForReview: "O'zgarishlar saqlandi. Sarlavha, tavsif yoki rasm o'zgargani uchun e'lon qayta tekshiruvga yuborildi.", accountBlockedBody: "Platforma qoidalari buzilgani sababli e'lon joylash va xabar yozish cheklangan. Xato deb hisoblasangiz: info@uy247.uz", preparingPhotos: "Tayyorlanmoqda...", loadMore: "Yana ko'rsatish", daysLeftSuffix: "kun qoldi", yesterday: "Kecha", mapDragHint: "Xaritani surib, belgini uyingiz ustiga to'g'rilang. Aniqroq bo'lishi uchun yaqinlashtiring.",
     months: ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"],
     weekdays: ["Du","Se","Cho","Pa","Ju","Sha","Ya"],
     bookingEditTitle: "Band kunlarni belgilash", bookingEditHint: "Kunlarga bosib, band/bo'sh holatini belgilang.",
@@ -150,7 +151,7 @@ const STR = {
     roomCapacityShort: "-местная комната",
     spotFreedBtn: "Место освободилось", spotTakenBtn: "Место занято",
     filterFreeSpots: "Свободные места", anyMode: "Все",
-    roomsBreakdown: "Состояние комнат", occupiedShort: "занято", freeShort: "свободно", youPrefix: "Вы: ", boostRequestSent: "Запрос принят. После подтверждения оплаты объявление станет Top.", boostRequestError: "Произошла ошибка, попробуйте снова.", accountBlockedTitle: "Ваш аккаунт заблокирован", revealPhoneBtn: "Показать номер", phoneLimitReached: "Лимит на сегодня исчерпан — завтра снова сможете. Можно написать в чат.", phoneUnavailable: "Владелец не оставил номер — напишите в чат.", resubmittedForReview: "Изменения сохранены. Объявление отправлено на повторную проверку, так как изменились заголовок, описание или фото.", accountBlockedBody: "Из-за нарушения правил размещение объявлений и сообщения ограничены. Если это ошибка: info@uy247.uz", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
+    roomsBreakdown: "Состояние комнат", occupiedShort: "занято", freeShort: "свободно", youPrefix: "Вы: ", resultsShort: "Найдено: {n}", dailyShort: "Сутки", monthlyShort: "Месяц", modeWholeShort: "Целиком", modeSharedShort: "С соседями", filterTitle: "Фильтры", clearFilters: "Сбросить", showResults: "Показать объявления ({n})", showResultsNone: "Ничего не найдено", sortLabel: "Сортировка", viewList: "Список", viewMap: "Карта", closeLabel: "Закрыть", searchSaved: "Поиск сохранён", boostRequestSent: "Запрос принят. После подтверждения оплаты объявление станет Top.", boostRequestError: "Произошла ошибка, попробуйте снова.", accountBlockedTitle: "Ваш аккаунт заблокирован", revealPhoneBtn: "Показать номер", phoneLimitReached: "Лимит на сегодня исчерпан — завтра снова сможете. Можно написать в чат.", phoneUnavailable: "Владелец не оставил номер — напишите в чат.", resubmittedForReview: "Изменения сохранены. Объявление отправлено на повторную проверку, так как изменились заголовок, описание или фото.", accountBlockedBody: "Из-за нарушения правил размещение объявлений и сообщения ограничены. Если это ошибка: info@uy247.uz", preparingPhotos: "Обработка...", loadMore: "Показать ещё", daysLeftSuffix: "дн. осталось", yesterday: "Вчера", mapDragHint: "Перемещайте карту, чтобы метка оказалась над вашим домом. Для точности приблизьте.",
     months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
     weekdays: ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"],
     bookingEditTitle: "Отметить занятые дни", bookingEditHint: "Нажимайте на дни, чтобы отметить их занятыми или свободными.",
@@ -228,7 +229,7 @@ const STR = {
     roomCapacityShort: "-person room",
     spotFreedBtn: "Spot freed up", spotTakenBtn: "Spot taken",
     filterFreeSpots: "Free spots", anyMode: "All",
-    roomsBreakdown: "Room status", occupiedShort: "taken", freeShort: "free", youPrefix: "You: ", boostRequestSent: "Request received. Your listing becomes Top once payment is confirmed.", boostRequestError: "Something went wrong, please try again.", accountBlockedTitle: "Your account is blocked", revealPhoneBtn: "Show number", phoneLimitReached: "Daily limit reached — you can view more tomorrow. You can still message via chat.", phoneUnavailable: "The owner didn't leave a number — please use the chat.", resubmittedForReview: "Changes saved. The listing was sent for re-review because the title, description or photos changed.", accountBlockedBody: "Due to a rules violation, posting and messaging are restricted. If you think this is a mistake: info@uy247.uz", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
+    roomsBreakdown: "Room status", occupiedShort: "taken", freeShort: "free", youPrefix: "You: ", resultsShort: "Found: {n}", dailyShort: "Daily", monthlyShort: "Monthly", modeWholeShort: "Whole home", modeSharedShort: "Shared", filterTitle: "Filters", clearFilters: "Reset", showResults: "Show listings ({n})", showResultsNone: "No matching listings", sortLabel: "Sort by", viewList: "List", viewMap: "Map", closeLabel: "Close", searchSaved: "Search saved", boostRequestSent: "Request received. Your listing becomes Top once payment is confirmed.", boostRequestError: "Something went wrong, please try again.", accountBlockedTitle: "Your account is blocked", revealPhoneBtn: "Show number", phoneLimitReached: "Daily limit reached — you can view more tomorrow. You can still message via chat.", phoneUnavailable: "The owner didn't leave a number — please use the chat.", resubmittedForReview: "Changes saved. The listing was sent for re-review because the title, description or photos changed.", accountBlockedBody: "Due to a rules violation, posting and messaging are restricted. If you think this is a mistake: info@uy247.uz", preparingPhotos: "Preparing...", loadMore: "Show more", daysLeftSuffix: "days left", yesterday: "Yesterday", mapDragHint: "Drag the map so the pin sits on your home. Zoom in for accuracy.",
     months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
     weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
     bookingEditTitle: "Mark occupied days", bookingEditHint: "Tap days to mark them occupied or free.",
@@ -474,98 +475,218 @@ function ListingCard({ item, onOpen, isFav, onToggleFav, t = STR.uz }) {
 
 function FilterBar({ filters, setFilters, resultsCount, onSaveSearch, viewMode, setViewMode, t }) {
   const [open, setOpen] = useState(false);
-  const rentTypes = [["Barchasi", t.all], ["Kunlik", t.daily], ["Oylik", t.monthly]];
   const roomOptions = [["Barchasi", t.all], [1, "1"], [2, "2"], [3, "3"], ["4+", "4+"]];
+  const isShared = filters.listingMode === "shared";
+
+  // Tepadagi tanlovlar: bosilgani yana bosilsa — bekor bo'ladi (hammasi ko'rinadi)
+  const toggleRent = (val) => setFilters(f => ({ ...f, rentType: f.rentType === val ? "Barchasi" : val }));
+  const toggleMode = (val) => setFilters(f => {
+    const next = f.listingMode === val ? "Barchasi" : val;
+    // "Sherik bilan"dan chiqilganda unga xos filtrlarni ham tozalaymiz —
+    // aks holda ko'rinmay qolgan filtr natijalarni yashirib qo'yadi
+    return next === "shared"
+      ? { ...f, listingMode: next }
+      : { ...f, listingMode: next, minFreeSpots: "Barchasi", gender: "Barchasi" };
+  });
+
+  // Filtr oynasi ichidagi nechta tanlov faol (tugmadagi belgi uchun)
+  const activeCount = [
+    filters.propertyType !== "Barchasi",
+    !!(filters.min || filters.max),
+    String(filters.rooms) !== "Barchasi",
+    isShared && filters.minFreeSpots !== "Barchasi",
+    isShared && filters.gender !== "Barchasi",
+  ].filter(Boolean).length;
+
+  // Faqat oyna ichidagilarni tozalaydi — shahar va tepadagi tanlovlar qoladi
+  const resetRefinements = () => setFilters(f => ({
+    ...f, propertyType: "Barchasi", sortBy: "new", min: "", max: "", rooms: "Barchasi", minFreeSpots: "Barchasi", gender: "Barchasi",
+  }));
+
+  // Oyna ochiqligida orqadagi sahifa surilmasin; Esc bilan yopilsin
+  useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => { document.body.style.overflow = prevOverflow; window.removeEventListener("keydown", onKey); };
+  }, [open]);
+
+  const seg = (active) => ({ background: active ? "#3E92B0" : "transparent", color: active ? "#0E1B21" : "#93A5AA" });
+  const chip = (active) => ({
+    background: active ? "#3E92B0" : "#16262E",
+    color: active ? "#0E1B21" : "#F2EDE4",
+    border: "1px solid #2A424C",
+  });
+  const sectionLabel = (text) => <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{text}</div>;
+
   return (
-    <div className="sticky top-[60px] z-20 px-4 pt-3 pb-2" style={{ background: "#16262E" }}>
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-        <div className="shrink-0 flex rounded-full p-0.5" style={box}>
-          <button onClick={() => setViewMode("list")} className="px-2.5 py-2 rounded-full flex items-center" style={{ background: viewMode === "list" ? "#3E92B0" : "transparent" }}><List size={14} color={viewMode === "list" ? "#0E1B21" : "#93A5AA"} /></button>
-          <button onClick={() => setViewMode("map")} className="px-2.5 py-2 rounded-full flex items-center" style={{ background: viewMode === "map" ? "#3E92B0" : "transparent" }}><Map size={14} color={viewMode === "map" ? "#0E1B21" : "#93A5AA"} /></button>
+    <>
+      <div className="px-4 pt-3 pb-2" style={{ background: "#16262E" }}>
+        {/* 1-qator: asosiy tanlovlar + filtr tugmasi */}
+        <div className="flex items-center gap-1.5">
+          <div className="flex-1 min-w-0 flex gap-1.5 overflow-x-auto no-scrollbar">
+            <div className="shrink-0 flex rounded-full p-0.5" style={box}>
+              {[["Kunlik", t.dailyShort], ["Oylik", t.monthlyShort]].map(([val, text]) => (
+                <button key={val} onClick={() => toggleRent(val)} aria-pressed={filters.rentType === val}
+                  className="px-1.5 min-[375px]:px-2 min-[390px]:px-2.5 py-1.5 rounded-full text-[12.5px] font-medium whitespace-nowrap transition-colors"
+                  style={seg(filters.rentType === val)}>{text}</button>
+              ))}
+            </div>
+            <div className="shrink-0 flex rounded-full p-0.5" style={box}>
+              {[["whole", t.modeWholeShort], ["shared", t.modeSharedShort]].map(([val, text]) => (
+                <button key={val} onClick={() => toggleMode(val)} aria-pressed={filters.listingMode === val}
+                  className="px-1.5 min-[375px]:px-2 min-[390px]:px-2.5 py-1.5 rounded-full text-[12.5px] font-medium whitespace-nowrap transition-colors"
+                  style={seg(filters.listingMode === val)}>{text}</button>
+              ))}
+            </div>
+          </div>
+          <button onClick={() => setOpen(true)} aria-label={t.filterTitle} title={t.filterTitle}
+            className="shrink-0 relative w-10 h-9 rounded-full flex items-center justify-center"
+            style={{ background: activeCount ? "#26343A" : "#1E333C", border: `1px solid ${activeCount ? "#D4783C" : "#2A424C"}` }}>
+            <SlidersHorizontal size={15} color={activeCount ? "#D4783C" : "#F2EDE4"} />
+            {activeCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center"
+                style={{ background: "#D4783C", color: "#16262E" }}>{activeCount}</span>
+            )}
+          </button>
         </div>
-        <select value={filters.city} onChange={(e) => setFilters(f => ({ ...f, city: e.target.value }))} className="shrink-0 px-3 py-2 rounded-full text-[13px] font-medium outline-none" style={{ ...box, color: "#F2EDE4" }}>
-          {CITIES.map(c => <option key={c}>{c}</option>)}
-        </select>
-        <div className="shrink-0 flex rounded-full p-0.5" style={box}>
-          {rentTypes.map(([val, label]) => (
-            <button key={val} onClick={() => setFilters(f => ({ ...f, rentType: val }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors" style={{ background: filters.rentType === val ? "#3E92B0" : "transparent", color: filters.rentType === val ? "#0E1B21" : "#93A5AA" }}>{label}</button>
-          ))}
-        </div>
-        <div className="shrink-0 flex rounded-full p-0.5" style={box}>
-          <button onClick={() => setFilters(f => ({ ...f, propertyType: "Barchasi" }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors" style={{ background: filters.propertyType === "Barchasi" ? "#3E92B0" : "transparent", color: filters.propertyType === "Barchasi" ? "#0E1B21" : "#93A5AA" }}>{t.all}</button>
-          {getPropertyTypes(t).map(pt => (
-            <button key={pt.id} onClick={() => setFilters(f => ({ ...f, propertyType: pt.id }))} className="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors flex items-center gap-1" style={{ background: filters.propertyType === pt.id ? "#3E92B0" : "transparent", color: filters.propertyType === pt.id ? "#0E1B21" : "#93A5AA" }}>
-              <pt.Icon size={12} /> {pt.label.split(" / ")[0]}
+
+        {/* 2-qator: shahar · natijalar soni · ro'yxat/xarita */}
+        <div className="flex items-center justify-between gap-2 pt-2">
+          <div className="min-w-0 flex items-center gap-1 text-[12px]" style={{ color: "#93A5AA" }}>
+            <button onClick={() => setOpen(true)} className="min-w-0 flex items-center gap-1 font-medium" style={{ color: "#F2EDE4" }}>
+              <MapPin size={12} className="shrink-0" color="#3E92B0" />
+              <span className="truncate">{filters.city}</span>
+              <ChevronDown size={12} className="shrink-0" color="#93A5AA" />
             </button>
-          ))}
+            <span className="shrink-0 whitespace-nowrap">· {t.resultsShort.replace("{n}", resultsCount)}</span>
+          </div>
+          <div className="shrink-0 flex rounded-full p-0.5" style={box}>
+            <button onClick={() => setViewMode("list")} aria-label={t.viewList} title={t.viewList} aria-pressed={viewMode === "list"}
+              className="px-2.5 py-1 rounded-full flex items-center" style={{ background: viewMode === "list" ? "#3E92B0" : "transparent" }}>
+              <List size={14} color={viewMode === "list" ? "#0E1B21" : "#93A5AA"} />
+            </button>
+            <button onClick={() => setViewMode("map")} aria-label={t.viewMap} title={t.viewMap} aria-pressed={viewMode === "map"}
+              className="px-2.5 py-1 rounded-full flex items-center" style={{ background: viewMode === "map" ? "#3E92B0" : "transparent" }}>
+              <Map size={14} color={viewMode === "map" ? "#0E1B21" : "#93A5AA"} />
+            </button>
+          </div>
         </div>
-        <select value={filters.sortBy} onChange={(e) => setFilters(f => ({ ...f, sortBy: e.target.value }))} className="shrink-0 px-3 py-2 rounded-full text-[13px] font-medium outline-none flex items-center" style={{ ...box, color: "#F2EDE4" }}>
-          {getSortOptions(t).map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-        </select>
-        <button onClick={() => setOpen(o => !o)} className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-[13px] font-medium" style={{ background: open ? "#D4783C" : "#1E333C", color: open ? "#16262E" : "#F2EDE4", border: "1px solid #2A424C" }}>
-          <SlidersHorizontal size={14} /> {t.moreFilters}
-        </button>
       </div>
-      {open && (
-        <div className="mt-3 p-3.5 rounded-xl space-y-3" style={box}>
-          <div>
-            <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.priceRange}</div>
-            <div className="flex items-center gap-2">
-              <input type="number" placeholder={t.from} value={filters.min} onChange={(e) => setFilters(f => ({ ...f, min: e.target.value }))} className="w-full px-3 py-2 rounded-lg text-[13px] outline-none" style={inputStyle} />
-              <span style={{ color: "#93A5AA" }}>—</span>
-              <input type="number" placeholder={t.to} value={filters.max} onChange={(e) => setFilters(f => ({ ...f, max: e.target.value }))} className="w-full px-3 py-2 rounded-lg text-[13px] outline-none" style={inputStyle} />
-            </div>
-          </div>
-          <div>
-            <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.roomsCount}</div>
-            <div className="flex gap-2">
-              {roomOptions.map(([val, label]) => (
-                <button key={val} onClick={() => setFilters(f => ({ ...f, rooms: val }))} className="px-3 py-1.5 rounded-lg text-[13px]" style={{ background: filters.rooms === val ? "#3E92B0" : "#16262E", color: filters.rooms === val ? "#0E1B21" : "#F2EDE4", border: "1px solid #2A424C" }}>{label}</button>
-              ))}
-            </div>
-          </div>
 
-          {/* Ijara shakli */}
-          <div>
-            <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.modeLabel}</div>
-            <div className="flex gap-2">
-              {[["Barchasi", t.anyMode], ["whole", t.modeWhole], ["shared", t.modeShared]].map(([val, label]) => (
-                <button key={val} onClick={() => setFilters(f => ({ ...f, listingMode: val }))} className="px-3 py-1.5 rounded-lg text-[12.5px]"
-                  style={{ background: filters.listingMode === val ? "#3E92B0" : "#16262E", color: filters.listingMode === val ? "#0E1B21" : "#F2EDE4", border: "1px solid #2A424C" }}>{label}</button>
-              ))}
+      {/* Filtr oynasi — sahifaning eng yuqori qatlamida (aks holda xarita uni yopib qo'yadi) */}
+      {open && createPortal(
+        <div className="fixed inset-0 flex items-end sm:items-center justify-center" onClick={() => setOpen(false)}
+          style={{ zIndex: 3000, background: "rgba(10,17,20,0.7)", fontFamily: "Inter, sans-serif" }}>
+          <div role="dialog" aria-modal="true" aria-label={t.filterTitle}
+            className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl flex flex-col" onClick={(e) => e.stopPropagation()}
+            style={{ background: "#1E333C", maxHeight: "88vh" }}>
+            <div className="flex items-center justify-between px-5 pt-4 pb-3 shrink-0" style={{ borderBottom: "1px solid #2A424C" }}>
+              <h3 className="font-serif text-lg flex items-center gap-2" style={{ color: "#F2EDE4" }}>
+                <SlidersHorizontal size={16} color="#3E92B0" /> {t.filterTitle}
+              </h3>
+              <button onClick={() => setOpen(false)} aria-label={t.closeLabel} className="p-1 -m-1"><X size={20} color="#93A5AA" /></button>
             </div>
-          </div>
 
-          {/* O'rin ijarasi tanlanganda — qo'shimcha filtrlar */}
-          {filters.listingMode === "shared" && (
-            <>
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{ overscrollBehavior: "contain" }}>
               <div>
-                <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.filterFreeSpots}</div>
-                <div className="flex gap-2">
-                  {[["Barchasi", t.anyMode], ["1", "1+"], ["2", "2+"], ["3", "3+"]].map(([val, label]) => (
-                    <button key={val} onClick={() => setFilters(f => ({ ...f, minFreeSpots: val }))} className="px-3 py-1.5 rounded-lg text-[13px]"
-                      style={{ background: filters.minFreeSpots === val ? "#3E92B0" : "#16262E", color: filters.minFreeSpots === val ? "#0E1B21" : "#F2EDE4", border: "1px solid #2A424C" }}>{label}</button>
+                {sectionLabel(t.cityLabel)}
+                <div className="relative">
+                  <select value={filters.city} onChange={(e) => setFilters(f => ({ ...f, city: e.target.value }))} style={{ ...inputStyle, paddingRight: 36 }}>
+                    {CITIES.map(c => <option key={c}>{c}</option>)}
+                  </select>
+                  <ChevronDown size={16} color="#93A5AA" className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              <div>
+                {sectionLabel(t.propertyTypeLabel)}
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => setFilters(f => ({ ...f, propertyType: "Barchasi" }))} className="px-3 py-1.5 rounded-lg text-[13px]"
+                    style={chip(filters.propertyType === "Barchasi")}>{t.all}</button>
+                  {getPropertyTypes(t).map(pt => (
+                    <button key={pt.id} onClick={() => setFilters(f => ({ ...f, propertyType: pt.id }))} className="px-3 py-1.5 rounded-lg text-[13px] flex items-center gap-1.5"
+                      style={chip(filters.propertyType === pt.id)}>
+                      <pt.Icon size={13} /> {pt.label.split(" / ")[0]}
+                    </button>
                   ))}
                 </div>
               </div>
+
               <div>
-                <div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{t.genderLabel}</div>
-                <div className="flex gap-2">
-                  {[["Barchasi", t.anyMode], ["erkak", t.genderMale], ["ayol", t.genderFemale], ["aralash", t.genderMixed]].map(([val, label]) => (
-                    <button key={val} onClick={() => setFilters(f => ({ ...f, gender: val }))} className="px-3 py-1.5 rounded-lg text-[12.5px]"
-                      style={{ background: filters.gender === val ? "#D4783C" : "#16262E", color: filters.gender === val ? "#16262E" : "#F2EDE4", border: "1px solid #2A424C" }}>{label}</button>
+                {sectionLabel(t.sortLabel)}
+                <div className="flex flex-wrap gap-2">
+                  {getSortOptions(t).map(s => (
+                    <button key={s.id} onClick={() => setFilters(f => ({ ...f, sortBy: s.id }))} className="px-3 py-1.5 rounded-lg text-[13px]"
+                      style={chip(filters.sortBy === s.id)}>{s.label}</button>
                   ))}
                 </div>
               </div>
-            </>
-          )}
-        </div>
+
+              <div>
+                {sectionLabel(isShared ? `${t.priceRange} — ${t.perPerson}` : t.priceRange)}
+                <div className="flex items-center gap-2">
+                  <input type="number" inputMode="numeric" placeholder={t.from} value={filters.min}
+                    onChange={(e) => setFilters(f => ({ ...f, min: e.target.value }))} className="w-full px-3 py-2 rounded-lg text-[13px] outline-none" style={inputStyle} />
+                  <span style={{ color: "#93A5AA" }}>—</span>
+                  <input type="number" inputMode="numeric" placeholder={t.to} value={filters.max}
+                    onChange={(e) => setFilters(f => ({ ...f, max: e.target.value }))} className="w-full px-3 py-2 rounded-lg text-[13px] outline-none" style={inputStyle} />
+                </div>
+              </div>
+
+              <div>
+                {sectionLabel(t.roomsCount)}
+                <div className="flex flex-wrap gap-2">
+                  {roomOptions.map(([val, text]) => (
+                    <button key={val} onClick={() => setFilters(f => ({ ...f, rooms: val }))} className="px-3 py-1.5 rounded-lg text-[13px]"
+                      style={chip(filters.rooms === val)}>{text}</button>
+                  ))}
+                </div>
+              </div>
+
+              {isShared && (
+                <>
+                  <div>
+                    {sectionLabel(t.filterFreeSpots)}
+                    <div className="flex flex-wrap gap-2">
+                      {[["Barchasi", t.anyMode], ["1", "1+"], ["2", "2+"], ["3", "3+"]].map(([val, text]) => (
+                        <button key={val} onClick={() => setFilters(f => ({ ...f, minFreeSpots: val }))} className="px-3 py-1.5 rounded-lg text-[13px]"
+                          style={chip(filters.minFreeSpots === val)}>{text}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    {sectionLabel(t.genderLabel)}
+                    <div className="flex flex-wrap gap-2">
+                      {[["Barchasi", t.anyMode], ["erkak", t.genderMale], ["ayol", t.genderFemale], ["aralash", t.genderMixed]].map(([val, text]) => (
+                        <button key={val} onClick={() => setFilters(f => ({ ...f, gender: val }))} className="px-3 py-1.5 rounded-lg text-[13px]"
+                          style={chip(filters.gender === val)}>{text}</button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="px-5 pt-3 shrink-0 space-y-1.5" style={{ borderTop: "1px solid #2A424C", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)" }}>
+              <div className="flex gap-2">
+                <button onClick={resetRefinements} className="px-4 py-3 rounded-xl text-[13.5px] font-medium"
+                  style={{ background: "#16262E", color: "#F2EDE4", border: "1px solid #2A424C" }}>{t.clearFilters}</button>
+                <button onClick={() => setOpen(false)} className="flex-1 py-3 rounded-xl text-[14px] font-semibold"
+                  style={{ background: "#3E92B0", color: "#0E1B21" }}>
+                  {resultsCount > 0 ? t.showResults.replace("{n}", resultsCount) : t.showResultsNone}
+                </button>
+              </div>
+              <button onClick={() => { setOpen(false); onSaveSearch(); }} className="w-full flex items-center justify-center gap-1.5 py-1.5 text-[12.5px] font-medium"
+                style={{ color: "#3E92B0" }}><Bell size={12} /> {t.saveSearch}</button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
-      <div className="text-[12px] pt-2 flex items-center justify-between" style={{ color: "#93A5AA" }}>
-        <span className="flex items-center gap-1"><ArrowUpDown size={11} /> {resultsCount} {t.resultsFound}</span>
-        <button onClick={onSaveSearch} className="flex items-center gap-1 font-medium" style={{ color: "#3E92B0" }}><Bell size={12} /> {t.saveSearch}</button>
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -2608,10 +2729,10 @@ export default function Uy247App() {
     if (query && !l.title.toLowerCase().includes(query.toLowerCase()) && !l.district.toLowerCase().includes(query.toLowerCase())) return false;
     // Ijara shakli (butun uy / o'rin)
     if (filters.listingMode !== "Barchasi" && (l.listingMode || "whole") !== filters.listingMode) return false;
-    // Bo'sh o'rinlar soni
-    if (filters.minFreeSpots !== "Barchasi" && (l.freeSpots || 0) < Number(filters.minFreeSpots)) return false;
-    // Kim yashaydi
-    if (filters.gender !== "Barchasi" && l.genderPref !== filters.gender) return false;
+    // Bo'sh o'rinlar soni va kim yashaydi — faqat "Sherik bilan" tanlanganda ishlaydi
+    // (boshqa rejimda yashirin qolib, natijalarni bekorga yo'qotib qo'ymasligi uchun)
+    if (filters.listingMode === "shared" && filters.minFreeSpots !== "Barchasi" && (l.freeSpots || 0) < Number(filters.minFreeSpots)) return false;
+    if (filters.listingMode === "shared" && filters.gender !== "Barchasi" && l.genderPref !== filters.gender) return false;
     return true;
   }).sort((a, b) => {
     if (a.boosted !== b.boosted) return b.boosted ? 1 : -1; // Top e'lonlar doim birinchi
@@ -2650,8 +2771,9 @@ export default function Uy247App() {
       max_price: filters.max ? Number(filters.max) : null,
     };
     const { data, error } = await supabase.from("saved_searches").insert(payload).select().single();
-    if (error) { console.error("Qidiruvni saqlashda xato:", error.message); return; }
+    if (error) { console.error("Qidiruvni saqlashda xato:", error.message); setNotice(t.boostRequestError); return; }
     setSavedSearches(prev => [data, ...prev]);
+    setNotice(t.searchSaved);
   };
 
   const deleteSavedSearch = async (id) => {
@@ -2743,7 +2865,9 @@ export default function Uy247App() {
         <DetailView item={selected} onBack={closeListing} verified={verified} onRequestVerify={() => setShowVerify(true)} isFav={favs.has(selected.id)} onToggleFav={toggleFav} onReport={handleReport} onOpenChat={openChat} onRevealPhone={fetchOwnerPhone} t={t} similar={similarListings} favs={favs} onOpenSimilar={openListing} />
       ) : (
         <>
-          <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center justify-between" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
+          {/* Sarlavha + filtr paneli — bitta yopishqoq blok: scroll paytida bir-birining ustiga chiqib qolmaydi */}
+          <div className="sticky top-0 z-20">
+          <header className="px-4 py-3.5 flex items-center justify-between" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
             <div className="flex items-baseline gap-0.5">
               <span className="font-serif text-[22px] font-semibold" style={{ color: "#F2EDE4" }}>Uy</span>
               <span className="font-serif text-[22px] font-semibold" style={{ color: "#D4783C" }}>24/7</span>
@@ -2756,10 +2880,13 @@ export default function Uy247App() {
             ) : <div />}
             <button onClick={() => setShowSettings(true)} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 ml-2" style={box}><SettingsIcon size={16} color="#F2EDE4" /></button>
           </header>
+          {tab === "browse" && (
+            <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} onSaveSearch={saveCurrentSearch} viewMode={viewMode} setViewMode={setViewMode} t={t} />
+          )}
+          </div>
 
           {tab === "browse" && (
             <>
-              <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} onSaveSearch={saveCurrentSearch} viewMode={viewMode} setViewMode={setViewMode} t={t} />
               {viewMode === "map" ? (
                 <MapListView listings={filtered} onOpen={openListing} favs={favs} onToggleFav={toggleFav} t={t} />
               ) : (
@@ -2985,14 +3112,15 @@ export default function Uy247App() {
         />
       )}
 
-      {!selected && (
-        {notice && (
-        <div className="fixed left-4 right-4 z-50 px-4 py-3 rounded-xl text-[13px] text-center shadow-2xl"
-          style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 84px)", background: "#1E333C", color: "#F2EDE4", border: "1px solid #3E92B0" }}>
+      {/* Bildirishnoma — e'lon sahifasida ham ko'rinadi (raqam limiti va h.k.), shuning uchun pastki menyudan tashqarida */}
+      {notice && (
+        <div role="status" aria-live="polite" className="fixed left-4 right-4 px-4 py-3 rounded-xl text-[13px] text-center shadow-2xl"
+          style={{ zIndex: 2500, bottom: selected ? "calc(env(safe-area-inset-bottom, 0px) + 170px)" : "calc(env(safe-area-inset-bottom, 0px) + 84px)", background: "#1E333C", color: "#F2EDE4", border: "1px solid #3E92B0" }}>
           {notice}
         </div>
       )}
 
+      {!selected && (
       <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2.5" style={{ background: "#1A2B33", borderTop: "1px solid #22343B", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)" }}>
           {[{ id: "browse", icon: Search, label: t.navSearch }, { id: "chats", icon: MessageCircle, label: t.navChats }, { id: "post", icon: Plus, label: t.navPost }, { id: "favs", icon: Heart, label: t.navFavs }, { id: "profile", icon: User, label: t.navProfile }].map(x => (
             <button key={x.id} onClick={() => switchTab(x.id)} className="flex flex-col items-center gap-1 px-3 py-1">
