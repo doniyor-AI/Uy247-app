@@ -1,57 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { PAGE_STR, getPageLang } from "./pageStrings";
+import React, { useEffect } from "react";
+import { PAGE_STR } from "./pageStrings";
+import { PageShell, CompanyCard, DocLinks, usePageLang } from "./LegalPage.jsx";
+import { COMPANY } from "../lib/company";
 
 const box = { background: "#1E333C", border: "1px solid #2A424C" };
 
 export default function AboutPage() {
-  const navigate = useNavigate();
-  const [lang, setLang] = useState(getPageLang);
-
-  // Qayerdan kelgan bo'lsa — o'sha yerga qaytadi (Sozlamalar, e'lon formasi va h.k.)
-  const goBack = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate("/");
-  };
+  const [lang, setLang] = usePageLang();
   const t = PAGE_STR[lang] || PAGE_STR.uz;
-  useEffect(() => { try { document.documentElement.lang = lang; } catch (_) {} }, [lang]);
-
-  const switchLang = (l) => {
-    setLang(l);
-    try { localStorage.setItem("uy247_lang", l); } catch (_) {}
-  };
+  useEffect(() => { try { document.title = `${t.aboutTitle} — Uy24/7`; } catch (_) {} }, [t.aboutTitle]);
 
   return (
-    <div className="min-h-screen" style={{ background: "#16262E", fontFamily: "Inter, sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Lora:wght@600;700&family=Inter:wght@400;500;600&display=swap'); .font-serif{font-family:'Fraunces','Lora',Georgia,serif;}`}</style>
-      <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
-        <button onClick={goBack} aria-label={t.back}><ArrowLeft size={19} color="#F2EDE4" /></button>
-        <h1 className="font-serif text-lg flex-1" style={{ color: "#F2EDE4" }}>{t.aboutTitle}</h1>
-        <div className="flex rounded-full p-0.5" style={box}>
-          {["uz", "ru", "en"].map(l => (
-            <button key={l} onClick={() => switchLang(l)} className="px-2.5 py-1 rounded-full text-[11.5px] font-medium uppercase"
-              style={{ background: lang === l ? "#3E92B0" : "transparent", color: lang === l ? "#0E1B21" : "#93A5AA" }}>{l}</button>
-          ))}
-        </div>
-      </header>
-
-      <div className="max-w-2xl mx-auto p-5 space-y-5" style={{ color: "#C8D4D6" }}>
-        <div className="flex items-baseline gap-0.5 justify-center py-2">
-          <span className="font-serif text-3xl font-semibold" style={{ color: "#F2EDE4" }}>Uy</span>
-          <span className="font-serif text-3xl font-semibold" style={{ color: "#D4783C" }}>24/7</span>
-        </div>
-
-        <p className="text-[14px] leading-relaxed text-center" style={{ color: "#C8D4D6" }}>{t.aboutIntro}</p>
-
-        <Section title={t.a1Title}>{t.a1Body}</Section>
-        <Section title={t.a2Title}>{t.a2Body}</Section>
-        <Section title={t.a3Title}>{t.a3Body}</Section>
-        <Section title={t.a4Title}>
-          {t.a4Body} <a href="mailto:info@uy247.uz" style={{ color: "#3E92B0" }}>info@uy247.uz</a>
-        </Section>
+    <PageShell title={t.aboutTitle} lang={lang} setLang={setLang}>
+      <div className="flex items-baseline gap-0.5 justify-center py-2">
+        <span className="font-serif text-3xl font-semibold" style={{ color: "#F2EDE4" }}>Uy</span>
+        <span className="font-serif text-3xl font-semibold" style={{ color: "#D4783C" }}>24/7</span>
       </div>
-    </div>
+
+      <p className="text-[14px] leading-relaxed text-center" style={{ color: "#C8D4D6" }}>{t.aboutIntro}</p>
+
+      <Section title={t.a1Title}>{t.a1Body}</Section>
+      <Section title={t.a2Title}>{t.a2Body}</Section>
+      <Section title={t.a3Title}>{t.a3Body}</Section>
+      <Section title={t.a4Title}>
+        {t.a4Body} <a href={`mailto:${COMPANY.email}`} style={{ color: "#3E92B0" }}>{COMPANY.email}</a>
+      </Section>
+
+      <CompanyCard lang={lang} />
+      <DocLinks lang={lang} current="about" />
+    </PageShell>
   );
 }
 

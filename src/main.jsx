@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
+import LegalPage from './pages/LegalPage.jsx';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -11,6 +12,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/qoidalar" element={<TermsPage />} />
+        <Route path="/maxfiylik" element={<LegalPage doc="privacy" />} />
+        <Route path="/oferta" element={<LegalPage doc="offer" />} />
         <Route path="/biz-haqimizda" element={<AboutPage />} />
         <Route path="/*" element={<App />} />
       </Routes>

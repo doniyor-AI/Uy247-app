@@ -13,6 +13,9 @@ import {
 import { supabase } from "./lib/supabaseClient";
 import { loadYmaps, YANDEX_MAPS_API_KEY } from "./lib/yandexMaps";
 import { detectLang } from "./lib/lang";
+import { PLACE_NAMES, AMENITY_NAMES, placeName } from "./lib/places";
+import { COMPANY } from "./lib/company";
+import { LEGAL_VERSION, LEGAL_ROUTES } from "./lib/legal";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -42,13 +45,11 @@ const STR = {
     navPost: "E'lon berish",
     navProfile: "Profil",
     settings: "Sozlamalar",
-    security: "Xavfsizlik",
     language: "Til",
     notifications: "Bildirishnomalar",
     myListings: "Mening e'lonlarim",
     logout: "Chiqish",
     cancel: "Bekor qilish",
-    delete: "O'chirish",
     boost: "Top qilish",
     pending: "Kutilmoqda",
     approved: "Faol",
@@ -107,7 +108,7 @@ const STR = {
     typeKvartira: "Kvartira",
     typeHovli: "Hovli / xususiy uy",
     typeOfis: "Ofis / do'kon",
-    termsLink: "Foydalanish qoidalari",
+    termsLink: "Foydalanish shartlari",
     aboutLink: "Biz haqimizda",
     detailBtn: "Batafsil",
     modeLabel: "Ijara shakli",
@@ -151,7 +152,7 @@ const STR = {
     phoneLimitReached: "Bugungi limit tugadi — ertaga yana ko'ra olasiz. Chat orqali yozishingiz mumkin.",
     phoneUnavailable: "Egasi raqam qoldirmagan — chat orqali yozing.",
     resubmittedForReview: "O'zgarishlar saqlandi. Sarlavha, tavsif yoki rasm o'zgargani uchun e'lon qayta tekshiruvga yuborildi.",
-    accountBlockedBody: "Platforma qoidalari buzilgani sababli e'lon joylash va xabar yozish cheklangan. Xato deb hisoblasangiz: info@uy247.uz",
+    accountBlockedBody: "Platforma qoidalari buzilgani sababli e'lon joylash va xabar yozish cheklangan. Xato deb hisoblasangiz: {email}",
     preparingPhotos: "Tayyorlanmoqda...",
     loadMore: "Yana ko'rsatish",
     yesterday: "Kecha",
@@ -192,11 +193,7 @@ const STR = {
     addPhotoBtn: "Qo'shish",
     photosHint: "Telefon galereyasidan yoki kameradan tanlashingiz mumkin",
     descPlaceholder: "Uyingiz haqida qisqacha yozing: ta'mir, mebel, texnika...",
-    ownerConfirm1: "Men ushbu ko'chmas mulk egasiman (yoki egasining rasmiy vakiliman), ",
     ownerConfirmBold: "rieltor emasman",
-    ownerConfirm2: " va ",
-    ruleLinkText: "platforma qoidalariga",
-    ownerConfirm3: " roziman.",
     sessionNotFoundError: "Seans topilmadi, sahifani yangilab qayta urinib ko'ring.",
     genericError: "Xatolik yuz berdi, qayta urinib ko'ring.",
     successBody2: "Holatini \"Profil → Mening e'lonlarim\"da kuzatib boring.",
@@ -255,16 +252,9 @@ const STR = {
     reportWrongPrice: "Narx noto'g'ri ko'rsatilgan",
     reportScam: "Firibgarlik shubhasi",
     reportUnavailable: "E'lon o'chirilgan/band",
-    phoneStatusLabel: "Telefon holati",
-    twoFactorLabel: "Ikki bosqichli tasdiqlash (2FA)",
-    loginAlertsLabel: "Har bir kirishda ogohlantirish",
-    activeSessionNote: "Faol seans: shu qurilma — hozir onlayn",
-    smsNotifLabel: "SMS orqali xabar",
-    pushNotifLabel: "Push bildirishnoma",
-    promoNotifLabel: "Yangi \"Top\" takliflar",
     dangerZone: "Xavfli hudud",
     deleteProfileBtn: "Profilni o'chirish",
-    deleteProfileConfirm: "Aniq o'chirmoqchimisiz? Barcha e'lonlar va ma'lumotlar yo'qoladi.",
+    deleteProfileConfirm: "Aniq o'chirmoqchimisiz? E'lonlar, rasmlar, xabarlar va sevimlilar darhol va butunlay o'chiriladi. Firibgarlikka qarshi 1 yil davomida faqat qisqa yozuv saqlanadi: raqam, ism-familiya, sanalar, bloklash holati va sababi, e'lonlar va shikoyatlar soni.",
     legalSection: "Huquqiy",
     dailyLimitError: "Bugungi limit tugadi — ertaga qayta urinib ko'ring.",
     notVerifiedError: "Avval telefon raqamingizni tasdiqlang.",
@@ -279,6 +269,36 @@ const STR = {
     favLabel: "Sevimlilarga qo'shish",
     sendLabel: "Yuborish",
     myLocationLabel: "Mening joylashuvim",
+    accountSection: "Akkaunt",
+    phoneNumberLabel: "Telefon raqami",
+    telegramTitle: "Telegram orqali xabarnoma",
+    telegramLinked: "Ulangan",
+    telegramNotLinked: "Ulanmagan",
+    telegramDesc: "Bepul. Sizga kimdir yozsa yoki saqlangan qidiruvingizga mos e'lon chiqsa — darrov Telegram'ga xabar keladi.",
+    telegramConnectBtn: "Telegram'ni ulash",
+    telegramUnlinkBtn: "Telegram'ni uzish",
+    telegramWaiting: "Telegram'da «START» tugmasini bosing va shu yerga qayting...",
+    telegramLinkedToast: "Telegram ulandi ✅",
+    telegramError: "Telegram bilan bog'lanib bo'lmadi. Keyinroq urinib ko'ring.",
+    telegramNeedVerify: "Xabarnoma olish uchun avval telefon raqamingizni tasdiqlang.",
+    notifyMessagesLabel: "Yangi xabar kelganda",
+    notifySearchesLabel: "Saqlangan qidiruvga mos e'lon chiqqanda",
+    deletingProfile: "O'chirilmoqda...",
+    privacyLink: "Maxfiylik siyosati",
+    offerLink: "Ommaviy oferta",
+    consentText: "Men 18 yoshga to'lganman, {terms} qabul qilaman va {privacy} muvofiq shaxsga doir ma'lumotlarimga ishlov berilishiga, jumladan ularning O'zbekistondan tashqariga uzatilishiga roziman.",
+    consentTermsLabel: "Foydalanish shartlarini",
+    consentPrivacyLabel: "Maxfiylik siyosatiga",
+    postPublishNote: "Tasdiqlangan e'lon rasmiy Telegram kanalimizda ham chop etiladi — ismingiz va raqamingizsiz.",
+    postNeedsVerifyTitle: "E'lon joylash uchun raqamingizni tasdiqlang",
+    postNeedsVerifyBody: "Har bir e'lon ortida tasdiqlangan raqam turadi — shu bilan firibgarlarni to'xtatamiz. Raqamingiz faqat raqami tasdiqlangan ijarachilarga va faqat ular so'raganda ko'rsatiladi.",
+    boostOfferNote: "To'lov tasdiqlangach Top 24 soat ichida yoqiladi. To'lov qilib, siz {offer} shartlarini qabul qilasiz.",
+    boostOfferLabel: "Ommaviy oferta",
+    safetyTitle: "Xavfsiz ijara",
+    safetyBody: "Uyni ko'rmasdan va egasining hujjatlarini tekshirmasdan pul o'tkazmang. «Bron uchun oldindan to'lov» so'rashsa — bu firibgarlik belgisi, e'lon haqida xabar bering.",
+    legalUpdatedText: "{terms} va {privacy} yangilandi — iltimos, tanishib chiqing.",
+    legalAcceptBtn: "Roziman",
+    ownerConsentText: "Men ushbu mulk egasiman (yoki egasining rasmiy vakiliman), {realtor}, ma'lumotlar va rasmlar haqiqiy. {terms} qabul qilaman va {privacy} muvofiq ma'lumotlarimga ishlov berilishiga, jumladan O'zbekistondan tashqariga uzatilishiga roziman.",
   },
   ru: {
     _lang: "ru",
@@ -287,13 +307,11 @@ const STR = {
     navPost: "Разместить",
     navProfile: "Профиль",
     settings: "Настройки",
-    security: "Безопасность",
     language: "Язык",
     notifications: "Уведомления",
     myListings: "Мои объявления",
     logout: "Выйти",
     cancel: "Отмена",
-    delete: "Удалить",
     boost: "Поднять в Топ",
     pending: "На проверке",
     approved: "Активно",
@@ -396,7 +414,7 @@ const STR = {
     phoneLimitReached: "На сегодня лимит просмотра номеров исчерпан. Завтра снова будет доступно, а пока можно написать в чат.",
     phoneUnavailable: "Владелец не указал номер — напишите ему в чат.",
     resubmittedForReview: "Изменения сохранены. Так как изменились заголовок, описание или фото, объявление отправлено на повторную проверку.",
-    accountBlockedBody: "Из-за нарушения правил платформы размещение объявлений и переписка ограничены. Если считаете это ошибкой, напишите нам: info@uy247.uz",
+    accountBlockedBody: "Из-за нарушения правил платформы размещение объявлений и переписка ограничены. Если считаете это ошибкой, напишите нам: {email}",
     preparingPhotos: "Обработка…",
     loadMore: "Показать ещё",
     yesterday: "Вчера",
@@ -437,11 +455,7 @@ const STR = {
     addPhotoBtn: "Добавить",
     photosHint: "Выберите фото из галереи или сделайте снимок камерой",
     descPlaceholder: "Кратко опишите жильё: ремонт, мебель, техника…",
-    ownerConfirm1: "Подтверждаю, что я владелец этого жилья (или официальный представитель владельца), ",
     ownerConfirmBold: "не риелтор",
-    ownerConfirm2: ", и принимаю ",
-    ruleLinkText: "правила платформы",
-    ownerConfirm3: ".",
     sessionNotFoundError: "Сессия не найдена. Обновите страницу и попробуйте снова.",
     genericError: "Что-то пошло не так. Попробуйте ещё раз.",
     successBody2: "Статус можно посмотреть в разделе «Профиль → Мои объявления».",
@@ -500,16 +514,9 @@ const STR = {
     reportWrongPrice: "Неверно указана цена",
     reportScam: "Подозрение на мошенничество",
     reportUnavailable: "Уже сдано или неактуально",
-    phoneStatusLabel: "Статус номера",
-    twoFactorLabel: "Двухфакторная аутентификация (2FA)",
-    loginAlertsLabel: "Уведомлять о каждом входе",
-    activeSessionNote: "Активный сеанс: это устройство — сейчас онлайн",
-    smsNotifLabel: "SMS-уведомления",
-    pushNotifLabel: "Push-уведомления",
-    promoNotifLabel: "Новые предложения «Топ»",
     dangerZone: "Опасная зона",
     deleteProfileBtn: "Удалить профиль",
-    deleteProfileConfirm: "Точно удалить? Все объявления и данные будут потеряны.",
+    deleteProfileConfirm: "Точно удалить? Объявления, фото, сообщения и избранное удалятся сразу и навсегда. Для защиты от мошенничества 1 год хранится только краткая запись: номер, имя, даты, статус и причина блокировки, количество объявлений и жалоб.",
     legalSection: "Правовая информация",
     dailyLimitError: "Лимит на сегодня исчерпан — попробуйте завтра.",
     notVerifiedError: "Сначала подтвердите номер телефона.",
@@ -524,6 +531,36 @@ const STR = {
     favLabel: "В избранное",
     sendLabel: "Отправить",
     myLocationLabel: "Моё местоположение",
+    accountSection: "Аккаунт",
+    phoneNumberLabel: "Номер телефона",
+    telegramTitle: "Уведомления в Telegram",
+    telegramLinked: "Подключено",
+    telegramNotLinked: "Не подключено",
+    telegramDesc: "Бесплатно. Сообщим в Telegram, как только вам напишут или появится объявление по сохранённому поиску.",
+    telegramConnectBtn: "Подключить Telegram",
+    telegramUnlinkBtn: "Отключить Telegram",
+    telegramWaiting: "Нажмите «START» в Telegram и вернитесь сюда…",
+    telegramLinkedToast: "Telegram подключён ✅",
+    telegramError: "Не удалось связаться с Telegram. Попробуйте позже.",
+    telegramNeedVerify: "Чтобы получать уведомления, сначала подтвердите номер телефона.",
+    notifyMessagesLabel: "Новые сообщения",
+    notifySearchesLabel: "Объявления по сохранённым поискам",
+    deletingProfile: "Удаляем…",
+    privacyLink: "Политика конфиденциальности",
+    offerLink: "Публичная оферта",
+    consentText: "Мне исполнилось 18 лет. Я принимаю {terms} и соглашаюсь на обработку моих персональных данных согласно {privacy}, включая их передачу за пределы Узбекистана.",
+    consentTermsLabel: "Правила пользования",
+    consentPrivacyLabel: "Политике конфиденциальности",
+    postPublishNote: "После проверки объявление также публикуется в нашем официальном Telegram-канале — без вашего имени и номера.",
+    postNeedsVerifyTitle: "Подтвердите номер, чтобы разместить объявление",
+    postNeedsVerifyBody: "За каждым объявлением стоит подтверждённый номер — так мы останавливаем мошенников. Ваш номер увидят только арендаторы с подтверждённым номером и только по их запросу.",
+    boostOfferNote: "Топ включается в течение 24 часов после подтверждения оплаты. Оплачивая, вы принимаете условия {offer}.",
+    boostOfferLabel: "Публичной оферты",
+    safetyTitle: "Безопасная аренда",
+    safetyBody: "Не переводите деньги, пока не увидите жильё и не проверите документы владельца. Просят «предоплату за бронь» — это признак мошенничества, пожалуйтесь на объявление.",
+    legalUpdatedText: "Обновлены {terms} и {privacy} — пожалуйста, ознакомьтесь.",
+    legalAcceptBtn: "Принимаю",
+    ownerConsentText: "Подтверждаю, что я владелец этого жилья (или официальный представитель владельца), {realtor}, данные и фото достоверны. Принимаю {terms} и соглашаюсь на обработку моих персональных данных согласно {privacy}, включая их передачу за пределы Узбекистана.",
   },
   en: {
     _lang: "en",
@@ -532,13 +569,11 @@ const STR = {
     navPost: "Post",
     navProfile: "Profile",
     settings: "Settings",
-    security: "Security",
     language: "Language",
     notifications: "Notifications",
     myListings: "My listings",
     logout: "Log out",
     cancel: "Cancel",
-    delete: "Delete",
     boost: "Boost",
     pending: "Under review",
     approved: "Active",
@@ -597,7 +632,7 @@ const STR = {
     typeKvartira: "Apartment",
     typeHovli: "House",
     typeOfis: "Office / shop",
-    termsLink: "Terms of use",
+    termsLink: "Terms of Use",
     aboutLink: "About us",
     detailBtn: "Details",
     modeLabel: "Type of place",
@@ -641,7 +676,7 @@ const STR = {
     phoneLimitReached: "You've reached today's limit for viewing phone numbers. Try again tomorrow, or message the owner in the chat.",
     phoneUnavailable: "The owner hasn't added a phone number — please use the chat.",
     resubmittedForReview: "Changes saved. Because the title, description or photos changed, the listing has been sent for review again.",
-    accountBlockedBody: "Because the platform rules were violated, posting and messaging are restricted. If you think this is a mistake, write to us: info@uy247.uz",
+    accountBlockedBody: "Because the platform rules were violated, posting and messaging are restricted. If you think this is a mistake, write to us: {email}",
     preparingPhotos: "Processing…",
     loadMore: "Show more",
     yesterday: "Yesterday",
@@ -682,11 +717,7 @@ const STR = {
     addPhotoBtn: "Add",
     photosHint: "Choose from your gallery or take a photo",
     descPlaceholder: "Describe your place briefly: renovation, furniture, appliances…",
-    ownerConfirm1: "I confirm that I own this property (or officially represent the owner), ",
     ownerConfirmBold: "I'm not a realtor",
-    ownerConfirm2: ", and I accept the ",
-    ruleLinkText: "platform rules",
-    ownerConfirm3: ".",
     sessionNotFoundError: "Your session wasn't found. Refresh the page and try again.",
     genericError: "Something went wrong. Please try again.",
     successBody2: "You can track its status in Profile → My listings.",
@@ -745,16 +776,9 @@ const STR = {
     reportWrongPrice: "The price is wrong",
     reportScam: "Looks like a scam",
     reportUnavailable: "No longer available",
-    phoneStatusLabel: "Phone status",
-    twoFactorLabel: "Two-factor authentication (2FA)",
-    loginAlertsLabel: "Alert me on every sign-in",
-    activeSessionNote: "Active session: this device — online now",
-    smsNotifLabel: "SMS notifications",
-    pushNotifLabel: "Push notifications",
-    promoNotifLabel: "New boost offers",
     dangerZone: "Danger zone",
     deleteProfileBtn: "Delete profile",
-    deleteProfileConfirm: "Are you sure? All your listings and data will be lost.",
+    deleteProfileConfirm: "Are you sure? Your listings, photos, messages and saved items will be deleted right away, for good. For fraud prevention we keep only a short record for 1 year: number, name, dates, block status and reason, and the number of listings and reports.",
     legalSection: "Legal",
     dailyLimitError: "You've reached today's limit — please try again tomorrow.",
     notVerifiedError: "Please verify your phone number first.",
@@ -769,6 +793,36 @@ const STR = {
     favLabel: "Save",
     sendLabel: "Send",
     myLocationLabel: "My location",
+    accountSection: "Account",
+    phoneNumberLabel: "Phone number",
+    telegramTitle: "Telegram notifications",
+    telegramLinked: "Connected",
+    telegramNotLinked: "Not connected",
+    telegramDesc: "Free. We'll message you on Telegram as soon as someone writes to you or a listing matches your saved search.",
+    telegramConnectBtn: "Connect Telegram",
+    telegramUnlinkBtn: "Disconnect Telegram",
+    telegramWaiting: "Tap “START” in Telegram, then come back here…",
+    telegramLinkedToast: "Telegram connected ✅",
+    telegramError: "Couldn't reach Telegram. Please try again later.",
+    telegramNeedVerify: "To get notifications, please verify your phone number first.",
+    notifyMessagesLabel: "New messages",
+    notifySearchesLabel: "Listings matching saved searches",
+    deletingProfile: "Deleting…",
+    privacyLink: "Privacy Policy",
+    offerLink: "Public Offer",
+    consentText: "I'm 18 or older, I accept the {terms} and I consent to the processing of my personal data under the {privacy}, including its transfer outside Uzbekistan.",
+    consentTermsLabel: "Terms of Use",
+    consentPrivacyLabel: "Privacy Policy",
+    postPublishNote: "Once approved, your listing is also posted to our official Telegram channel — without your name or number.",
+    postNeedsVerifyTitle: "Verify your number to post a listing",
+    postNeedsVerifyBody: "Every listing is backed by a verified number — that's how we stop scammers. Your number is shown only to renters with a verified number, and only when they ask for it.",
+    boostOfferNote: "Your boost goes live within 24 hours of payment confirmation. By paying, you accept the {offer}.",
+    boostOfferLabel: "Public Offer",
+    safetyTitle: "Rent safely",
+    safetyBody: "Don't send money before you've seen the place and checked the owner's documents. Asked for a “deposit to hold it”? That's a scam sign — report the listing.",
+    legalUpdatedText: "We've updated our {terms} and {privacy} — please take a look.",
+    legalAcceptBtn: "I accept",
+    ownerConsentText: "I confirm that I own this property (or officially represent the owner), {realtor}, and the details and photos are genuine. I accept the {terms} and consent to the processing of my personal data under the {privacy}, including its transfer outside Uzbekistan.",
   },
 };
 
@@ -835,30 +889,37 @@ function tn(t, key, n) {
 }
 // tf(t, "payWith", { p: "Payme" }) -> "Payme orqali" / "Через Payme" / "Pay with Payme"
 const tf = (t, key, vars = {}) => Object.entries(vars).reduce((acc, [k, x]) => acc.replace(`{${k}}`, x), t[key] || "");
+// Matndagi {joy} o'rniga havola kabi React elementini qo'yadi: tl(t, "consentText", { terms: <Link …/> })
+const tl = (t, key, nodes = {}) => String(t[key] || "").split(/\{(\w+)\}/).map((part, i) =>
+  <React.Fragment key={i}>{i % 2 ? (nodes[part] ?? `{${part}}`) : part}</React.Fragment>);
+const linkStyle = { color: "#3E92B0", textDecoration: "underline", textUnderlineOffset: "2px" };
 
-// Shahar, tuman va qulayliklar bazada o'zbekcha saqlanadi — ekranda tanlangan tilda ko'rsatiladi
-const PLACE_NAMES = {
-  ru: {
-    "Toshkent shahri": "Ташкент", "Samarqand": "Самарканд", "Buxoro": "Бухара", "Farg'ona": "Фергана", "Andijon": "Андижан", "Namangan": "Наманган",
-    "Yunusobod": "Юнусабад", "Chilonzor": "Чиланзар", "Mirzo Ulug'bek": "Мирзо-Улугбек", "Mirobod": "Мирабад", "Yakkasaroy": "Яккасарай",
-    "Shayxontohur": "Шайхантахур", "Olmazor": "Алмазар", "Uchtepa": "Учтепа", "Yashnobod": "Яшнабад", "Sergeli": "Сергели",
-    "Bektemir": "Бектемир", "Yangihayot": "Янгихаёт", "Markaz": "Центр",
-  },
-  en: {
-    "Toshkent shahri": "Tashkent", "Samarqand": "Samarkand", "Buxoro": "Bukhara", "Farg'ona": "Fergana", "Andijon": "Andijan", "Namangan": "Namangan",
-    "Yunusobod": "Yunusabad", "Chilonzor": "Chilanzar", "Mirzo Ulug'bek": "Mirzo Ulugbek", "Mirobod": "Mirabad", "Yakkasaroy": "Yakkasaray",
-    "Shayxontohur": "Shaykhantahur", "Olmazor": "Almazar", "Uchtepa": "Uchtepa", "Yashnobod": "Yashnabad", "Sergeli": "Sergeli",
-    "Bektemir": "Bektemir", "Yangihayot": "Yangihayot", "Markaz": "City centre",
-  },
-};
-const placeLabel = (name, t) => (name && PLACE_NAMES[t?._lang]?.[name]) || name || "";
+// Shahar, tuman va qulayliklar bazada o'zbekcha saqlanadi — ekranda tanlangan tilda ko'rsatiladi (lug'at: lib/places.js)
+const placeLabel = (name, t) => placeName(name, t?._lang);
 // Qidiruvda tuman nomi uch tilda ham topiladi: "Yunusobod", "Юнусабад", "Yunusabad"
 const placeSearchText = (name) => [name, PLACE_NAMES.ru[name], PLACE_NAMES.en[name]].filter(Boolean).join(" ").toLowerCase();
-const AMENITY_NAMES = {
-  ru: { "Konditsioner": "Кондиционер", "Mashina turargohi": "Парковка", "Lift": "Лифт", "Muzlatgich": "Холодильник", "Kir yuvish mashinasi": "Стиральная машина" },
-  en: { "Konditsioner": "Air conditioning", "Mashina turargohi": "Parking", "Lift": "Lift", "Muzlatgich": "Fridge", "Kir yuvish mashinasi": "Washing machine" },
-};
 const amenityLabel = (a, t) => AMENITY_NAMES[t?._lang]?.[a] || a;
+
+// Server funksiyalarini (Vercel /api) foydalanuvchi sessiyasi bilan chaqirish
+async function callApi(path, body) {
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  const r = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: JSON.stringify(body || {}),
+  });
+  let json = {};
+  try { json = await r.json(); } catch (_) {}
+  if (!r.ok) { const e = new Error(json.message || `HTTP ${r.status}`); e.status = r.status; throw e; }
+  return json;
+}
+
+// +998901234567 -> +998 90 123 45 67
+const formatPhone = (p) => {
+  const d = String(p || "").replace(/\D/g, "");
+  return d.length === 12 && d.startsWith("998") ? `+998 ${d.slice(3, 5)} ${d.slice(5, 8)} ${d.slice(8, 10)} ${d.slice(10)}` : (p || "");
+};
 
 // Server xatolarini (ko'pincha inglizcha, texnik) foydalanuvchiga tushunarli matnga aylantiradi
 function friendlyError(err, t, fallbackKey = "genericError") {
@@ -1270,6 +1331,8 @@ function VerifyModal({ onClose, onVerified, t = STR.uz }) {
   const [flowType, setFlowType] = useState("phone_change"); // yoki "sms" (qaytgan foydalanuvchi)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Shaxsga doir ma'lumotlarga ishlov berishga rozilik (qonun talabi) — belgilanmaguncha kod yuborilmaydi
+  const [agreed, setAgreed] = useState(false);
 
   const normalizedPhone = () => {
     let p = phoneInput.replace(/[^\d+]/g, "");
@@ -1324,7 +1387,16 @@ function VerifyModal({ onClose, onVerified, t = STR.uz }) {
           <>
             <p className="text-[13px] mb-3" style={{ color: "#93A5AA" }}>{t.verifyIntro}</p>
             <input type="tel" inputMode="tel" autoComplete="tel" placeholder="+998901234567" value={phoneInput} onChange={(e) => setPhoneInput(e.target.value)} className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none mb-3" style={inputStyle} />
-            <button onClick={sendCode} disabled={phoneInput.length < 9 || loading} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (phoneInput.length < 9 || loading) ? "#2A424C" : "#3E92B0", color: "#0E1B21" }}>{loading ? t.sendingCode : t.sendCodeBtn}</button>
+            <label className="flex items-start gap-2.5 mb-3 cursor-pointer">
+              <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 w-4 h-4 shrink-0" />
+              <span className="text-[12px] leading-snug" style={{ color: "#C8D4D6" }}>
+                {tl(t, "consentText", {
+                  terms: <Link to={LEGAL_ROUTES.terms} target="_blank" style={linkStyle}>{t.consentTermsLabel}</Link>,
+                  privacy: <Link to={LEGAL_ROUTES.privacy} target="_blank" style={linkStyle}>{t.consentPrivacyLabel}</Link>,
+                })}
+              </span>
+            </label>
+            <button onClick={sendCode} disabled={phoneInput.length < 9 || loading || !agreed} className="w-full py-2.5 rounded-lg font-medium text-[14px]" style={{ background: (phoneInput.length < 9 || loading || !agreed) ? "#2A424C" : "#3E92B0", color: (phoneInput.length < 9 || loading || !agreed) ? "#93A5AA" : "#0E1B21" }}>{loading ? t.sendingCode : t.sendCodeBtn}</button>
           </>
         ) : (
           <>
@@ -1404,6 +1476,9 @@ function BoostModal({ onClose, onBoost, onUseCredit, boostCredits, t = STR.uz })
           <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price, "payme")} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{tf(t, "payWith", { p: "Payme" })}</button>
           <button onClick={() => onBoost(selected, packages.find(p => p.id === selected).price, "click")} className="py-2.5 rounded-lg font-medium text-[13.5px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{tf(t, "payWith", { p: "Click" })}</button>
         </div>
+        <p className="text-[11px] leading-snug mt-3 text-center" style={{ color: "#93A5AA" }}>
+          {tl(t, "boostOfferNote", { offer: <Link to={LEGAL_ROUTES.offer} target="_blank" style={linkStyle}>{t.boostOfferLabel}</Link> })}
+        </p>
       </div>
     </div>
   );
@@ -1427,7 +1502,7 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
   };
 
   return (
-    <div className="pb-32">
+    <div className="pb-44">
       <div className="relative">
         <Gallery images={item.images} hue={item.hue} zoomable />
         <button onClick={onBack} aria-label={t.backLabel} className="absolute left-4 w-11 h-11 rounded-full flex items-center justify-center z-10" style={{ background: "rgba(22,38,46,0.85)", top: "calc(env(safe-area-inset-top, 0px) + 20px)" }}><ArrowLeft size={19} color="#F2EDE4" /></button>
@@ -1506,6 +1581,16 @@ function DetailView({ item, onBack, verified, onRequestVerify, isFav, onToggleFa
         </div>
         <MapStatic lat={item.lat} lng={item.lng} addressTitle={t.addressTitle} />
         {item.rentType === "Kunlik" && <BookingCalendarView listingId={item.id} t={t} />}
+        {/* Oldindan to'lov firibgarligidan ogohlantirish */}
+        {!item.mine && (
+          <div className="rounded-2xl p-3.5 flex items-start gap-2.5" style={{ background: "#26343A", border: "1px solid #3E5560" }}>
+            <ShieldAlert size={17} color="#E8B94A" className="shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <div className="text-[13px] font-medium mb-0.5" style={{ color: "#F2EDE4" }}>{t.safetyTitle}</div>
+              <p className="text-[12.5px] leading-snug" style={{ color: "#C8D4D6" }}>{t.safetyBody}</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {similar && similar.length > 0 && (
@@ -1732,6 +1817,10 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
       if (nameErr) throw nameErr;
       onFullNameSaved && onFullNameSaved(fullName);
 
+      // Belgilangan rozilik (shartlar + maxfiylik siyosati) serverda qayd etiladi — raqam tasdiqlanmagan bo'lsa ham
+      const { error: consentErr } = await supabase.rpc("accept_terms", { p_version: LEGAL_VERSION });
+      if (consentErr) console.error("Rozilikni yozishda xato:", consentErr.message);
+
       // 1) E'lonni yaratish (pending holatda)
       const { data: listingRow, error: insertErr } = await supabase.from("listings").insert({
         owner_id: userId, title: form.title, city: form.city, district: form.district,
@@ -1902,8 +1991,15 @@ function PostForm({ onPublish, userId, t = STR.uz, initialFullName = "", onFullN
       </Field>
       <label className="flex items-start gap-2.5 cursor-pointer">
         <input type="checkbox" checked={form.ownerConfirm} onChange={e => setForm(f => ({ ...f, ownerConfirm: e.target.checked }))} className="mt-0.5 w-4 h-4 shrink-0" />
-        <span className="text-[13px]" style={{ color: "#C8D4D6" }}>{t.ownerConfirm1}<b>{t.ownerConfirmBold}</b>{t.ownerConfirm2}<Link to="/qoidalar" target="_blank" style={{ color: "#3E92B0" }} onClick={e => e.stopPropagation()}>{t.ruleLinkText}</Link>{t.ownerConfirm3}</span>
+        <span className="text-[13px] leading-snug" style={{ color: "#C8D4D6" }}>
+          {tl(t, "ownerConsentText", {
+            realtor: <b>{t.ownerConfirmBold}</b>,
+            terms: <Link to={LEGAL_ROUTES.terms} target="_blank" style={linkStyle} onClick={e => e.stopPropagation()}>{t.consentTermsLabel}</Link>,
+            privacy: <Link to={LEGAL_ROUTES.privacy} target="_blank" style={linkStyle} onClick={e => e.stopPropagation()}>{t.consentPrivacyLabel}</Link>,
+          })}
+        </span>
       </label>
+      <p className="text-[11.5px] leading-snug -mt-2" style={{ color: "#65787E" }}>{t.postPublishNote}</p>
       <button disabled={!valid} onClick={submit} className="w-full py-3.5 rounded-xl font-medium text-[15px]" style={{ background: valid ? "#3E92B0" : "#2A424C", color: valid ? "#0E1B21" : "#65787E" }}>{submitting ? t.submitting : t.submitBtn}</button>
     </div>
   );
@@ -1986,17 +2082,26 @@ function Field({ label, children }) {
   return <div><div className="text-[12px] mb-1.5" style={{ color: "#93A5AA" }}>{label}</div>{children}</div>;
 }
 
-function Toggle({ on, onClick }) {
+function Toggle({ on, onClick, disabled = false }) {
   return (
-    <button onClick={onClick} role="switch" aria-checked={!!on} className="w-11 h-6 rounded-full relative transition-colors shrink-0" style={{ background: on ? "#3E92B0" : "#2A424C" }}>
+    <button onClick={disabled ? undefined : onClick} disabled={disabled} role="switch" aria-checked={!!on} className="w-11 h-6 rounded-full relative transition-colors shrink-0" style={{ background: on ? "#3E92B0" : "#2A424C", cursor: disabled ? "default" : "pointer" }}>
       <div className="w-4.5 h-4.5 rounded-full absolute top-[3px] transition-all" style={{ width: 18, height: 18, background: "#F2EDE4", left: on ? 22 : 3 }} />
     </button>
   );
 }
 
-function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, onDeleteAccount }) {
+function SettingsView({ onBack, lang, setLang, verified, phone, onRequestVerify, onLogout, onDeleteAccount, notify, onTelegramLinked, onTelegramUnlink, onToggleNotify }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const t = STR[lang];
+
+  const doDelete = async () => {
+    setDeleting(true); setDeleteError("");
+    try { await onDeleteAccount(); }
+    catch (e) { setDeleteError(friendlyError(e, t)); setDeleting(false); }
+  };
+
   return (
     <div className="pb-10">
       <header className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-3" style={{ background: "#16262E", borderBottom: "1px solid #22343B", paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
@@ -2012,23 +2117,31 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
           </div>
         </Section>
 
-        <Section icon={Lock} title={t.security}>
+        {/* Akkaunt: telefon raqami va chiqish */}
+        <Section icon={User} title={t.accountSection}>
           <div className="space-y-3">
-            <Row label={t.phoneStatusLabel}>
-              <Badge color={verified ? "#16262E" : "#F2EDE4"} bg={verified ? "#E8B94A" : "#2A424C"}>{verified ? t.verified : t.unverified}</Badge>
-            </Row>
-            <Row label={t.twoFactorLabel}><Toggle on={security.twoFactor} onClick={() => setSecurity(s => ({ ...s, twoFactor: !s.twoFactor }))} /></Row>
-            <Row label={t.loginAlertsLabel}><Toggle on={security.loginAlerts} onClick={() => setSecurity(s => ({ ...s, loginAlerts: !s.loginAlerts }))} /></Row>
-            <div className="pt-1 text-[12px]" style={{ color: "#65787E" }}>{t.activeSessionNote}</div>
+            {verified ? (
+              <Row label={<span className="font-mono" style={{ color: "#F2EDE4" }}>{formatPhone(phone)}</span>}>
+                <Badge color="#16262E" bg="#E8B94A">{t.verified}</Badge>
+              </Row>
+            ) : (
+              <Row label={t.phoneNumberLabel}>
+                <button onClick={onRequestVerify} className="px-3 py-1.5 rounded-full text-[12px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>{t.verifyPhoneBtn}</button>
+              </Row>
+            )}
+            {verified && (
+              <button onClick={onLogout} className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[13px] font-medium"
+                style={{ background: "#16262E", color: "#F2EDE4", border: "1px solid #2A424C" }}>
+                <LogOut size={14} /> {t.logout}
+              </button>
+            )}
           </div>
         </Section>
 
+        {/* Bildirishnomalar — Telegram orqali (bepul) */}
         <Section icon={Bell} title={t.notifications}>
-          <div className="space-y-3">
-            <Row label={t.smsNotifLabel}><Toggle on={security.smsNotif} onClick={() => setSecurity(s => ({ ...s, smsNotif: !s.smsNotif }))} /></Row>
-            <Row label={t.pushNotifLabel}><Toggle on={security.pushNotif} onClick={() => setSecurity(s => ({ ...s, pushNotif: !s.pushNotif }))} /></Row>
-            <Row label={t.promoNotifLabel}><Toggle on={security.promoNotif} onClick={() => setSecurity(s => ({ ...s, promoNotif: !s.promoNotif }))} /></Row>
-          </div>
+          <TelegramBlock t={t} lang={lang} verified={verified} notify={notify}
+            onLinked={onTelegramLinked} onUnlink={onTelegramUnlink} onToggle={onToggleNotify} onRequestVerify={onRequestVerify} />
         </Section>
 
         <Section icon={ShieldAlert} title={t.dangerZone}>
@@ -2036,10 +2149,11 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
             <button onClick={() => setConfirmDelete(true)} className="w-full py-2.5 rounded-lg text-[13.5px] font-medium" style={{ background: "transparent", color: "#D4783C", border: "1px solid #D4783C" }}>{t.deleteProfileBtn}</button>
           ) : (
             <div className="space-y-2">
-              <p className="text-[12.5px]" style={{ color: "#93A5AA" }}>{t.deleteProfileConfirm}</p>
+              <p className="text-[12.5px] leading-snug" style={{ color: "#C8D4D6" }}>{t.deleteProfileConfirm}</p>
+              {deleteError && <p className="text-[12px]" style={{ color: "#F2C2C2" }}>{deleteError}</p>}
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => setConfirmDelete(false)} className="py-2 rounded-lg text-[13px]" style={{ background: "#2A424C", color: "#F2EDE4" }}>{t.cancel}</button>
-                <button onClick={onDeleteAccount} className="py-2 rounded-lg text-[13px] font-medium" style={{ background: "#D4783C", color: "#16262E" }}>{t.delete}</button>
+                <button disabled={deleting} onClick={() => setConfirmDelete(false)} className="py-2 rounded-lg text-[13px]" style={{ background: "#2A424C", color: "#F2EDE4" }}>{t.cancel}</button>
+                <button disabled={deleting} onClick={doDelete} className="py-2 rounded-lg text-[13px] font-medium" style={{ background: "#D4783C", color: "#16262E", opacity: deleting ? 0.7 : 1 }}>{deleting ? t.deletingProfile : t.confirmDeleteBtn}</button>
               </div>
             </div>
           )}
@@ -2047,11 +2161,110 @@ function SettingsView({ onBack, lang, setLang, verified, security, setSecurity, 
 
         <Section icon={ClipboardList} title={t.legalSection}>
           <div className="space-y-2">
-            <Link to="/qoidalar" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>{t.termsLink}</span><ChevronRight size={15} color="#65787E" /></Link>
-            <Link to="/biz-haqimizda" className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>{t.aboutLink}</span><ChevronRight size={15} color="#65787E" /></Link>
+            {[[LEGAL_ROUTES.terms, t.termsLink], [LEGAL_ROUTES.privacy, t.privacyLink], [LEGAL_ROUTES.offer, t.offerLink], [LEGAL_ROUTES.about, t.aboutLink]].map(([to, label]) => (
+              <Link key={to} to={to} className="flex items-center justify-between py-1"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>{label}</span><ChevronRight size={15} color="#65787E" /></Link>
+            ))}
           </div>
         </Section>
       </div>
+    </div>
+  );
+}
+
+// Telegram'ni ulash: bir martalik havola -> botda START -> ilova o'zi tekshirib, "Ulangan" ko'rsatadi
+function TelegramBlock({ t, lang, verified, notify, onLinked, onUnlink, onToggle, onRequestVerify }) {
+  const [link, setLink] = useState("");
+  const [waiting, setWaiting] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const linked = !!notify?.linked;
+
+  // Havolani oldindan tayyorlaymiz — tugma oddiy havola bo'ladi (telefonda yangi oyna to'silmaydi)
+  useEffect(() => {
+    if (!verified || linked) return;
+    let cancelled = false;
+    setError("");
+    callApi("/api/telegram-link", { action: "start", lang })
+      .then((d) => { if (!cancelled) setLink(d.url || ""); })
+      .catch(() => { if (!cancelled) setError(t.telegramError); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verified, linked, lang]);
+
+  // START bosilishini kutamiz: har 3 soniyada (2 daqiqagacha) va ilovaga qaytilganda tekshiramiz
+  useEffect(() => {
+    if (!waiting) return;
+    let stopped = false, tries = 0, inFlight = false;
+    const check = async () => {
+      if (stopped || inFlight) return;
+      inFlight = true;
+      try {
+        const d = await callApi("/api/telegram-link", { action: "check", lang });
+        if (d.linked && !stopped) { stopped = true; setWaiting(false); onLinked(); }
+      } catch (_) {}
+      inFlight = false;
+      if (++tries >= 40 && !stopped) { stopped = true; setWaiting(false); }
+    };
+    const iv = setInterval(check, 3000);
+    const onVisible = () => { if (document.visibilityState === "visible") check(); };
+    window.addEventListener("focus", check);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { stopped = true; clearInterval(iv); window.removeEventListener("focus", check); document.removeEventListener("visibilitychange", onVisible); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waiting]);
+
+  const unlink = async () => {
+    setBusy(true); setError("");
+    try { await callApi("/api/telegram-link", { action: "unlink" }); onUnlink(); }
+    catch (_) { setError(t.telegramError); }
+    setBusy(false);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: "#229ED9" }}><Send size={15} color="#FFFFFF" /></div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[13.5px] font-medium" style={{ color: "#F2EDE4" }}>{t.telegramTitle}</span>
+            <Badge color={linked ? "#16262E" : "#C8D4D6"} bg={linked ? "#8FD19E" : "#2A424C"}>{linked ? t.telegramLinked : t.telegramNotLinked}</Badge>
+          </div>
+          <p className="text-[12px] mt-1 leading-snug" style={{ color: "#93A5AA" }}>{t.telegramDesc}</p>
+        </div>
+      </div>
+
+      {!verified ? (
+        <div className="rounded-lg p-3 text-[12.5px]" style={{ background: "#16262E", border: "1px solid #2A424C", color: "#C8D4D6" }}>
+          {t.telegramNeedVerify}
+          <button onClick={onRequestVerify} className="block mt-2 px-3 py-1.5 rounded-full text-[12px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>{t.verifyPhoneBtn}</button>
+        </div>
+      ) : !linked ? (
+        waiting ? (
+          <div role="status" className="rounded-lg p-3 text-[12.5px] flex items-center gap-2.5" style={{ background: "#16262E", border: "1px solid #2A424C", color: "#C8D4D6" }}>
+            <span className="w-3.5 h-3.5 rounded-full border-2 animate-spin shrink-0" style={{ borderColor: "#3E92B0", borderTopColor: "transparent" }} />
+            {t.telegramWaiting}
+          </div>
+        ) : (
+          <a href={link || undefined} target="_blank" rel="noopener noreferrer"
+            onClick={(e) => { if (!link) { e.preventDefault(); return; } setWaiting(true); }}
+            aria-disabled={!link}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-[13.5px] font-semibold"
+            style={{ background: link ? "#229ED9" : "#2A424C", color: "#FFFFFF", cursor: link ? "pointer" : "default" }}>
+            <Send size={15} /> {t.telegramConnectBtn}
+          </a>
+        )
+      ) : null}
+
+      {error && <p className="text-[12px]" style={{ color: "#F2C2C2" }}>{error}</p>}
+
+      <div className="space-y-3 pt-1" style={{ opacity: linked ? 1 : 0.45 }}>
+        <Row label={t.notifyMessagesLabel}><Toggle on={notify.messages} disabled={!linked} onClick={() => onToggle("notify_messages", !notify.messages)} /></Row>
+        <Row label={t.notifySearchesLabel}><Toggle on={notify.searches} disabled={!linked} onClick={() => onToggle("notify_searches", !notify.searches)} /></Row>
+      </div>
+
+      {linked && (
+        <button onClick={unlink} disabled={busy} className="text-[12px] font-medium" style={{ color: "#D4783C" }}>{t.telegramUnlinkBtn}</button>
+      )}
     </div>
   );
 }
@@ -2081,7 +2294,7 @@ function Section({ icon: Icon, title, children }) {
   );
 }
 function Row({ label, children }) {
-  return <div className="flex items-center justify-between"><span className="text-[13px]" style={{ color: "#C8D4D6" }}>{label}</span>{children}</div>;
+  return <div className="flex items-center justify-between gap-3"><span className="text-[13px] min-w-0" style={{ color: "#C8D4D6" }}>{label}</span>{children}</div>;
 }
 
 const WEEKDAYS_UZ = ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"];
@@ -3004,7 +3217,8 @@ export default function Uy247App() {
   const [reports, setReports] = useState([]);
   const [revenue, setRevenue] = useState(340000);
   const [boostTarget, setBoostTarget] = useState(null);
-  const [security, setSecurity] = useState({ twoFactor: false, loginAlerts: true, smsNotif: true, pushNotif: true, promoNotif: false });
+  // Telegram bildirishnomalari holati (profiles jadvalidan)
+  const [notify, setNotify] = useState({ linked: false, messages: true, searches: true });
   const [chats, setChats] = useState({});
   const [activeChat, setActiveChat] = useState(null);
   const [refCode] = useState(() => new URLSearchParams(window.location.search).get("ref"));
@@ -3021,6 +3235,10 @@ export default function Uy247App() {
   }, [notice]);
   // Admin bu foydalanuvchini bloklagan bo'lsa
   const [accountBlocked, setAccountBlocked] = useState(false);
+  // Huquqiy hujjatlarning joriy tahririga rozilik: null — noma'lum, false — so'rash kerak, true — rozi
+  const [legalOk, setLegalOk] = useState(null);
+  // Admin yoqsa (app_settings jadvali) — e'lon joylash uchun tasdiqlangan raqam shart
+  const [requirePhoneToPost, setRequirePhoneToPost] = useState(false);
   // Ro'yxatni bo'lib-bo'lib ko'rsatamiz (bir vaqtda yuzlab kartochka chizilsa telefon sekinlashadi)
   const PAGE_SIZE = 24;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -3220,6 +3438,9 @@ export default function Uy247App() {
 
   // Ilova ochilganda: anonim seans ochish (RLS uchun kerak) + e'lonlarni yuklash
   useEffect(() => {
+    // Umumiy sozlamalar (jadval hali yo'q bo'lsa — cheklov yo'q deb hisoblanadi)
+    supabase.from("app_settings").select("require_phone_to_post").eq("id", 1).maybeSingle()
+      .then(({ data }) => setRequirePhoneToPost(!!data?.require_phone_to_post), () => {});
     (async () => {
       let { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -3237,12 +3458,14 @@ export default function Uy247App() {
           setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0, fullName: profRow.full_name || "" });
           setAccountBlocked(!!profRow.is_blocked);
         }
+        loadNotifyPrefs(myId);
         // Oxirgi faollik vaqti — admin panelda "oxirgi kirgan" sifatida ko'rinadi
         supabase.from("profiles").update({ last_seen_at: new Date().toISOString() }).eq("id", myId).then(() => {});
         // Agar bu foydalanuvchi avval telefonini tasdiqlagan bo'lsa — eslab qolamiz
         if (session.user.phone && session.user.phone_confirmed_at) {
           setVerified(true);
           setPhone("+" + session.user.phone);
+          loadLegalStatus(myId);
         }
         fetchFavorites(myId);
         fetchSavedSearches(myId);
@@ -3255,6 +3478,62 @@ export default function Uy247App() {
       }
     })();
   }, []);
+
+  // Bildirishnoma sozlamalari alohida so'raladi: SQL migratsiya hali ishga tushirilmagan bo'lsa ham profil buzilmaydi
+  const loadNotifyPrefs = async (uid) => {
+    const { data, error } = await supabase.from("profiles").select("telegram_chat_id, notify_messages, notify_searches").eq("id", uid).maybeSingle();
+    if (!error && data) setNotify({ linked: !!data.telegram_chat_id, messages: data.notify_messages !== false, searches: data.notify_searches !== false });
+  };
+
+  // Qaysi hujjat tahririga rozi bo'lgani (SQL migratsiya hali ishga tushirilmagan bo'lsa — so'ramaymiz)
+  const loadLegalStatus = async (uid) => {
+    const { data, error } = await supabase.from("profiles").select("terms_version").eq("id", uid).maybeSingle();
+    setLegalOk(error ? true : (data?.terms_version || null) === LEGAL_VERSION);
+  };
+
+  // Rozilikni serverda qayd etish: kim, qaysi tahrir, qachon (vaqtni server o'zi qo'yadi)
+  const recordConsent = async () => {
+    const { error } = await supabase.rpc("accept_terms", { p_version: LEGAL_VERSION });
+    if (error) console.error("Rozilikni yozishda xato:", error.message);
+    return error || null;
+  };
+
+  const acceptLegal = async () => {
+    const error = await recordConsent();
+    if (error) { setNotice(friendlyError(error, t)); return; }
+    setLegalOk(true);
+  };
+
+  const setNotifyPref = async (column, value) => {
+    setNotify(n => ({ ...n, [column === "notify_messages" ? "messages" : "searches"]: value }));
+    const { error } = await supabase.from("profiles").update({ [column]: value }).eq("id", userId);
+    if (error) setNotice(friendlyError(error, t));
+  };
+
+  // Bot xabarlari foydalanuvchi tanlagan tilda kelishi uchun tilni profilga yozib qo'yamiz (faqat o'zgarganda)
+  useEffect(() => {
+    if (!userId) return;
+    let last = null;
+    try { last = localStorage.getItem("uy247_notify_lang"); } catch (_) {}
+    if (last === `${userId}:${lang}`) return;
+    supabase.from("profiles").update({ notify_lang: lang }).eq("id", userId).then(({ error }) => {
+      if (!error) { try { localStorage.setItem("uy247_notify_lang", `${userId}:${lang}`); } catch (_) {} }
+    });
+  }, [lang, userId]);
+
+  // Haqiqiy chiqish: sessiya yopiladi, ilova yangi (mehmon) holatda qayta ochiladi
+  const logout = async () => {
+    try { await supabase.auth.signOut(); } catch (_) {}
+    window.location.replace("/");
+  };
+
+  // Akkauntni butunlay o'chirish (server: rasmlar + akkaunt; qolgani bazada avtomatik)
+  const deleteAccount = async () => {
+    await callApi("/api/delete-account", { confirm: "DELETE" });
+    try { localStorage.removeItem("uy247_last_seen"); localStorage.removeItem("uy247_notify_lang"); } catch (_) {}
+    try { await supabase.auth.signOut(); } catch (_) {}
+    window.location.replace("/");
+  };
 
   // Real-time: yangi xabar kelsa avtomatik ko'rsatish
   useEffect(() => {
@@ -3320,7 +3599,8 @@ export default function Uy247App() {
     const tempId = Date.now();
     setChats(prev => ({ ...prev, [listingId]: { ...prev[listingId], messages: [...prev[listingId].messages, { id: tempId, from: "me", text }] } }));
     const { error } = await supabase.from("messages").insert({ chat_id: thread.chatId, sender_id: userId, text });
-    if (error) { console.error("Xabar yuborishda xato:", error.message); setNotice(friendlyError(error, t)); }
+    if (error) { console.error("Xabar yuborishda xato:", error.message); setNotice(friendlyError(error, t)); return; }
+    callApi("/api/notify-message", { chat_id: thread.chatId }).catch(() => {});
   };
 
   const filtered = useMemo(() => listings.filter(l => {
@@ -3441,9 +3721,40 @@ export default function Uy247App() {
     setBoostTarget(null);
     const { data: ok, error } = await supabase.rpc("use_boost_credit", { p_listing_id: target });
     if (error || !ok) { console.error("Kredit bilan Top qilishda xato:", error?.message); setNotice(t.boostRequestError); return; }
-    const boostUntil = new Date(Date.now() + 7 * 86400000).toISOString();
-    setListings(ls => ls.map(l => l.id === target ? { ...l, boosted: true, boostUntil } : l));
+    // Top allaqachon bo'lsa — 7 kun joriy muddat oxiriga qo'shiladi (server ham shunday qiladi)
+    const extend = (until) => new Date(Math.max(Date.now(), new Date(until || 0).getTime() || 0) + 7 * 86400000).toISOString();
+    setListings(ls => ls.map(l => l.id === target ? { ...l, boosted: true, boostUntil: extend(l.boosted ? l.boostUntil : null) } : l));
     setProfile(p => ({ ...p, boostCredits: p.boostCredits - 1 }));
+  };
+
+  const handleVerified = async (confirmedPhone) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const newUserId = session?.user?.id;
+    if (newUserId) {
+      await supabase.from("profiles").upsert({ id: newUserId, phone: confirmedPhone, phone_verified: true }, { onConflict: "id" });
+      // Oynada belgilangan rozilik serverda qayd etiladi (yozilmasa — keyingi kirishda qayta so'raladi)
+      await recordConsent();
+      setLegalOk(true);
+      // Agar ?ref=KOD bilan kirgan bo'lsa — ikkala tomonga ham bonus kredit beriladi
+      if (refCode) {
+        const { data: claimed } = await supabase.rpc("claim_referral", { p_ref_code: refCode });
+        if (claimed) console.log("Referal bonusi berildi");
+      }
+      const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits, full_name, is_blocked").eq("id", newUserId).maybeSingle();
+      if (profRow) {
+        setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0, fullName: profRow.full_name || "" });
+        setAccountBlocked(!!profRow.is_blocked);
+      }
+      setUserId(newUserId);
+      setPhone(confirmedPhone);
+      setVerified(true);
+      loadNotifyPrefs(newUserId);
+      fetchListings(newUserId);
+      fetchChats(newUserId);
+      fetchFavorites(newUserId);
+      fetchSavedSearches(newUserId);
+    }
+    setShowVerify(false);
   };
 
   if (activeChat && chats[activeChat]) {
@@ -3459,8 +3770,19 @@ export default function Uy247App() {
     return (
       <div className="min-h-screen" style={{ background: "#16262E", fontFamily: "Inter, sans-serif" }}>
         <GlobalStyle />
-        <SettingsView onBack={() => setShowSettings(false)} lang={lang} setLang={setLang} verified={verified} security={security} setSecurity={setSecurity}
-          onDeleteAccount={() => { setVerified(false); setPhone(""); setShowSettings(false); }} />
+        <SettingsView onBack={() => setShowSettings(false)} lang={lang} setLang={setLang} verified={verified} phone={phone}
+          onRequestVerify={() => setShowVerify(true)} onLogout={logout} onDeleteAccount={deleteAccount}
+          notify={notify}
+          onTelegramLinked={() => { setNotify(n => ({ ...n, linked: true })); setNotice(t.telegramLinkedToast); }}
+          onTelegramUnlink={() => setNotify(n => ({ ...n, linked: false }))}
+          onToggleNotify={setNotifyPref} />
+        {showVerify && <VerifyModal t={t} onClose={() => setShowVerify(false)} onVerified={handleVerified} />}
+        {notice && (
+          <div role="status" aria-live="polite" className="fixed left-4 right-4 px-4 py-3 rounded-xl text-[13px] text-center shadow-2xl"
+            style={{ zIndex: 2500, bottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)", background: "#1E333C", color: "#F2EDE4", border: "1px solid #3E92B0" }}>
+            {notice}
+          </div>
+        )}
       </div>
     );
   }
@@ -3496,6 +3818,20 @@ export default function Uy247App() {
             <FilterBar filters={filters} setFilters={setFilters} resultsCount={filtered.length} onSaveSearch={saveCurrentSearch} viewMode={viewMode} setViewMode={setViewMode} t={t} />
           )}
           </div>
+
+          {/* Hujjatlar yangilangan bo'lsa — bir marta rozilik so'raladi */}
+          {verified && legalOk === false && (
+            <div className="mx-4 mt-3 rounded-xl p-3 flex items-center gap-2.5" role="status" style={{ background: "#26343A", border: "1px solid #3E5560" }}>
+              <ClipboardList size={16} color="#3E92B0" className="shrink-0" />
+              <p className="flex-1 min-w-0 text-[12.5px] leading-snug" style={{ color: "#C8D4D6" }}>
+                {tl(t, "legalUpdatedText", {
+                  terms: <Link to={LEGAL_ROUTES.terms} style={linkStyle}>{t.termsLink}</Link>,
+                  privacy: <Link to={LEGAL_ROUTES.privacy} style={linkStyle}>{t.privacyLink}</Link>,
+                })}
+              </p>
+              <button onClick={acceptLegal} className="shrink-0 px-3 py-1.5 rounded-full text-[12px] font-medium" style={{ background: "#3E92B0", color: "#0E1B21" }}>{t.legalAcceptBtn}</button>
+            </div>
+          )}
 
           {tab === "browse" && (
             <>
@@ -3540,7 +3876,14 @@ export default function Uy247App() {
               <div className="rounded-2xl p-5 text-center" style={{ background: "#3A2429", border: "1px solid #6B3A42" }}>
                 <Ban size={28} color="#F2C2C2" className="mx-auto mb-3" />
                 <h2 className="font-serif text-lg mb-2" style={{ color: "#F2EDE4" }}>{t.accountBlockedTitle}</h2>
-                <p className="text-[13px] leading-relaxed" style={{ color: "#E8A8A8" }}>{t.accountBlockedBody}</p>
+                <p className="text-[13px] leading-relaxed" style={{ color: "#E8A8A8" }}>{tf(t, "accountBlockedBody", { email: COMPANY.email })}</p>
+              </div>
+            </div>) : (requirePhoneToPost && !verified) ? (<div className="p-4 pb-28">
+              <div className="rounded-2xl p-5 text-center" style={box}>
+                <ShieldCheck size={28} color="#3E92B0" className="mx-auto mb-3" />
+                <h2 className="font-serif text-lg mb-2" style={{ color: "#F2EDE4" }}>{t.postNeedsVerifyTitle}</h2>
+                <p className="text-[13px] leading-relaxed mb-4" style={{ color: "#93A5AA" }}>{t.postNeedsVerifyBody}</p>
+                <button onClick={() => setShowVerify(true)} className="px-5 py-2.5 rounded-xl font-medium text-[14px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{t.verifyPhoneBtn}</button>
               </div>
             </div>) : <PostForm userId={userId} onPublish={() => { fetchListings(userId); setTab("profile"); }} t={t} initialFullName={profile.fullName} onFullNameSaved={(name) => setProfile(p => ({ ...p, fullName: name }))} />)}
 
@@ -3549,10 +3892,10 @@ export default function Uy247App() {
               <div className="rounded-2xl p-4 flex items-center gap-3" style={box}>
                 <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "#3E92B0" }}><User size={22} color="#0E1B21" /></div>
                 <div className="flex-1">
-                  <div className="font-medium text-[15px]" style={{ color: "#F2EDE4" }}>{verified ? phone : t.guest}</div>
+                  <div className="font-medium text-[15px]" style={{ color: "#F2EDE4" }}>{verified ? formatPhone(phone) : t.guest}</div>
                   <div className="text-[12px]" style={{ color: "#93A5AA" }}>{verified ? t.verified : t.unverified}</div>
                 </div>
-                {verified && <button onClick={() => setVerified(false)} className="flex items-center gap-1 text-[12px]" style={{ color: "#D4783C" }}><LogOut size={13} /> {t.logout}</button>}
+                {verified && <button onClick={logout} className="flex items-center gap-1 text-[12px]" style={{ color: "#D4783C" }}><LogOut size={13} /> {t.logout}</button>}
               </div>
               {!verified && <button onClick={() => setShowVerify(true)} className="w-full py-3 rounded-xl font-medium text-[14px]" style={{ background: "#3E92B0", color: "#0E1B21" }}>{t.verifyPhoneBtn}</button>}
 
@@ -3668,37 +4011,7 @@ export default function Uy247App() {
         </>
       )}
 
-      {showVerify && (
-        <VerifyModal
-          t={t}
-          onClose={() => setShowVerify(false)}
-          onVerified={async (confirmedPhone) => {
-            const { data: { session } } = await supabase.auth.getSession();
-            const newUserId = session?.user?.id;
-            if (newUserId) {
-              await supabase.from("profiles").upsert({ id: newUserId, phone: confirmedPhone, phone_verified: true }, { onConflict: "id" });
-              // Agar ?ref=KOD bilan kirgan bo'lsa — ikkala tomonga ham bonus kredit beriladi
-              if (refCode) {
-                const { data: claimed } = await supabase.rpc("claim_referral", { p_ref_code: refCode });
-                if (claimed) console.log("Referal bonusi berildi");
-              }
-              const { data: profRow } = await supabase.from("profiles").select("referral_code, boost_credits, full_name, is_blocked").eq("id", newUserId).maybeSingle();
-              if (profRow) {
-                setProfile({ referralCode: profRow.referral_code || "", boostCredits: profRow.boost_credits || 0, fullName: profRow.full_name || "" });
-                setAccountBlocked(!!profRow.is_blocked);
-              }
-              setUserId(newUserId);
-              setPhone(confirmedPhone);
-              setVerified(true);
-              fetchListings(newUserId);
-              fetchChats(newUserId);
-              fetchFavorites(newUserId);
-              fetchSavedSearches(newUserId);
-            }
-            setShowVerify(false);
-          }}
-        />
-      )}
+      {showVerify && <VerifyModal t={t} onClose={() => setShowVerify(false)} onVerified={handleVerified} />}
       {boostTarget && <BoostModal onClose={() => setBoostTarget(null)} onBoost={handleBoost} onUseCredit={handleUseCredit} boostCredits={profile.boostCredits} t={t} />}
       {bookingEditorId && <BookingEditorModal listingId={bookingEditorId} onClose={() => setBookingEditorId(null)} t={t} />}
 

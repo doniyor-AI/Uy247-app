@@ -1,15 +1,15 @@
 // /api/on-listing-approved.js
 // Admin bir e'lonni "tasdiqlash" bosganda chaqiriladi. Ikki ishni bajaradi:
 // 1) Telegram kanaliga avtomatik joylash
-// 2) Shu mezonlarga mos "saqlangan qidiruv"i bor foydalanuvchilarga SMS yuborish
+// 2) Shu mezonlarga mos "saqlangan qidiruv"i bor foydalanuvchilarga xabar: Telegram (bepul) yoki SMS
 //
 // DIQQAT: bu funksiya SUPABASE_SERVICE_ROLE_KEY ishlatadi (barcha foydalanuvchilar
 // ma'lumotini o'qish uchun). Bu kalitni HECH QACHON frontend kodiga qo'ymang —
 // faqat shu yerda, server tomonida, Vercel muhit o'zgaruvchisi sifatida saqlanadi.
 
-import { createClient } from "@supabase/supabase-js";
+import { admin, tg, botText } from "./_lib/server.js";
 
-const admin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+const smsConfigured = () => !!(process.env.ESKIZ_EMAIL && process.env.ESKIZ_PASSWORD);
 
 let cachedToken = null;
 let cachedTokenAt = 0;
@@ -166,13 +166,17 @@ export default async function handler(req, res) {
       await admin.from("listings").update({ telegram_posted_at: new Date().toISOString() }).eq("id", row.id);
     }
 
-    // 2) Mos saqlangan qidiruvlarni topib, egalariga SMS yuborish (bu qismdagi xato Telegram natijasini yashirmasin)
+    // 2) Mos saqlangan qidiruvlar egalariga xabar (bu qismdagi xato kanal natijasini yashirmasin)
     let notifiedCount = 0;
     try {
-      const { data: searches, error } = await admin
+      let { data: searches, error } = await admin
         .from("saved_searches")
-        .select("*, profiles(phone)")
+        .select("*, profiles(phone, telegram_chat_id, notify_searches, notify_lang)")
         .eq("city", listing.city);
+      if (error) {
+        // Telegram migratsiyasi hali ishga tushirilmagan bo'lsa — eski usul (faqat telefon)
+        ({ data: searches, error } = await admin.from("saved_searches").select("*, profiles(phone)").eq("city", listing.city));
+      }
       if (error) throw error;
 
       const matches = (searches || []).filter((s) => {
@@ -187,16 +191,23 @@ export default async function handler(req, res) {
         return true;
       });
 
-      const seenPhones = new Set();
+      const seenUsers = new Set();
       for (const m of matches) {
-        const phone = m.profiles?.phone;
-        if (!phone || seenPhones.has(phone)) continue;
-        seenPhones.add(phone);
-        await sendSms(phone, `Uy24/7: saqlangan qidiruvingizga mos yangi e'lon qo'shildi — "${listing.title}". Ko'rish: ${process.env.SITE_URL || "uy247.uz"}/elon/${listing.id}`);
+        const p = m.profiles || {};
+        if (!m.user_id || seenUsers.has(m.user_id) || m.user_id === row.owner_id) continue; // o'z e'loni haqida o'ziga emas
+        seenUsers.add(m.user_id);
+        if (p.notify_searches === false) continue; // foydalanuvchi o'chirib qo'ygan
+        if (p.telegram_chat_id) {
+          const r = await tg("sendMessage", { chat_id: p.telegram_chat_id, text: botText.searchMatch(p.notify_lang, listing), parse_mode: "HTML" });
+          if (r.ok) { notifiedCount++; continue; }
+        }
+        if (p.phone && smsConfigured()) {
+          await sendSms(p.phone, `Uy24/7: saqlangan qidiruvingizga mos yangi e'lon qo'shildi — "${listing.title}". Ko'rish: ${process.env.SITE_URL || "uy247.uz"}/elon/${listing.id}`);
+          notifiedCount++;
+        }
       }
-      notifiedCount = seenPhones.size;
-    } catch (smsErr) {
-      console.error("Saqlangan qidiruv/SMS qismida xato:", smsErr.message);
+    } catch (notifyErr) {
+      console.error("Saqlangan qidiruv xabarlarida xato:", notifyErr.message);
     }
 
     return res.status(200).json({ notified: notifiedCount, telegram: telegramResult });
